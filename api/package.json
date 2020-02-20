@@ -1,0 +1,9 @@
+{
+  "name": "@weco/concepts",
+  "license": "MIT",
+  "dependencies": {
+    "@elastic/elasticsearch": "^7.5.0",
+    "@now/node": "^1.3.5",
+    "now": "^17.0.3"
+  }
+}

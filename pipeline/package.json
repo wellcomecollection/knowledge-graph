@@ -1,0 +1,14 @@
+{
+  "name": "@weco/concepts",
+  "dependencies": {
+    "@elastic/elasticsearch": "^7.5.0",
+    "@types/array.prototype.flatmap": "^1.2.1",
+    "@types/node": "^13.1.4",
+    "@types/node-fetch": "^2.5.4",
+    "array.prototype.flatmap": "^1.2.3",
+    "dotenv": "^8.2.0",
+    "node-fetch": "^2.6.0",
+    "ts-node": "^8.6.2",
+    "typescript": "^3.7.5"
+  }
+}
