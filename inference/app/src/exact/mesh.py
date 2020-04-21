@@ -38,14 +38,16 @@ def get_mesh_data(mesh_id):
         log.info(f'Couldn\'t find preferred name for ID: {mesh_id}')
         preferred_name = None
 
-    try:
+    if "PreferredConceptScopeNote" in api_response:
         description = api_response["PreferredConceptScopeNote"]
-    except KeyError:
+    elif "scrNote" in api_response:
+        description = api_response["scrNote"]
+    else:
         log.info(f'Couldn\'t find description for ID: {mesh_id}')
-        preferred_name = None
+        description = None
 
     try:
-        variants = api_response["permutatedEntryTerms"]
+        variants = api_response["originalEntryTerms"]
     except KeyError:
         log.info(f'Couldn\'t find variants for ID: {mesh_id}')
         variants = []
