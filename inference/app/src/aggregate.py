@@ -29,9 +29,9 @@ def aggregate_lc_names_data(lc_names_id):
         log.info(f"Got data from wikidata for ID: {wikidata_id}")
 
         alt_source_ids = wikidata_id_to_alt_source_ids(wikidata_id)
-        if alt_source_ids['lc_names']:
-            lc_names_id = alt_source_ids['lc_names']
-            response['exact']['lc_names'] = get_lc_names_data(lc_names_id)
+        if alt_source_ids['mesh']:
+            mesh_id = alt_source_ids['mesh']
+            response['exact']['mesh'] = get_mesh_data(mesh_id)
 
     return response
 
