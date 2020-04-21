@@ -14,7 +14,7 @@ httptools==0.1.1          # via uvicorn
 idna==2.7                 # via requests
 numpy==1.17.0             # via -r requirements.in
 pydantic==1.5             # via fastapi
-requests==2.19.1          # via -r requirements.in
+requests==2.20.0          # via -r requirements.in
 starlette==0.13.2         # via fastapi
 tqdm==4.41.1              # via -r requirements.in
 unidecode==1.1.1          # via -r requirements.in

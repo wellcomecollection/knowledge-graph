@@ -1,7 +1,7 @@
 elasticsearch==7.1.0
 fastapi==0.54.1
 numpy==1.17.0
-requests==2.19.1
+requests==2.20.0
 tqdm==4.41.1
 Unidecode==1.1.1
 urllib3==1.23
