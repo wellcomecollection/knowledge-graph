@@ -2,7 +2,7 @@ import logging
 
 from .exact.lc_names import get_lc_names_data
 from .exact.mesh import get_mesh_data
-from .exact.utils import lc_names_id_to_wikidata_id, mesh_id_to_wikidata_id
+from .exact.utils import lc_names_id_to_wikidata_id, mesh_id_to_wikidata_id, wikidata_id_to_alt_source_ids
 from .exact.wikidata import get_wikidata_data
 
 log = logging.getLogger(__name__)
@@ -35,7 +35,12 @@ def aggregate_lc_names_data(lc_names_id):
 
 
 def aggregate_mesh_data(mesh_id):
-    mesh_data = get_mesh_data(mesh_id)
+    response = {
+        'exact': {},
+        'inferred': {}
+    }
+
+    response['exact']['mesh'] = get_mesh_data(mesh_id)
     log.info(f"Got data from MeSH for ID: {mesh_id}")
 
     try:
@@ -43,18 +48,16 @@ def aggregate_mesh_data(mesh_id):
         log.info(
             f'Found a link from mesh ID: {mesh_id} to wikidata ID: {wikidata_id}'
         )
-        wikidata_data = get_wikidata_data(wikidata_id)
-        log.info(f"Got data from wikidata for ID: {mesh_id}")
     except ValueError:
-        log.info(
-            f"Couldn't find a wikidata record for ID: {mesh_id}"
-        )
-        wikidata_data = {}
+        log.info(f"Couldn't find a wikidata record for ID: {mesh_id}")
 
-    return {
-        "exact": {
-            "mesh": mesh_data,
-            "wikidata": wikidata_data
-        },
-        "inferred": {}
-    }
+    if wikidata_id:
+        response['exact']['wikidata'] = get_wikidata_data(wikidata_id)
+        log.info(f"Got data from wikidata for ID: {wikidata_id}")
+
+        alt_source_ids = wikidata_id_to_alt_source_ids(wikidata_id)
+        if alt_source_ids['lc_names']:
+            lc_names_id = alt_source_ids['lc_names']
+            response['exact']['lc_names'] = get_lc_names_data(lc_names_id)
+
+    return response

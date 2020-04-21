@@ -38,7 +38,7 @@ def mesh_endpoint(mesh_id: str):
         logger.error(error_string)
         raise HTTPException(status_code=404, detail=error_string)
 
-    logger.info(f"aggregated concept data for lc_names ID: {mesh_id}")
+    logger.info(f"aggregated concept data for MeSH ID: {mesh_id}")
     return response
 
 
