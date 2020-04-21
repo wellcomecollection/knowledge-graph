@@ -11,5 +11,6 @@ Sanitising and linking/disambiguating concepts to their counterparts in LCSH, Me
 Then run with docker:
 
 ```
-docker build -t concepts_inference .; docker run concepts_inference
+docker build -t concepts_inference .
+docker run -v config.json:/config.json -p 80:80 concepts_inference
 ```

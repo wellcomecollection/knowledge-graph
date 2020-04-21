@@ -15,8 +15,7 @@ def get_lc_names_api_response(lc_names_id):
         )
 
 
-def get_lc_names_preferred_label(lc_names_id, api_response=None):
-    api_response = api_response or get_lc_names_api_response(lc_names_id)
+def get_lc_names_preferred_label(api_response):
     preferred_label_id = "http://www.w3.org/2004/02/skos/core#prefLabel"
     preferred_label = None
     for element in api_response:
@@ -25,8 +24,7 @@ def get_lc_names_preferred_label(lc_names_id, api_response=None):
     return preferred_label
 
 
-def get_lc_names_variants(lc_names_id, api_response=None):
-    api_response = api_response or get_lc_names_api_response(lc_names_id)
+def get_lc_names_variants(api_response):
     variant_id = "http://www.loc.gov/mads/rdf/v1#variantLabel"
     variants = [
         element[variant_id][0]["@value"]
@@ -38,8 +36,8 @@ def get_lc_names_variants(lc_names_id, api_response=None):
 
 def get_lc_names_data(lc_names_id):
     api_response = get_lc_names_api_response(lc_names_id)
-    preferred_label = get_lc_names_preferred_label(lc_names_id, api_response)
-    variants = get_lc_names_variants(lc_names_id, api_response)
+    preferred_label = get_lc_names_preferred_label(api_response)
+    variants = get_lc_names_variants(api_response)
     return {
         "id": lc_names_id,
         "title": preferred_label,
