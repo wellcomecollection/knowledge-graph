@@ -3,9 +3,7 @@ import logging
 from .exact.lc_names import get_lc_names_data
 from .exact.lc_subjects import get_lc_subjects_data
 from .exact.mesh import get_mesh_data
-from .exact.utils import (lc_names_id_to_wikidata_id,
-                          lc_subjects_id_to_wikidata_id,
-                          mesh_id_to_wikidata_id,
+from .exact.utils import (loc_id_to_wikidata_id, mesh_id_to_wikidata_id,
                           wikidata_id_to_alt_source_ids)
 from .exact.wikidata import get_wikidata_data
 
@@ -21,7 +19,7 @@ def aggregate_lc_names(lc_names_id):
     log.info(f"Got data from lc_names for ID: {lc_names_id}")
 
     try:
-        wikidata_id = lc_names_id_to_wikidata_id(lc_names_id)
+        wikidata_id = loc_id_to_wikidata_id(lc_names_id)
         log.info(
             f"Found a link from lc_names ID: {lc_names_id} to wikidata ID: {wikidata_id}"
         )
@@ -50,7 +48,7 @@ def aggregate_lc_subjects(lc_subjects_id):
     log.info(f"Got data from lc_subjects for ID: {lc_subjects_id}")
 
     try:
-        wikidata_id = lc_subjects_id_to_wikidata_id(lc_subjects_id)
+        wikidata_id = loc_id_to_wikidata_id(lc_subjects_id)
         log.info(
             f"Found a link from lc_subjects ID: {lc_subjects_id} to wikidata ID: {wikidata_id}"
         )
