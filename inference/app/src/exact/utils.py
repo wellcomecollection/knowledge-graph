@@ -1,6 +1,5 @@
 import os
 import requests
-from .lc_names import get_lc_names_api_response
 from .wikidata import get_wikidata_api_response
 
 
@@ -22,12 +21,12 @@ def find_alt_source_id_in_wikidata(alt_source_id):
     return wikidata_id
 
 
-def lc_names_id_to_wikidata_id(lc_names_id):
+def loc_id_to_wikidata_id(loc_id):
     try:
-        wikidata_id = find_alt_source_id_in_wikidata(lc_names_id)
+        wikidata_id = find_alt_source_id_in_wikidata(loc_id)
     except ValueError:
         raise ValueError(
-            f"No link found between Library of Congress and Wikidata for ID: {lc_names_id}"
+            f"No link found between Library of Congress and Wikidata for ID: {loc_id}"
         )
     return wikidata_id
 
@@ -53,6 +52,7 @@ def wikidata_id_to_alt_source_ids(wikidata_id):
 
     try:
         loc_id = claims["P244"][0]["mainsnak"]["datavalue"]["value"]
+        # TODO: make sure these assertions about id format are actually true
         if loc_id.startswith("sh"):
             ids["lc_subjects"] = loc_id
         elif loc_id.startswith("n"):
