@@ -3,8 +3,8 @@ import logging
 
 from fastapi import FastAPI, HTTPException
 
-from .src.aggregate import (aggregate_lc_names, aggregate_mesh,
-                            aggregate_wikidata)
+from .src.aggregate import (aggregate_lc_names, aggregate_lc_subjects,
+                            aggregate_mesh, aggregate_wikidata)
 
 logger = logging.getLogger(__name__)
 
@@ -22,6 +22,18 @@ def lc_names_endpoint(lc_names_id: str):
     try:
         response = aggregate_lc_names(lc_names_id)
         logger.info(f"Aggregated concept data for lc_names ID: {lc_names_id}")
+    except ValueError as e:
+        error_string = str(e)
+        logger.error(error_string)
+        raise HTTPException(status_code=404, detail=error_string)
+    return response
+
+
+@app.get("/lc-subjects/{lc_subjects_id}")
+def lc_subjects_endpoint(lc_subjects_id: str):
+    try:
+        response = aggregate_lc_subjects(lc_subjects_id)
+        logger.info(f"Aggregated concept data for lc_subjects ID: {lc_subjects_id}")
     except ValueError as e:
         error_string = str(e)
         logger.error(error_string)
