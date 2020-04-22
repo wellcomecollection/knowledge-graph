@@ -1,45 +1,47 @@
 import os
+
 import requests
+import logging
+
+log = logging.getLogger(__name__)
 
 
 def get_lc_names_api_response(lc_names_id):
-    url = f"http://id.loc.gov/authorities/names/{lc_names_id}.json"
-    api_response = requests.get(url)
+    entity_url = f"http://id.loc.gov/authorities/names/{lc_names_id}"
+    api_response = requests.get(entity_url + '.json')
     if api_response.status_code == 200:
-        return api_response.json()
+        pass
     elif api_response.status_code == 404:
-        raise ValueError(f"{lc_names_id} is not a valid lc_names_id")
+        raise ValueError(f"{lc_names_id} is not a valid lc_names ID")
     else:
         raise ValueError(
-            f"something unexpected happened when calling url: {url}"
+            f"something unexpected happened when calling url: {entity_url}"
         )
 
-
-def get_lc_names_preferred_label(api_response):
-    preferred_label_id = "http://www.w3.org/2004/02/skos/core#prefLabel"
-    preferred_label = None
-    for element in api_response:
-        if preferred_label_id in element:
-            preferred_label = element[preferred_label_id][0]["@value"]
-    return preferred_label
-
-
-def get_lc_names_variants(api_response):
-    variant_id = "http://www.loc.gov/mads/rdf/v1#variantLabel"
-    variants = [
-        element[variant_id][0]["@value"]
-        for element in api_response
-        if variant_id in element
-    ]
-    return variants
+    for element in api_response.json():
+        if element["@id"] == entity_url:
+            return element
 
 
 def get_lc_names_data(lc_names_id):
     api_response = get_lc_names_api_response(lc_names_id)
-    preferred_label = get_lc_names_preferred_label(api_response)
-    variants = get_lc_names_variants(api_response)
+    try:
+        label = api_response["http://www.loc.gov/mads/rdf/v1#authoritativeLabel"][0]["@value"]
+    except (KeyError, IndexError):
+        log.info(f"Couldn't find label for ID: {lc_names_id}")
+        label = None
+
+    try:
+        variants = [
+            altlabel["@value"]
+            for altlabel in api_response["http://www.w3.org/2004/02/skos/core#altLabel"]
+        ]
+    except KeyError:
+        log.info(f"Couldn't find variants for ID: {lc_names_id}")
+        variants = []
+
     return {
         "id": lc_names_id,
-        "title": preferred_label,
+        "title": label,
         "variants": variants
     }
