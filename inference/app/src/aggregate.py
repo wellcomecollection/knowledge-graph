@@ -26,8 +26,21 @@ blank_response = {
 }
 
 
-def aggregate(response=None, wikidata_id=None):
-    response = response or deepcopy(blank_response)
+def aggregate(query_id, id_type):
+    response = deepcopy(blank_response)
+    if id_type == "lc_names":
+        response["exact"]["lc_names"] = get_lc_names_data(query_id)
+        wikidata_id = loc_id_to_wikidata_id(query_id)
+    elif id_type == "lc_subjects":
+        response["exact"]["lc_subjects"] = get_lc_subjects_data(query_id)
+        wikidata_id = loc_id_to_wikidata_id(query_id)
+    elif id_type == "mesh":
+        response["exact"]["mesh"] = get_mesh_data(query_id)
+        wikidata_id = mesh_id_to_wikidata_id(query_id)
+    elif id_type == "wikidata":
+        wikidata_id = query_id
+    else:
+        raise ValueError(f"{id_type} is not a valid id_type")
 
     if wikidata_id:
         response["exact"]["wikidata"] = get_wikidata_data(wikidata_id)
@@ -52,64 +65,4 @@ def aggregate(response=None, wikidata_id=None):
             response["exact"]["mesh"] = get_mesh_data(mesh_id)
             log.info(f"Got data from mesh for ID: {mesh_id}")
 
-    return response
-
-
-def aggregate_lc_names(lc_names_id):
-    response = deepcopy(blank_response)
-    response["exact"]["lc_names"] = get_lc_names_data(lc_names_id)
-    log.info(f"Got data from lc_names for ID: {lc_names_id}")
-
-    try:
-        wikidata_id = loc_id_to_wikidata_id(lc_names_id)
-        log.info(
-            f"Found a link from lc_names ID: {lc_names_id} to wikidata ID: {wikidata_id}"
-        )
-    except ValueError:
-        wikidata_id = None
-        log.info(f"Couldn't find a wikidata record for ID: {lc_names_id}")
-
-    response = aggregate(response=response, wikidata_id=wikidata_id)
-    return response
-
-
-def aggregate_lc_subjects(lc_subjects_id):
-    response = deepcopy(blank_response)
-    response["exact"]["lc_subjects"] = get_lc_subjects_data(lc_subjects_id)
-    log.info(f"Got data from lc_subjects for ID: {lc_subjects_id}")
-
-    try:
-        wikidata_id = loc_id_to_wikidata_id(lc_subjects_id)
-        log.info(
-            f"Found a link from lc_subjects ID: {lc_subjects_id} to wikidata ID: {wikidata_id}"
-        )
-    except ValueError:
-        wikidata_id = None
-        log.info(f"Couldn't find a wikidata record for ID: {lc_subjects_id}")
-
-    response = aggregate(response=response, wikidata_id=wikidata_id)
-    return response
-
-
-def aggregate_mesh(mesh_id):
-    response = deepcopy(blank_response)
-    response["exact"]["mesh"] = get_mesh_data(mesh_id)
-    log.info(f"Got data from MeSH for ID: {mesh_id}")
-
-    try:
-        wikidata_id = mesh_id_to_wikidata_id(mesh_id)
-        log.info(
-            f"Found a link from mesh ID: {mesh_id} to wikidata ID: {wikidata_id}"
-        )
-    except ValueError:
-        wikidata_id = None
-        log.info(f"Couldn't find a wikidata record for ID: {mesh_id}")
-
-    response = aggregate(response=response, wikidata_id=wikidata_id)
-
-    return response
-
-
-def aggregate_wikidata(wikidata_id):
-    response = aggregate(response=None, wikidata_id=wikidata_id)
     return response

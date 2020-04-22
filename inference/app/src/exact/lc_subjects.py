@@ -1,7 +1,7 @@
+import logging
 import os
 
 import requests
-import logging
 
 log = logging.getLogger(__name__)
 
@@ -39,6 +39,8 @@ def get_lc_subjects_data(lc_subjects_id):
     except KeyError:
         log.info(f"Couldn't find variants for ID: {lc_subjects_id}")
         variants = []
+
+    log.info(f"Got data from lc_subjects for ID: {lc_subjects_id}")
 
     return {
         "id": lc_subjects_id,

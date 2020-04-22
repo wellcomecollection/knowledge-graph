@@ -1,6 +1,11 @@
+import logging
 import os
+
 import requests
+
 from .wikidata import get_wikidata_api_response
+
+log = logging.getLogger(__name__)
 
 
 def find_alt_source_id_in_wikidata(alt_source_id):
@@ -24,20 +29,24 @@ def find_alt_source_id_in_wikidata(alt_source_id):
 def loc_id_to_wikidata_id(loc_id):
     try:
         wikidata_id = find_alt_source_id_in_wikidata(loc_id)
-    except ValueError:
-        raise ValueError(
-            f"No link found between Library of Congress and Wikidata for ID: {loc_id}"
+        log.info(
+            f"Found a link from LoC ID: {loc_id} to wikidata ID: {wikidata_id}"
         )
+    except ValueError:
+        log.info(f"No link found between Library of Congress and Wikidata for ID: {loc_id}")
+        wikidata_id = None
     return wikidata_id
 
 
 def mesh_id_to_wikidata_id(mesh_id):
     try:
         wikidata_id = find_alt_source_id_in_wikidata(mesh_id)
-    except ValueError:
-        raise ValueError(
-            f"No link found between MeSH and Wikidata for ID: {mesh_id}"
+        log.info(
+            f"Found a link from mesh ID: {mesh_id} to wikidata ID: {wikidata_id}"
         )
+    except ValueError:
+        log.info(f"No link found between MeSH and Wikidata for ID: {mesh_id}")
+        wikidata_id = None
     return wikidata_id
 
 

@@ -3,8 +3,7 @@ import logging
 
 from fastapi import FastAPI, HTTPException
 
-from .src.aggregate import (aggregate_lc_names, aggregate_lc_subjects,
-                            aggregate_mesh, aggregate_wikidata)
+from .src.aggregate import aggregate
 
 logger = logging.getLogger(__name__)
 
@@ -17,11 +16,11 @@ app = FastAPI(
 logger.info("API started, awaiting requests")
 
 
-@app.get("/lc-names/{lc_names_id}")
-def lc_names_endpoint(lc_names_id: str):
+@app.get("/lc-names/{query_id}")
+def lc_names_endpoint(query_id: str):
     try:
-        response = aggregate_lc_names(lc_names_id)
-        logger.info(f"Aggregated concept data for lc_names ID: {lc_names_id}")
+        response = aggregate(query_id=query_id, id_type="lc_names")
+        logger.info(f"Aggregated concept data for lc_names ID: {query_id}")
     except ValueError as e:
         error_string = str(e)
         logger.error(error_string)
@@ -29,13 +28,11 @@ def lc_names_endpoint(lc_names_id: str):
     return response
 
 
-@app.get("/lc-subjects/{lc_subjects_id}")
-def lc_subjects_endpoint(lc_subjects_id: str):
+@app.get("/lc-subjects/{query_id}")
+def lc_subjects_endpoint(query_id: str):
     try:
-        response = aggregate_lc_subjects(lc_subjects_id)
-        logger.info(
-            f"Aggregated concept data for lc_subjects ID: {lc_subjects_id}"
-        )
+        response = aggregate(query_id=query_id, id_type="lc_subjects")
+        logger.info(f"Aggregated concept data for lc_subjects ID: {query_id}")
     except ValueError as e:
         error_string = str(e)
         logger.error(error_string)
@@ -43,11 +40,11 @@ def lc_subjects_endpoint(lc_subjects_id: str):
     return response
 
 
-@app.get("/mesh/{mesh_id}")
-def mesh_endpoint(mesh_id: str):
+@app.get("/mesh/{query_id}")
+def mesh_endpoint(query_id: str):
     try:
-        response = aggregate_mesh(mesh_id)
-        logger.info(f"Aggregated concept data for MeSH ID: {mesh_id}")
+        response = aggregate(query_id=query_id, id_type="mesh")
+        logger.info(f"Aggregated concept data for MeSH ID: {query_id}")
     except ValueError as e:
         error_string = str(e)
         logger.error(error_string)
@@ -55,11 +52,11 @@ def mesh_endpoint(mesh_id: str):
     return response
 
 
-@app.get("/wikidata/{wikidata_id}")
-def wikidata_endpoint(wikidata_id: str):
+@app.get("/wikidata/{query_id}")
+def wikidata_endpoint(query_id: str):
     try:
-        response = aggregate_wikidata(wikidata_id)
-        logger.info(f"Aggregated concept data for wikidata ID: {wikidata_id}")
+        response = aggregate(query_id=query_id, id_type="wikidata")
+        logger.info(f"Aggregated concept data for wikidata ID: {query_id}")
     except ValueError as e:
         error_string = str(e)
         logger.error(error_string)
