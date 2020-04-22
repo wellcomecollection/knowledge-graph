@@ -33,7 +33,9 @@ def lc_names_endpoint(lc_names_id: str):
 def lc_subjects_endpoint(lc_subjects_id: str):
     try:
         response = aggregate_lc_subjects(lc_subjects_id)
-        logger.info(f"Aggregated concept data for lc_subjects ID: {lc_subjects_id}")
+        logger.info(
+            f"Aggregated concept data for lc_subjects ID: {lc_subjects_id}"
+        )
     except ValueError as e:
         error_string = str(e)
         logger.error(error_string)
