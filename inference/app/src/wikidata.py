@@ -65,10 +65,27 @@ async def get_description(api_response):
 
 async def get_variants(api_response):
     try:
-        variants = [alias["value"] for alias in api_response["aliases"]["en"]]
+        aliases = [alias["value"] for alias in api_response["aliases"]["en"]]
     except KeyError:
+        aliases = []
+
+    try:
+        same_as_elements = api_response["claims"]["P460"]
+    except KeyError:
+        same_as_elements = []
+
+    same_as_ids = [
+        element["mainsnak"]["datavalue"]["value"]["id"]
+        for element in same_as_elements
+    ]
+    same_as_responses = [await get_wikidata_api_response(id) for id in same_as_ids]
+    same_as = [await get_label(response) for response in same_as_responses]
+
+    variants = aliases + same_as
+    if not variants:
         log.info(f"Couldn't find variants for ID: {api_response['id']}")
         variants = None
+
     return variants
 
 
@@ -92,18 +109,29 @@ async def get_death_date(api_response):
 
 async def get_broader_concepts(api_response):
     try:
-        broader_concept_ids = [
-            element["mainsnak"]["datavalue"]["value"]["id"]
-            for element in api_response["claims"]["P31"]
-        ]
-        broader_concept_responses = [
-            await get_wikidata_api_response(id) for id in broader_concept_ids
-        ]
-        broader_concepts = [
-            await get_label(response) for response in broader_concept_responses
-        ]
+        instace_of = api_response["claims"]["P31"]
     except KeyError:
+        instace_of = []
+    try:
+        subclass_of = api_response["claims"]["P279"]
+    except KeyError:
+        subclass_of = []
+
+    broader_concept_elements = instace_of + subclass_of
+    if not broader_concept_elements:
         log.info(
-            f"Couldn't find broader concepts for ID: {api_response['id']}")
-        broader_concepts = None
+            f"Couldn't find broader concepts for ID: {api_response['id']}"
+        )
+        return None
+
+    broader_concept_ids = [
+        element["mainsnak"]["datavalue"]["value"]["id"]
+        for element in broader_concept_elements
+    ]
+    broader_concept_responses = [
+        await get_wikidata_api_response(id) for id in broader_concept_ids
+    ]
+    broader_concepts = [
+        await get_label(response) for response in broader_concept_responses
+    ]
     return broader_concepts
