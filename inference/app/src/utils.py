@@ -8,7 +8,7 @@ from .wikidata import get_wikidata_api_response
 log = logging.getLogger(__name__)
 
 
-def find_alt_source_id_in_wikidata(alt_source_id):
+async def find_alt_source_id_in_wikidata(alt_source_id):
     response = requests.get(
         url="https://www.wikidata.org/w/api.php",
         params={
@@ -26,9 +26,9 @@ def find_alt_source_id_in_wikidata(alt_source_id):
     return wikidata_id
 
 
-def loc_id_to_wikidata_id(loc_id):
+async def loc_id_to_wikidata_id(loc_id):
     try:
-        wikidata_id = find_alt_source_id_in_wikidata(loc_id)
+        wikidata_id = await find_alt_source_id_in_wikidata(loc_id)
         log.info(
             f"Found a link from LoC ID: {loc_id} to wikidata ID: {wikidata_id}"
         )
@@ -38,9 +38,9 @@ def loc_id_to_wikidata_id(loc_id):
     return wikidata_id
 
 
-def mesh_id_to_wikidata_id(mesh_id):
+async def mesh_id_to_wikidata_id(mesh_id):
     try:
-        wikidata_id = find_alt_source_id_in_wikidata(mesh_id)
+        wikidata_id = await find_alt_source_id_in_wikidata(mesh_id)
         log.info(
             f"Found a link from mesh ID: {mesh_id} to wikidata ID: {wikidata_id}"
         )
@@ -50,13 +50,13 @@ def mesh_id_to_wikidata_id(mesh_id):
     return wikidata_id
 
 
-def wikidata_id_to_alt_source_ids(wikidata_id):
+async def wikidata_id_to_alt_source_ids(wikidata_id):
     ids = {
         "lc_names": None,
         "lc_subjects": None,
         "mesh": None
     }
-    api_response = get_wikidata_api_response(wikidata_id)
+    api_response = await get_wikidata_api_response(wikidata_id)
     claims = api_response["claims"]
 
     try:

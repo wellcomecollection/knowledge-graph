@@ -1,36 +1,36 @@
 import re
-import requests
+from .http import fetch_url_json
 import logging
 
 log = logging.getLogger(__name__)
 
 
-def get_wikidata_api_response(wikidata_id):
+async def get_wikidata_api_response(wikidata_id):
     if not re.match("Q[0-9]+", wikidata_id):
         raise ValueError(f"{wikidata_id} is not a valid wikidata ID")
 
     url = f"http://www.wikidata.org/wiki/Special:EntityData/{wikidata_id}.json"
-    api_response = requests.get(url)
-    if api_response.status_code == 200:
+    response = await fetch_url_json(url)
+    if response["object"].status == 200:
         pass
-    elif api_response.status_code in [400, 404]:
+    elif response["object"].status in [400, 404]:
         raise ValueError(f"{wikidata_id} is not a valid wikidata ID")
     else:
         raise ValueError(
             f"something unexpected happened when calling url: {url}"
         )
-    return api_response.json()["entities"][wikidata_id]
+    return response["json"]["entities"][wikidata_id]
 
 
-def get_wikidata_data(wikidata_id):
-    api_response = get_wikidata_api_response(wikidata_id)
+async def get_wikidata_data(wikidata_id):
+    api_response = await get_wikidata_api_response(wikidata_id)
 
-    label = get_label(api_response)
-    description = get_description(api_response)
-    variants = get_variants(api_response)
-    birth_date = get_birth_date(api_response)
-    death_date = get_death_date(api_response)
-    broader_concepts = get_broader_concepts(api_response)
+    label = await get_label(api_response)
+    description = await get_description(api_response)
+    variants = await get_variants(api_response)
+    birth_date = await get_birth_date(api_response)
+    death_date = await get_death_date(api_response)
+    broader_concepts = await get_broader_concepts(api_response)
 
     log.info(f"Got data from wikidata for ID: {wikidata_id}")
 
@@ -45,7 +45,7 @@ def get_wikidata_data(wikidata_id):
     }
 
 
-def get_label(api_response):
+async def get_label(api_response):
     try:
         label = api_response["labels"]["en"]["value"]
     except KeyError:
@@ -54,7 +54,7 @@ def get_label(api_response):
     return label
 
 
-def get_description(api_response):
+async def get_description(api_response):
     try:
         description = api_response["descriptions"]["en"]["value"]
     except KeyError:
@@ -63,7 +63,7 @@ def get_description(api_response):
     return description
 
 
-def get_variants(api_response):
+async def get_variants(api_response):
     try:
         variants = [alias["value"] for alias in api_response["aliases"]["en"]]
     except KeyError:
@@ -72,7 +72,7 @@ def get_variants(api_response):
     return variants
 
 
-def get_birth_date(api_response):
+async def get_birth_date(api_response):
     try:
         birth_date = api_response["claims"]["P569"][0]["mainsnak"]["datavalue"]["value"]["time"]
     except KeyError:
@@ -81,7 +81,7 @@ def get_birth_date(api_response):
     return birth_date
 
 
-def get_death_date(api_response):
+async def get_death_date(api_response):
     try:
         death_date = api_response["claims"]["P570"][0]["mainsnak"]["datavalue"]["value"]["time"]
     except KeyError:
@@ -90,17 +90,17 @@ def get_death_date(api_response):
     return death_date
 
 
-def get_broader_concepts(api_response):
+async def get_broader_concepts(api_response):
     try:
         broader_concept_ids = [
             element["mainsnak"]["datavalue"]["value"]["id"]
             for element in api_response["claims"]["P31"]
         ]
         broader_concept_responses = [
-            get_wikidata_api_response(id) for id in broader_concept_ids
+            await get_wikidata_api_response(id) for id in broader_concept_ids
         ]
         broader_concepts = [
-            get_label(response) for response in broader_concept_responses
+            await get_label(response) for response in broader_concept_responses
         ]
     except KeyError:
         log.info(

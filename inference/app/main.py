@@ -4,6 +4,8 @@ import logging
 from fastapi import FastAPI, HTTPException
 
 from .src.aggregate import aggregate
+from .src.http import (close_persistent_client_session,
+                       start_persistent_client_session)
 
 logger = logging.getLogger(__name__)
 
@@ -17,9 +19,9 @@ logger.info("API started, awaiting requests")
 
 
 @app.get("/lc-names/{query_id}")
-def lc_names_endpoint(query_id: str):
+async def lc_names_endpoint(query_id: str):
     try:
-        response = aggregate(query_id=query_id, id_type="lc_names")
+        response = await aggregate(query_id=query_id, id_type="lc_names")
         logger.info(f"Aggregated concept data for lc_names ID: {query_id}")
     except ValueError as e:
         error_string = str(e)
@@ -29,9 +31,9 @@ def lc_names_endpoint(query_id: str):
 
 
 @app.get("/lc-subjects/{query_id}")
-def lc_subjects_endpoint(query_id: str):
+async def lc_subjects_endpoint(query_id: str):
     try:
-        response = aggregate(query_id=query_id, id_type="lc_subjects")
+        response = await aggregate(query_id=query_id, id_type="lc_subjects")
         logger.info(f"Aggregated concept data for lc_subjects ID: {query_id}")
     except ValueError as e:
         error_string = str(e)
@@ -41,9 +43,9 @@ def lc_subjects_endpoint(query_id: str):
 
 
 @app.get("/mesh/{query_id}")
-def mesh_endpoint(query_id: str):
+async def mesh_endpoint(query_id: str):
     try:
-        response = aggregate(query_id=query_id, id_type="mesh")
+        response = await aggregate(query_id=query_id, id_type="mesh")
         logger.info(f"Aggregated concept data for MeSH ID: {query_id}")
     except ValueError as e:
         error_string = str(e)
@@ -53,9 +55,9 @@ def mesh_endpoint(query_id: str):
 
 
 @app.get("/wikidata/{query_id}")
-def wikidata_endpoint(query_id: str):
+async def wikidata_endpoint(query_id: str):
     try:
-        response = aggregate(query_id=query_id, id_type="wikidata")
+        response = await aggregate(query_id=query_id, id_type="wikidata")
         logger.info(f"Aggregated concept data for wikidata ID: {query_id}")
     except ValueError as e:
         error_string = str(e)
@@ -67,3 +69,13 @@ def wikidata_endpoint(query_id: str):
 @app.get("/healthcheck")
 def healthcheck():
     return {"status": "healthy"}
+
+
+@app.on_event("startup")
+def on_startup():
+    start_persistent_client_session()
+
+
+@app.on_event("shutdown")
+async def on_shutdown():
+    await close_persistent_client_session()
