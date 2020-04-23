@@ -1,7 +1,6 @@
 import logging
 from copy import deepcopy
 
-from .exact.lc_names import get_lc_names_data
 from .exact.library_of_congress import get_lc_subjects_data, get_lc_names_data
 from .exact.mesh import get_mesh_data
 from .exact.utils import (loc_id_to_wikidata_id, mesh_id_to_wikidata_id,

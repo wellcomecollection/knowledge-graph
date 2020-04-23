@@ -25,43 +25,64 @@ def get_wikidata_api_response(wikidata_id):
 def get_wikidata_data(wikidata_id):
     api_response = get_wikidata_api_response(wikidata_id)
 
-    try:
-        label = api_response["labels"]["en"]["value"]
-    except KeyError:
-        log.info(f"Couldn't find label for ID: {wikidata_id}")
-        label = None
-
-    try:
-        description = api_response["descriptions"]["en"]["value"]
-    except KeyError:
-        log.info(f"Couldn't find description for ID: {wikidata_id}")
-        description = None
-
-    try:
-        aliases = [alias["value"] for alias in api_response["aliases"]["en"]]
-    except KeyError:
-        log.info(f"Couldn't find aliases for ID: {wikidata_id}")
-        aliases = []
-
-    try:
-        birth_date = api_response["claims"]["P569"][0]["mainsnak"]["datavalue"]["value"]["time"]
-    except KeyError:
-        log.info(f"Couldn't find birth date for ID: {wikidata_id}")
-        birth_date = None
-
-    try:
-        death_date = api_response["claims"]["P570"][0]["mainsnak"]["datavalue"]["value"]["time"]
-    except KeyError:
-        log.info(f"Couldn't find death date for ID: {wikidata_id}")
-        death_date = None
+    label = get_label(api_response)
+    description = get_description(api_response)
+    variants = get_variants(api_response)
+    birth_date = get_birth_date(api_response)
+    death_date = get_death_date(api_response)
 
     log.info(f"Got data from wikidata for ID: {wikidata_id}")
-    
+
     return {
         "id": wikidata_id,
         "title": label,
         "description": description,
         "birth_date": birth_date,
         "death_date": death_date,
-        "variants": aliases
+        "variants": variants
     }
+
+
+def get_label(api_response):
+    try:
+        label = api_response["labels"]["en"]["value"]
+    except KeyError:
+        log.info(f"Couldn't find label for ID: {api_response['id']}")
+        label = None
+    return label
+
+
+def get_description(api_response):
+    try:
+        description = api_response["descriptions"]["en"]["value"]
+    except KeyError:
+        log.info(f"Couldn't find description for ID: {api_response['id']}")
+        description = None
+    return description
+
+
+def get_variants(api_response):
+    try:
+        variants = [alias["value"] for alias in api_response["aliases"]["en"]]
+    except KeyError:
+        log.info(f"Couldn't find variants for ID: {api_response['id']}")
+        variants = []
+    return variants
+
+
+def get_birth_date(api_response):
+    try:
+        birth_date = api_response["claims"]["P569"][0]["mainsnak"]["datavalue"]["value"]["time"]
+    except KeyError:
+        log.info(f"Couldn't find birth date for ID: {api_response['id']}")
+        birth_date = None
+    return birth_date
+
+
+def get_death_date(api_response):
+    try:
+        death_date = api_response["claims"]["P570"][0]["mainsnak"]["datavalue"]["value"]["time"]
+    except KeyError:
+        log.info(f"Couldn't find death date for ID: {api_response['id']}")
+        death_date = None
+    return death_date
