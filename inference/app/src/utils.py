@@ -1,15 +1,14 @@
 import logging
 import os
 
-import requests
-
+from .http import fetch_url_json
 from .wikidata import get_wikidata_api_response
 
 log = logging.getLogger(__name__)
 
 
 async def find_alt_source_id_in_wikidata(alt_source_id):
-    response = requests.get(
+    response = await fetch_url_json(
         url="https://www.wikidata.org/w/api.php",
         params={
             "action": "query",
@@ -17,10 +16,12 @@ async def find_alt_source_id_in_wikidata(alt_source_id):
             "srsearch": alt_source_id,
             "format": "json"
         }
-    ).json()
+    )
+    if response["object"].status != 200:
+        raise ValueError(f"Couldn't find '{alt_source_id}' in Wikidata")
 
     try:
-        wikidata_id = response["query"]["search"][0]["title"]
+        wikidata_id = response["json"]["query"]["search"][0]["title"]
     except (KeyError, IndexError):
         raise ValueError(f"Couldn't find '{alt_source_id}' in Wikidata")
     return wikidata_id
