@@ -2,7 +2,6 @@ import logging
 import os
 
 from .http import fetch_url_json
-import requests
 
 log = logging.getLogger(__name__)
 

@@ -34,7 +34,9 @@ async def loc_id_to_wikidata_id(loc_id):
             f"Found a link from LoC ID: {loc_id} to wikidata ID: {wikidata_id}"
         )
     except ValueError:
-        log.info(f"No link found between Library of Congress and Wikidata for ID: {loc_id}")
+        log.info(
+            f"No link found between Library of Congress and Wikidata for ID: {loc_id}"
+        )
         wikidata_id = None
     return wikidata_id
 
