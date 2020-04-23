@@ -11,8 +11,8 @@ def get_api_response(url):
     if api_response.status_code == 200:
         pass
     elif api_response.status_code == 404:
-        lc_subjects_id = os.path.basename(url)
-        raise ValueError(f"{lc_subjects_id} is not a valid lc_subjects ID")
+        loc_id = os.path.basename(url)
+        raise ValueError(f"{loc_id} is not a valid library of congress ID")
     else:
         raise ValueError(
             f"something unexpected happened when calling url: {url}"
@@ -69,7 +69,6 @@ def get_lc_subjects_data(lc_subjects_id):
     url = f"http://id.loc.gov/authorities/subjects/{lc_subjects_id}"
     api_response = get_api_response(url)
 
-    log.info(f"Got data from lc_subjects for ID: {lc_subjects_id}")
     label = get_label(api_response)
     variants = get_variants(api_response)
     broader_concepts = get_hierarchical_concepts(api_response, 'Broader')
@@ -82,4 +81,19 @@ def get_lc_subjects_data(lc_subjects_id):
         "variants": variants,
         "broader_concepts": broader_concepts,
         "narrower_concepts": narrower_concepts,
+    }
+
+
+def get_lc_names_data(lc_names_id):
+    url = f"http://id.loc.gov/authorities/names/{lc_names_id}"
+    api_response = get_api_response(url)
+    label = get_label(api_response)
+    variants = get_variants(api_response)
+
+    log.info(f"Got data from lc_names for ID: {lc_names_id}")
+
+    return {
+        "id": lc_names_id,
+        "title": label,
+        "variants": variants
     }
