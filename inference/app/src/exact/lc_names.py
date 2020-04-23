@@ -33,8 +33,8 @@ def get_lc_names_data(lc_names_id):
 
     try:
         variants = [
-            altlabel["@value"]
-            for altlabel in api_response["http://www.w3.org/2004/02/skos/core#altLabel"]
+            altlabel["@value"] for altlabel in
+            api_response["http://www.w3.org/2004/02/skos/core#altLabel"]
         ]
     except KeyError:
         log.info(f"Couldn't find variants for ID: {lc_names_id}")

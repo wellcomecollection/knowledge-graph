@@ -55,6 +55,8 @@ def get_wikidata_data(wikidata_id):
         log.info(f"Couldn't find death date for ID: {wikidata_id}")
         death_date = None
 
+    log.info(f"Got data from wikidata for ID: {wikidata_id}")
+    
     return {
         "id": wikidata_id,
         "title": label,

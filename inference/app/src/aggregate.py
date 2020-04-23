@@ -44,7 +44,6 @@ def aggregate(query_id, id_type):
 
     if wikidata_id:
         response["exact"]["wikidata"] = get_wikidata_data(wikidata_id)
-        log.info(f"Got data from wikidata for ID: {wikidata_id}")
 
         alt_source_ids = wikidata_id_to_alt_source_ids(wikidata_id)
 
@@ -53,16 +52,13 @@ def aggregate(query_id, id_type):
             response["exact"]["lc_subjects"] = get_lc_subjects_data(
                 lc_subjects_id
             )
-            log.info(f"Got data from lc_subjects for ID: {lc_subjects_id}")
 
         if alt_source_ids["lc_names"] and not response['exact']['lc_names']:
             lc_names_id = alt_source_ids["lc_names"]
             response["exact"]["lc_names"] = get_lc_names_data(lc_names_id)
-            log.info(f"Got data from lc_names for ID: {lc_names_id}")
 
         if alt_source_ids["mesh"] and not response['exact']['mesh']:
             mesh_id = alt_source_ids["mesh"]
             response["exact"]["mesh"] = get_mesh_data(mesh_id)
-            log.info(f"Got data from mesh for ID: {mesh_id}")
 
     return response
