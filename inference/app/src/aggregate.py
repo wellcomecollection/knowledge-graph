@@ -1,7 +1,6 @@
 import logging
-from copy import deepcopy
 
-from .exact.library_of_congress import get_lc_subjects_data, get_lc_names_data
+from .exact.library_of_congress import get_lc_names_data, get_lc_subjects_data
 from .exact.mesh import get_mesh_data
 from .exact.utils import (loc_id_to_wikidata_id, mesh_id_to_wikidata_id,
                           wikidata_id_to_alt_source_ids)
@@ -9,24 +8,23 @@ from .exact.wikidata import get_wikidata_data
 
 log = logging.getLogger(__name__)
 
-blank_response = {
-    "exact": {
-        "lc_names": None,
-        "lc_subjects": None,
-        "mesh": None,
-        "wikidata": None
-    },
-    "inferred": {
-        "lc_names": None,
-        "lc_subjects": None,
-        "mesh": None,
-        "wikidata": None
-    }
-}
-
 
 def aggregate(query_id, id_type):
-    response = deepcopy(blank_response)
+    response = {
+        "exact": {
+            "lc_names": None,
+            "lc_subjects": None,
+            "mesh": None,
+            "wikidata": None
+        },
+        "inferred": {
+            "lc_names": None,
+            "lc_subjects": None,
+            "mesh": None,
+            "wikidata": None
+        }
+    }
+
     if id_type == "lc_names":
         response["exact"]["lc_names"] = get_lc_names_data(query_id)
         wikidata_id = loc_id_to_wikidata_id(query_id)
