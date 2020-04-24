@@ -28,11 +28,11 @@ async def get_wikidata_api_response(wikidata_id):
 async def get_wikidata_data(wikidata_id):
     api_response = await get_wikidata_api_response(wikidata_id)
 
-    label = await get_label(api_response)
-    description = await get_description(api_response)
+    label = get_label(api_response)
+    description = get_description(api_response)
     variants = await get_variants(api_response)
-    birth_date = await get_birth_date(api_response)
-    death_date = await get_death_date(api_response)
+    birth_date = get_birth_date(api_response)
+    death_date = get_death_date(api_response)
     broader_concepts = await get_broader_concepts(api_response)
 
     log.info(f"Got data from wikidata for ID: {wikidata_id}")
