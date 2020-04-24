@@ -1,10 +1,27 @@
 import logging
 import os
+import re
 
-from .http import fetch_url_json
-from .wikidata import get_wikidata_api_response
+from . import fetch_url_json
 
 log = logging.getLogger(__name__)
+
+
+async def get_wikidata_api_response(wikidata_id):
+    if not re.match("Q[0-9]+", wikidata_id):
+        raise ValueError(f"{wikidata_id} is not a valid wikidata ID")
+
+    url = f"http://www.wikidata.org/wiki/Special:EntityData/{wikidata_id}.json"
+    response = await fetch_url_json(url)
+    if response["object"].status == 200:
+        pass
+    elif response["object"].status in [400, 404]:
+        raise ValueError(f"{wikidata_id} is not a valid wikidata ID")
+    else:
+        raise ValueError(
+            f"something unexpected happened when calling url: {url}"
+        )
+    return response["json"]["entities"][wikidata_id]
 
 
 async def find_alt_source_id_in_wikidata(alt_source_id):

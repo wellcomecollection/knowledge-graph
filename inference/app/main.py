@@ -7,6 +7,7 @@ from fastapi import FastAPI, HTTPException
 from .src.aggregate import aggregate
 from .src.http import (close_persistent_client_session,
                        start_persistent_client_session)
+from .src.wikidata.inference import search_wikidata
 
 logger = logging.getLogger(__name__)
 
@@ -67,15 +68,11 @@ async def mesh_endpoint(query_id: str):
     return response
 
 
-@app.get("/wikidata/{query_id}")
-async def wikidata_endpoint(query_id: str):
+@app.get("/search/{query}")
+async def search(query: str):
     try:
-        start_time = time.time()
-        response = await aggregate(query_id=query_id, id_type="wikidata")
-        logger.info(
-            f"Aggregated concept data for wikidata ID: {query_id}"
-            f", which took took {round(time.time() - start_time, 2)}s"
-        )
+        wikidata_id = await search_wikidata(query)
+        response = {'wikidata_id': wikidata_id}
     except ValueError as e:
         error_string = str(e)
         logger.error(error_string)

@@ -2,9 +2,8 @@ import logging
 
 from .library_of_congress import get_lc_names_data, get_lc_subjects_data
 from .mesh import get_mesh_data
-from .utils import (loc_id_to_wikidata_id, mesh_id_to_wikidata_id,
-                    wikidata_id_to_alt_source_ids)
-from .wikidata import get_wikidata_data
+from .wikidata import (get_wikidata_data, loc_id_to_wikidata_id,
+                       mesh_id_to_wikidata_id, wikidata_id_to_alt_source_ids)
 
 log = logging.getLogger(__name__)
 

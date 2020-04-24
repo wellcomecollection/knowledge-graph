@@ -5,8 +5,6 @@ from elasticsearch import Elasticsearch, helpers
 from tqdm import tqdm
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
-
 
 def get_elasticsearch_client(config=None):
     if not config:
