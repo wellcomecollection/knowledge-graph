@@ -30,22 +30,6 @@ async def get_mesh_api_response(mesh_id):
     return generated_response
 
 
-async def get_mesh_data(mesh_id):
-    api_response = await get_mesh_api_response(mesh_id)
-    label = get_label(api_response)
-    description = get_description(api_response)
-    variants = get_variants(api_response)
-
-    log.info(f"Got data from MeSH for ID: {mesh_id}")
-
-    return {
-        "id": mesh_id,
-        "label": label,
-        "description": description,
-        "variants": variants
-    }
-
-
 def get_label(api_response):
     try:
         label = api_response["RecordName"]
@@ -75,3 +59,19 @@ def get_variants(api_response):
         log.info(f"Couldn't find variants for ID: {api_response['RecordUI']}")
         variants = []
     return variants
+
+
+async def get_mesh_data(mesh_id):
+    api_response = await get_mesh_api_response(mesh_id)
+    label = get_label(api_response)
+    description = get_description(api_response)
+    variants = get_variants(api_response)
+
+    log.info(f"Got data from MeSH for ID: {mesh_id}")
+
+    return {
+        "id": mesh_id,
+        "label": label,
+        "description": description,
+        "variants": variants
+    }

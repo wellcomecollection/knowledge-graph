@@ -25,29 +25,6 @@ async def get_wikidata_api_response(wikidata_id):
     return response["json"]["entities"][wikidata_id]
 
 
-async def get_wikidata_data(wikidata_id):
-    api_response = await get_wikidata_api_response(wikidata_id)
-
-    label = get_label(api_response)
-    description = get_description(api_response)
-    variants = await get_variants(api_response)
-    birth_date = get_birth_date(api_response)
-    death_date = get_death_date(api_response)
-    broader_concepts = await get_broader_concepts(api_response)
-
-    log.info(f"Got data from wikidata for ID: {wikidata_id}")
-
-    return {
-        "id": wikidata_id,
-        "title": label,
-        "description": description,
-        "birth_date": birth_date,
-        "death_date": death_date,
-        "variants": variants,
-        "broader_concepts": broader_concepts,
-    }
-
-
 def get_label(api_response):
     try:
         label = api_response["labels"]["en"]["value"]
@@ -64,6 +41,24 @@ def get_description(api_response):
         log.info(f"Couldn't find description for ID: {api_response['id']}")
         description = None
     return description
+
+
+def get_birth_date(api_response):
+    try:
+        birth_date = api_response["claims"]["P569"][0]["mainsnak"]["datavalue"]["value"]["time"]
+    except KeyError:
+        log.info(f"Couldn't find birth date for ID: {api_response['id']}")
+        birth_date = None
+    return birth_date
+
+
+def get_death_date(api_response):
+    try:
+        death_date = api_response["claims"]["P570"][0]["mainsnak"]["datavalue"]["value"]["time"]
+    except KeyError:
+        log.info(f"Couldn't find death date for ID: {api_response['id']}")
+        death_date = None
+    return death_date
 
 
 async def get_variants(api_response):
@@ -92,24 +87,6 @@ async def get_variants(api_response):
         variants = None
 
     return variants
-
-
-def get_birth_date(api_response):
-    try:
-        birth_date = api_response["claims"]["P569"][0]["mainsnak"]["datavalue"]["value"]["time"]
-    except KeyError:
-        log.info(f"Couldn't find birth date for ID: {api_response['id']}")
-        birth_date = None
-    return birth_date
-
-
-def get_death_date(api_response):
-    try:
-        death_date = api_response["claims"]["P570"][0]["mainsnak"]["datavalue"]["value"]["time"]
-    except KeyError:
-        log.info(f"Couldn't find death date for ID: {api_response['id']}")
-        death_date = None
-    return death_date
 
 
 async def get_broader_concepts(api_response):
@@ -146,3 +123,26 @@ async def get_broader_concepts(api_response):
         f'which took took {round(time.time() - start_time, 2)}s'
     )
     return concepts
+
+
+async def get_wikidata_data(wikidata_id):
+    api_response = await get_wikidata_api_response(wikidata_id)
+
+    label = get_label(api_response)
+    description = get_description(api_response)
+    birth_date = get_birth_date(api_response)
+    death_date = get_death_date(api_response)
+    variants = await get_variants(api_response)
+    broader_concepts = await get_broader_concepts(api_response)
+
+    log.info(f"Got data from wikidata for ID: {wikidata_id}")
+
+    return {
+        "id": wikidata_id,
+        "title": label,
+        "description": description,
+        "birth_date": birth_date,
+        "death_date": death_date,
+        "variants": variants,
+        "broader_concepts": broader_concepts,
+    }

@@ -1,7 +1,7 @@
 import asyncio
-import time
 import logging
 import os
+import time
 
 from .http import fetch_url_json
 
