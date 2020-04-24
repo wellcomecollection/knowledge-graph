@@ -1,3 +1,5 @@
+from urllib.parse import quote_plus
+
 from . import fetch_url_json
 
 
@@ -7,7 +9,7 @@ async def search_wikidata(query):
         params={
             "action": "query",
             "list": "search",
-            "srsearch": query,
+            "srsearch": quote_plus(query),
             "format": "json"
         }
     )

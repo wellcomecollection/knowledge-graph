@@ -24,7 +24,11 @@ logger.info("API started, awaiting requests")
 async def lc_names_endpoint(query_id: str):
     try:
         start_time = time.time()
-        response = await aggregate(query_id=query_id, id_type="lc_names")
+        response = await aggregate(
+            query_id=query_id,
+            id_type="lc_names",
+            confidence="exact"
+        )
         logger.info(
             f"Aggregated concept data for lc_names ID: {query_id}"
             f", which took took {round(time.time() - start_time, 2)}s"
@@ -40,7 +44,11 @@ async def lc_names_endpoint(query_id: str):
 async def lc_subjects_endpoint(query_id: str):
     try:
         start_time = time.time()
-        response = await aggregate(query_id=query_id, id_type="lc_subjects")
+        response = await aggregate(
+            query_id=query_id,
+            id_type="lc_subjects",
+            confidence="exact"
+        )
         logger.info(
             f"Aggregated concept data for lc_subjects ID: {query_id}"
             f", which took took {round(time.time() - start_time, 2)}s"
@@ -56,7 +64,11 @@ async def lc_subjects_endpoint(query_id: str):
 async def mesh_endpoint(query_id: str):
     try:
         start_time = time.time()
-        response = await aggregate(query_id=query_id, id_type="mesh")
+        response = await aggregate(
+            query_id=query_id,
+            id_type="mesh",
+            confidence="exact"
+        )
         logger.info(
             f"Aggregated concept data for MeSH ID: {query_id}"
             f", which took took {round(time.time() - start_time, 2)}s"
@@ -68,11 +80,40 @@ async def mesh_endpoint(query_id: str):
     return response
 
 
-@app.get("/search/{query}")
-async def search(query: str):
+@app.get("/wikidata/{query_id}")
+async def wikidata_endpoint(query_id: str):
     try:
+        start_time = time.time()
+        response = await aggregate(
+            query_id=query_id,
+            id_type="wikidata",
+            confidence="exact"
+        )
+        logger.info(
+            f"Aggregated concept data for wikidata ID: {query_id}"
+            f", which took took {round(time.time() - start_time, 2)}s"
+        )
+    except ValueError as e:
+        error_string = str(e)
+        logger.error(error_string)
+        raise HTTPException(status_code=404, detail=error_string)
+    return response
+
+
+@app.get("/search/{query}")
+async def search_endpoint(query: str):
+    try:
+        start_time = time.time()
         wikidata_id = await search_wikidata(query)
-        response = {'wikidata_id': wikidata_id}
+        response = await aggregate(
+            query_id=wikidata_id,
+            id_type="wikidata",
+            confidence="inferred"
+        )
+        logger.info(
+            f"Aggregated concept data for wikidata ID: {wikidata_id}"
+            f", which took took {round(time.time() - start_time, 2)}s"
+        )
     except ValueError as e:
         error_string = str(e)
         logger.error(error_string)
