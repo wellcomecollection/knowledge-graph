@@ -2,7 +2,7 @@ import logging
 
 import aiohttp
 
-logger = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
 _session_store = {}
 
@@ -23,7 +23,7 @@ def _get_persistent_session():
     try:
         return _session_store["session"]
     except KeyError as e:
-        logger.error("HTTP client session not initialised!")
+        log.error("HTTP client session not initialised!")
         raise e
 
 

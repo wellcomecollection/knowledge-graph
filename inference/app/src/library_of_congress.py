@@ -1,3 +1,5 @@
+import asyncio
+import time
 import logging
 import os
 
@@ -47,6 +49,7 @@ async def get_label(api_response):
 
 
 async def get_hierarchical_concepts(api_response, direction):
+    start_time = time.time()
     lc_names_id = os.path.basename(api_response['@id'])
     response_element_id = f'http://www.loc.gov/mads/rdf/v1#has{direction}Authority'
     try:
@@ -58,11 +61,21 @@ async def get_hierarchical_concepts(api_response, direction):
         return None
 
     urls = [element['@id'] for element in elements]
-    responses = [await get_api_response(url) for url in urls]
-    hierarchical_concepts = [await get_label(response) for response in responses]
 
-    log.info(f'Got {direction.lower()} concepts for ID: {lc_names_id}')
-    return hierarchical_concepts
+    responses = await asyncio.gather(
+        *[get_api_response(url) for url in urls]
+    )
+    
+    concepts = await asyncio.gather(
+        *[get_label(response) for response in responses]
+    )
+
+    log.info(
+        f'Got {direction.lower()} concepts for ID: {lc_names_id}'
+        f', which took took {round(time.time() - start_time, 2)}s'
+    )
+
+    return concepts
 
 
 async def get_lc_subjects_data(lc_subjects_id):

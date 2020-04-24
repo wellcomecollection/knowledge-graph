@@ -1,3 +1,4 @@
+import time
 import base64
 import logging
 
@@ -21,8 +22,12 @@ logger.info("API started, awaiting requests")
 @app.get("/lc-names/{query_id}")
 async def lc_names_endpoint(query_id: str):
     try:
+        start_time = time.time()
         response = await aggregate(query_id=query_id, id_type="lc_names")
-        logger.info(f"Aggregated concept data for lc_names ID: {query_id}")
+        logger.info(
+            f"Aggregated concept data for lc_names ID: {query_id}"
+            f", which took took {round(time.time() - start_time, 2)}s"
+        )
     except ValueError as e:
         error_string = str(e)
         logger.error(error_string)
@@ -33,8 +38,12 @@ async def lc_names_endpoint(query_id: str):
 @app.get("/lc-subjects/{query_id}")
 async def lc_subjects_endpoint(query_id: str):
     try:
+        start_time = time.time()
         response = await aggregate(query_id=query_id, id_type="lc_subjects")
-        logger.info(f"Aggregated concept data for lc_subjects ID: {query_id}")
+        logger.info(
+            f"Aggregated concept data for lc_subjects ID: {query_id}"
+            f", which took took {round(time.time() - start_time, 2)}s"
+        )
     except ValueError as e:
         error_string = str(e)
         logger.error(error_string)
@@ -45,8 +54,12 @@ async def lc_subjects_endpoint(query_id: str):
 @app.get("/mesh/{query_id}")
 async def mesh_endpoint(query_id: str):
     try:
+        start_time = time.time()
         response = await aggregate(query_id=query_id, id_type="mesh")
-        logger.info(f"Aggregated concept data for MeSH ID: {query_id}")
+        logger.info(
+            f"Aggregated concept data for MeSH ID: {query_id}"
+            f", which took took {round(time.time() - start_time, 2)}s"
+        )
     except ValueError as e:
         error_string = str(e)
         logger.error(error_string)
@@ -57,8 +70,12 @@ async def mesh_endpoint(query_id: str):
 @app.get("/wikidata/{query_id}")
 async def wikidata_endpoint(query_id: str):
     try:
+        start_time = time.time()
         response = await aggregate(query_id=query_id, id_type="wikidata")
-        logger.info(f"Aggregated concept data for wikidata ID: {query_id}")
+        logger.info(
+            f"Aggregated concept data for wikidata ID: {query_id}"
+            f", which took took {round(time.time() - start_time, 2)}s"
+        )
     except ValueError as e:
         error_string = str(e)
         logger.error(error_string)

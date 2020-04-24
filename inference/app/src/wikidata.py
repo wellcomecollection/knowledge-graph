@@ -1,6 +1,9 @@
-import re
-from .http import fetch_url_json
+import asyncio
 import logging
+import re
+import time
+
+from .http import fetch_url_json
 
 log = logging.getLogger(__name__)
 
@@ -108,6 +111,7 @@ async def get_death_date(api_response):
 
 
 async def get_broader_concepts(api_response):
+    start_time = time.time()
     try:
         instace_of = api_response["claims"]["P31"]
     except KeyError:
@@ -117,21 +121,25 @@ async def get_broader_concepts(api_response):
     except KeyError:
         subclass_of = []
 
-    broader_concept_elements = instace_of + subclass_of
-    if not broader_concept_elements:
+    concept_elements = instace_of + subclass_of
+    if not concept_elements:
         log.info(
             f"Couldn't find broader concepts for ID: {api_response['id']}"
         )
         return None
 
-    broader_concept_ids = [
+    concept_ids = [
         element["mainsnak"]["datavalue"]["value"]["id"]
-        for element in broader_concept_elements
+        for element in concept_elements
     ]
-    broader_concept_responses = [
-        await get_wikidata_api_response(id) for id in broader_concept_ids
-    ]
-    broader_concepts = [
-        await get_label(response) for response in broader_concept_responses
-    ]
-    return broader_concepts
+    requests = [get_wikidata_api_response(id) for id in concept_ids]
+    responses = await asyncio.gather(*requests)
+
+    concepts_coro = [get_label(response) for response in responses]
+    concepts = await asyncio.gather(*concepts_coro)
+
+    log.info(
+        f'Got broader concepts for ID: {api_response["id"]}, '
+        f'which took took {round(time.time() - start_time, 2)}s'
+    )
+    return concepts
