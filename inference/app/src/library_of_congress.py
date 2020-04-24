@@ -25,7 +25,7 @@ async def get_api_response(url):
             return element
 
 
-async def get_variants(api_response):
+def get_variants(api_response):
     try:
         variants = [
             altlabel["@value"] for altlabel in
@@ -38,7 +38,7 @@ async def get_variants(api_response):
     return variants
 
 
-async def get_label(api_response):
+def get_label(api_response):
     try:
         label = api_response["http://www.loc.gov/mads/rdf/v1#authoritativeLabel"][0]["@value"]
     except (KeyError, IndexError):
@@ -60,15 +60,11 @@ async def get_hierarchical_concepts(api_response, direction):
         )
         return None
 
-    urls = [element['@id'] for element in elements]
-
     responses = await asyncio.gather(
-        *[get_api_response(url) for url in urls]
+        *[get_api_response(element['@id']) for element in elements]
     )
-    
-    concepts = await asyncio.gather(
-        *[get_label(response) for response in responses]
-    )
+
+    concepts = [get_label(response) for response in responses]
 
     log.info(
         f'Got {direction.lower()} concepts for ID: {lc_names_id}'
@@ -82,8 +78,8 @@ async def get_lc_subjects_data(lc_subjects_id):
     url = f"http://id.loc.gov/authorities/subjects/{lc_subjects_id}"
     api_response = await get_api_response(url)
 
-    label = await get_label(api_response)
-    variants = await get_variants(api_response)
+    label = get_label(api_response)
+    variants = get_variants(api_response)
     broader_concepts = await get_hierarchical_concepts(api_response, 'Broader')
     narrower_concepts = await get_hierarchical_concepts(api_response, 'Narrower')
 
@@ -100,8 +96,8 @@ async def get_lc_subjects_data(lc_subjects_id):
 async def get_lc_names_data(lc_names_id):
     url = f"http://id.loc.gov/authorities/names/{lc_names_id}"
     api_response = await get_api_response(url)
-    label = await get_label(api_response)
-    variants = await get_variants(api_response)
+    label = get_label(api_response)
+    variants = get_variants(api_response)
 
     log.info(f"Got data from lc_names for ID: {lc_names_id}")
 

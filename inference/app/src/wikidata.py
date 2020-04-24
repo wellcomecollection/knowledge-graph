@@ -48,7 +48,7 @@ async def get_wikidata_data(wikidata_id):
     }
 
 
-async def get_label(api_response):
+def get_label(api_response):
     try:
         label = api_response["labels"]["en"]["value"]
     except KeyError:
@@ -57,7 +57,7 @@ async def get_label(api_response):
     return label
 
 
-async def get_description(api_response):
+def get_description(api_response):
     try:
         description = api_response["descriptions"]["en"]["value"]
     except KeyError:
@@ -81,8 +81,10 @@ async def get_variants(api_response):
         element["mainsnak"]["datavalue"]["value"]["id"]
         for element in same_as_elements
     ]
-    same_as_responses = [await get_wikidata_api_response(id) for id in same_as_ids]
-    same_as = [await get_label(response) for response in same_as_responses]
+    same_as_responses = await asyncio.gather(
+        *[get_wikidata_api_response(id) for id in same_as_ids]
+    )
+    same_as = [get_label(response) for response in same_as_responses]
 
     variants = aliases + same_as
     if not variants:
@@ -92,7 +94,7 @@ async def get_variants(api_response):
     return variants
 
 
-async def get_birth_date(api_response):
+def get_birth_date(api_response):
     try:
         birth_date = api_response["claims"]["P569"][0]["mainsnak"]["datavalue"]["value"]["time"]
     except KeyError:
@@ -101,7 +103,7 @@ async def get_birth_date(api_response):
     return birth_date
 
 
-async def get_death_date(api_response):
+def get_death_date(api_response):
     try:
         death_date = api_response["claims"]["P570"][0]["mainsnak"]["datavalue"]["value"]["time"]
     except KeyError:
@@ -132,11 +134,12 @@ async def get_broader_concepts(api_response):
         element["mainsnak"]["datavalue"]["value"]["id"]
         for element in concept_elements
     ]
-    requests = [get_wikidata_api_response(id) for id in concept_ids]
-    responses = await asyncio.gather(*requests)
 
-    concepts_coro = [get_label(response) for response in responses]
-    concepts = await asyncio.gather(*concepts_coro)
+    responses = await asyncio.gather(
+        *[get_wikidata_api_response(id) for id in concept_ids]
+    )
+
+    concepts = [get_label(response) for response in responses]
 
     log.info(
         f'Got broader concepts for ID: {api_response["id"]}, '
