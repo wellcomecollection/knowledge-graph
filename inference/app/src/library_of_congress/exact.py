@@ -3,7 +3,7 @@ import logging
 import os
 import time
 
-from .http import fetch_url_json
+from . import fetch_url_json
 
 log = logging.getLogger(__name__)
 

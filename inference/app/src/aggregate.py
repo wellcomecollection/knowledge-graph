@@ -1,9 +1,11 @@
 import logging
 
-from .library_of_congress import get_lc_names_data, get_lc_subjects_data
-from .mesh import get_mesh_data
+from .library_of_congress import (get_lc_names_data, get_lc_subjects_data,
+                                  search_loc)
+from .mesh import get_mesh_data, search_mesh
 from .wikidata import (get_wikidata_data, loc_id_to_wikidata_id,
-                       mesh_id_to_wikidata_id, wikidata_id_to_alt_source_ids)
+                       mesh_id_to_wikidata_id, search_wikidata,
+                       wikidata_id_to_alt_source_ids)
 
 log = logging.getLogger(__name__)
 
@@ -48,4 +50,14 @@ async def aggregate(query_id, id_type, confidence):
             mesh_id = alt_source_ids["mesh"]
             response["mesh"] = await get_mesh_data(mesh_id)
 
+    return response
+
+
+async def search(query):
+    response = {
+        "wikidata": await search_wikidata(query),
+        "mesh": await search_mesh(query),
+        "lc_names": await search_loc(query, authority_type="names"),
+        "lc_subjects": await search_loc(query, authority_type="subjects"),
+    }
     return response

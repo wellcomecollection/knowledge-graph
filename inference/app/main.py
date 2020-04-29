@@ -4,7 +4,7 @@ import time
 
 from fastapi import FastAPI, HTTPException
 
-from .src.aggregate import aggregate
+from .src.aggregate import aggregate, search
 from .src.http import (close_persistent_client_session,
                        start_persistent_client_session)
 from .src.wikidata import search_wikidata
@@ -103,17 +103,18 @@ async def wikidata_endpoint(query_id: str):
 @app.get("/search/{query}")
 async def search_endpoint(query: str):
     try:
-        start_time = time.time()
-        wikidata_id = await search_wikidata(query)
-        response = await aggregate(
-            query_id=wikidata_id,
-            id_type="wikidata",
-            confidence="inferred"
-        )
-        logger.info(
-            f"Aggregated concept data for wikidata ID: {wikidata_id}"
-            f", which took took {round(time.time() - start_time, 2)}s"
-        )
+        # start_time = time.time()
+        # wikidata_id = await search_wikidata(query)
+        # response = await aggregate(
+        #     query_id=wikidata_id,
+        #     id_type="wikidata",
+        #     confidence="inferred"
+        # )
+        # logger.info(
+        #     f"Aggregated concept data for wikidata ID: {wikidata_id}"
+        #     f", which took took {round(time.time() - start_time, 2)}s"
+        # )
+        response = await search(query)
     except ValueError as e:
         error_string = str(e)
         logger.error(error_string)

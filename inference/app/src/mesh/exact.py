@@ -1,6 +1,6 @@
 import logging
 
-from .http import fetch_url_json
+from . import fetch_url_json
 
 log = logging.getLogger(__name__)
 
