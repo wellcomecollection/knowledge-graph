@@ -7,7 +7,7 @@ from fastapi import FastAPI, HTTPException
 from .src.aggregate import aggregate
 from .src.http import (close_persistent_client_session,
                        start_persistent_client_session)
-from .src.wikidata.inference import search_wikidata
+from .src.wikidata import search_wikidata
 
 logger = logging.getLogger(__name__)
 
