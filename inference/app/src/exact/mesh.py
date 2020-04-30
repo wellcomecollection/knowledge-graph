@@ -1,5 +1,6 @@
-import requests
 import logging
+
+import requests
 
 log = logging.getLogger(__name__)
 
@@ -51,6 +52,8 @@ def get_mesh_data(mesh_id):
     except KeyError:
         log.info(f'Couldn\'t find variants for ID: {mesh_id}')
         variants = []
+
+    log.info(f"Got data from MeSH for ID: {mesh_id}")
 
     return {
         "id": mesh_id,

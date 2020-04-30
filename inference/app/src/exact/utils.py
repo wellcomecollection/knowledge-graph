@@ -1,23 +1,11 @@
+import logging
 import os
+
 import requests
-from .lc_names import get_lc_names_api_response
+
 from .wikidata import get_wikidata_api_response
 
-
-def get_wikidata_id_from_loc(lc_names_id):
-    api_response = get_lc_names_api_response(lc_names_id)
-
-    wikidata_id = None
-    for element in api_response:
-        if element["@id"].startswith("http://www.wikidata.org/entity/"):
-            wikidata_id = os.path.basename(element["@id"])
-
-    if not wikidata_id:
-        raise ValueError(
-            "Couldn't find a Wikidata ID in Library of Congress data"
-        )
-
-    return wikidata_id
+log = logging.getLogger(__name__)
 
 
 def find_alt_source_id_in_wikidata(alt_source_id):
@@ -38,49 +26,51 @@ def find_alt_source_id_in_wikidata(alt_source_id):
     return wikidata_id
 
 
-def lc_names_id_to_wikidata_id(lc_names_id):
+def loc_id_to_wikidata_id(loc_id):
     try:
-        wikidata_id = get_wikidata_id_from_loc(lc_names_id)
+        wikidata_id = find_alt_source_id_in_wikidata(loc_id)
+        log.info(
+            f"Found a link from LoC ID: {loc_id} to wikidata ID: {wikidata_id}"
+        )
     except ValueError:
-        try:
-            wikidata_id = find_alt_source_id_in_wikidata(lc_names_id)
-        except ValueError:
-            raise ValueError(
-                f"No link found between Library of Congress and Wikidata for ID: {lc_names_id}"
-            )
+        log.info(f"No link found between Library of Congress and Wikidata for ID: {loc_id}")
+        wikidata_id = None
     return wikidata_id
 
 
 def mesh_id_to_wikidata_id(mesh_id):
     try:
         wikidata_id = find_alt_source_id_in_wikidata(mesh_id)
-    except ValueError:
-        raise ValueError(
-            f"No link found between MeSH and Wikidata for ID: {mesh_id}"
+        log.info(
+            f"Found a link from mesh ID: {mesh_id} to wikidata ID: {wikidata_id}"
         )
+    except ValueError:
+        log.info(f"No link found between MeSH and Wikidata for ID: {mesh_id}")
+        wikidata_id = None
     return wikidata_id
 
 
 def wikidata_id_to_alt_source_ids(wikidata_id):
     ids = {
-        'lc_names': None,
-        'lc_subjects': None,
-        'mesh': None
+        "lc_names": None,
+        "lc_subjects": None,
+        "mesh": None
     }
     api_response = get_wikidata_api_response(wikidata_id)
-    claims = api_response['claims']
+    claims = api_response["claims"]
 
     try:
-        loc_id = claims['P244'][0]["mainsnak"]["datavalue"]["value"]
-        if loc_id.startswith('sh'):
+        loc_id = claims["P244"][0]["mainsnak"]["datavalue"]["value"]
+        # TODO: make sure these assertions about id format are actually true
+        if loc_id.startswith("sh"):
             ids["lc_subjects"] = loc_id
-        elif loc_id.startswith('n'):
+        elif loc_id.startswith("n"):
             ids["lc_names"] = loc_id
     except KeyError:
         pass
 
     try:
-        ids["mesh_id"] = claims['P486'][0]["mainsnak"]["datavalue"]["value"]
+        ids["mesh"] = claims["P486"][0]["mainsnak"]["datavalue"]["value"]
     except KeyError:
         pass
 

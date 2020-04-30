@@ -1,3 +1,4 @@
+import re
 import requests
 import logging
 
@@ -5,52 +6,104 @@ log = logging.getLogger(__name__)
 
 
 def get_wikidata_api_response(wikidata_id):
-    wikidata_url = f'http://www.wikidata.org/wiki/Special:EntityData/{wikidata_id}.json'
-    wikidata_response = requests.get(wikidata_url).json()
-    api_response = wikidata_response['entities'][wikidata_id]
-    return api_response
+    if not re.match("Q[0-9]+", wikidata_id):
+        raise ValueError(f"{wikidata_id} is not a valid wikidata ID")
+
+    url = f"http://www.wikidata.org/wiki/Special:EntityData/{wikidata_id}.json"
+    api_response = requests.get(url)
+    if api_response.status_code == 200:
+        pass
+    elif api_response.status_code in [400, 404]:
+        raise ValueError(f"{wikidata_id} is not a valid wikidata ID")
+    else:
+        raise ValueError(
+            f"something unexpected happened when calling url: {url}"
+        )
+    return api_response.json()["entities"][wikidata_id]
 
 
 def get_wikidata_data(wikidata_id):
     api_response = get_wikidata_api_response(wikidata_id)
 
-    try:
-        label = api_response['labels']['en']['value']
-    except KeyError:
-        log.info(f'Couldn\'t find label for ID: {wikidata_id}')
-        label = None
+    label = get_label(api_response)
+    description = get_description(api_response)
+    variants = get_variants(api_response)
+    birth_date = get_birth_date(api_response)
+    death_date = get_death_date(api_response)
+    broader_concepts = get_broader_concepts(api_response)
 
-    try:
-        description = api_response['descriptions']['en']['value']
-    except KeyError:
-        log.info(f'Couldn\'t find description for ID: {wikidata_id}')
-        description = None
-
-    try:
-        aliases = [
-            alias['value'] for alias in api_response['aliases']['en']
-        ]
-    except KeyError:
-        log.info(f'Couldn\'t find aliases for ID: {wikidata_id}')
-        aliases = []
-
-    try:
-        birth_date = api_response['claims']['P569'][0]['mainsnak']['datavalue']['value']['time']
-    except KeyError:
-        log.info(f'Couldn\'t find birth date for ID: {wikidata_id}')
-        birth_date = None
-
-    try:
-        death_date = api_response['claims']['P570'][0]['mainsnak']['datavalue']['value']['time']
-    except KeyError:
-        log.info(f'Couldn\'t find death date for ID: {wikidata_id}')
-        death_date = None
+    log.info(f"Got data from wikidata for ID: {wikidata_id}")
 
     return {
-        'id': wikidata_id,
-        'title': label,
-        'description': description,
-        'birth_date': birth_date,
-        'death_date': death_date,
-        'variants': aliases
+        "id": wikidata_id,
+        "title": label,
+        "description": description,
+        "birth_date": birth_date,
+        "death_date": death_date,
+        "variants": variants,
+        "broader_concepts": broader_concepts,
     }
+
+
+def get_label(api_response):
+    try:
+        label = api_response["labels"]["en"]["value"]
+    except KeyError:
+        log.info(f"Couldn't find label for ID: {api_response['id']}")
+        label = None
+    return label
+
+
+def get_description(api_response):
+    try:
+        description = api_response["descriptions"]["en"]["value"]
+    except KeyError:
+        log.info(f"Couldn't find description for ID: {api_response['id']}")
+        description = None
+    return description
+
+
+def get_variants(api_response):
+    try:
+        variants = [alias["value"] for alias in api_response["aliases"]["en"]]
+    except KeyError:
+        log.info(f"Couldn't find variants for ID: {api_response['id']}")
+        variants = None
+    return variants
+
+
+def get_birth_date(api_response):
+    try:
+        birth_date = api_response["claims"]["P569"][0]["mainsnak"]["datavalue"]["value"]["time"]
+    except KeyError:
+        log.info(f"Couldn't find birth date for ID: {api_response['id']}")
+        birth_date = None
+    return birth_date
+
+
+def get_death_date(api_response):
+    try:
+        death_date = api_response["claims"]["P570"][0]["mainsnak"]["datavalue"]["value"]["time"]
+    except KeyError:
+        log.info(f"Couldn't find death date for ID: {api_response['id']}")
+        death_date = None
+    return death_date
+
+
+def get_broader_concepts(api_response):
+    try:
+        broader_concept_ids = [
+            element["mainsnak"]["datavalue"]["value"]["id"]
+            for element in api_response["claims"]["P31"]
+        ]
+        broader_concept_responses = [
+            get_wikidata_api_response(id) for id in broader_concept_ids
+        ]
+        broader_concepts = [
+            get_label(response) for response in broader_concept_responses
+        ]
+    except KeyError:
+        log.info(
+            f"Couldn't find broader concepts for ID: {api_response['id']}")
+        broader_concepts = None
+    return broader_concepts
