@@ -1,16 +1,18 @@
+import asyncio
 import logging
 import os
+import time
 
-import requests
+from .http import fetch_url_json
 
 log = logging.getLogger(__name__)
 
 
-def get_api_response(url):
-    api_response = requests.get(url + '.json')
-    if api_response.status_code == 200:
+async def get_api_response(url):
+    response = await fetch_url_json(url + '.json')
+    if response["object"].status == 200:
         pass
-    elif api_response.status_code == 404:
+    elif response["object"].status == 404:
         loc_id = os.path.basename(url)
         raise ValueError(f"{loc_id} is not a valid library of congress ID")
     else:
@@ -18,7 +20,7 @@ def get_api_response(url):
             f"something unexpected happened when calling url: {url}"
         )
 
-    for element in api_response.json():
+    for element in response["json"]:
         if element["@id"] == url:
             return element
 
@@ -46,7 +48,8 @@ def get_label(api_response):
     return label
 
 
-def get_hierarchical_concepts(api_response, direction):
+async def get_hierarchical_concepts(api_response, direction):
+    start_time = time.time()
     lc_names_id = os.path.basename(api_response['@id'])
     response_element_id = f'http://www.loc.gov/mads/rdf/v1#has{direction}Authority'
     try:
@@ -57,22 +60,28 @@ def get_hierarchical_concepts(api_response, direction):
         )
         return None
 
-    urls = [element['@id'] for element in elements]
-    responses = [get_api_response(url) for url in urls]
-    hierarchical_concepts = [get_label(response) for response in responses]
+    responses = await asyncio.gather(
+        *[get_api_response(element['@id']) for element in elements]
+    )
 
-    log.info(f'Got {direction.lower()} concepts for ID: {lc_names_id}')
-    return hierarchical_concepts
+    concepts = [get_label(response) for response in responses]
+
+    log.info(
+        f'Got {direction.lower()} concepts for ID: {lc_names_id}'
+        f', which took took {round(time.time() - start_time, 2)}s'
+    )
+
+    return concepts
 
 
-def get_lc_subjects_data(lc_subjects_id):
+async def get_lc_subjects_data(lc_subjects_id):
     url = f"http://id.loc.gov/authorities/subjects/{lc_subjects_id}"
-    api_response = get_api_response(url)
+    api_response = await get_api_response(url)
 
     label = get_label(api_response)
     variants = get_variants(api_response)
-    broader_concepts = get_hierarchical_concepts(api_response, 'Broader')
-    narrower_concepts = get_hierarchical_concepts(api_response, 'Narrower')
+    broader_concepts = await get_hierarchical_concepts(api_response, 'Broader')
+    narrower_concepts = await get_hierarchical_concepts(api_response, 'Narrower')
 
     log.info(f"Got data from lc_subjects for ID: {lc_subjects_id}")
     return {
@@ -84,9 +93,9 @@ def get_lc_subjects_data(lc_subjects_id):
     }
 
 
-def get_lc_names_data(lc_names_id):
+async def get_lc_names_data(lc_names_id):
     url = f"http://id.loc.gov/authorities/names/{lc_names_id}"
-    api_response = get_api_response(url)
+    api_response = await get_api_response(url)
     label = get_label(api_response)
     variants = get_variants(api_response)
 
