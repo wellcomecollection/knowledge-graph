@@ -3,7 +3,7 @@ import logging
 
 from fastapi import FastAPI, HTTPException
 
-from .src.aggregate import aggregate_lc_names_data, aggregate_mesh_data
+from .src.aggregate import aggregate
 
 logger = logging.getLogger(__name__)
 
@@ -11,34 +11,56 @@ logger = logging.getLogger(__name__)
 logger.info("Starting API")
 app = FastAPI(
     title="Concepts Enhancer",
-    description="One stop shop for sanitising and enhancing concepts with wikidata",
+    description="One-stop-shop for sanitizing and enhancing concepts with wikidata",
 )
 logger.info("API started, awaiting requests")
 
 
-@app.get("/lc-names/{lc_names_id}")
-def lc_names_endpoint(lc_names_id: str):
+@app.get("/lc-names/{query_id}")
+def lc_names_endpoint(query_id: str):
     try:
-        response = aggregate_lc_names_data(lc_names_id)
+        response = aggregate(query_id=query_id, id_type="lc_names")
+        logger.info(f"Aggregated concept data for lc_names ID: {query_id}")
     except ValueError as e:
         error_string = str(e)
         logger.error(error_string)
         raise HTTPException(status_code=404, detail=error_string)
-
-    logger.info(f"aggregated concept data for lc_names ID: {lc_names_id}")
     return response
 
 
-@app.get("/mesh/{mesh_id}")
-def mesh_endpoint(mesh_id: str):
+@app.get("/lc-subjects/{query_id}")
+def lc_subjects_endpoint(query_id: str):
     try:
-        response = aggregate_mesh_data(mesh_id)
+        response = aggregate(query_id=query_id, id_type="lc_subjects")
+        logger.info(f"Aggregated concept data for lc_subjects ID: {query_id}")
     except ValueError as e:
         error_string = str(e)
         logger.error(error_string)
         raise HTTPException(status_code=404, detail=error_string)
+    return response
 
-    logger.info(f"aggregated concept data for MeSH ID: {mesh_id}")
+
+@app.get("/mesh/{query_id}")
+def mesh_endpoint(query_id: str):
+    try:
+        response = aggregate(query_id=query_id, id_type="mesh")
+        logger.info(f"Aggregated concept data for MeSH ID: {query_id}")
+    except ValueError as e:
+        error_string = str(e)
+        logger.error(error_string)
+        raise HTTPException(status_code=404, detail=error_string)
+    return response
+
+
+@app.get("/wikidata/{query_id}")
+def wikidata_endpoint(query_id: str):
+    try:
+        response = aggregate(query_id=query_id, id_type="wikidata")
+        logger.info(f"Aggregated concept data for wikidata ID: {query_id}")
+    except ValueError as e:
+        error_string = str(e)
+        logger.error(error_string)
+        raise HTTPException(status_code=404, detail=error_string)
     return response
 
 
