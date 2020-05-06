@@ -1,7 +1,10 @@
+import logging
 from urllib.parse import quote
 
 from . import fetch_url_json
 from .exact import get_mesh_data
+
+log = logging.getLogger(__name__)
 
 
 async def search_mesh(query):
@@ -23,5 +26,6 @@ async def search_mesh(query):
         mesh_id = response["json"]["hits"]["hits"][0]["_id"]
     except (KeyError, IndexError):
         raise ValueError(f"Couldn't find '{query}' in MeSH")
+    log.info(f"Matched query: '{query}' to MeSH ID: {mesh_id}")
 
     return mesh_id

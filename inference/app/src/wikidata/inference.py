@@ -1,6 +1,9 @@
+import logging
 from urllib.parse import quote
 
 from . import fetch_url_json
+
+log = logging.getLogger(__name__)
 
 
 async def search_wikidata(query):
@@ -20,4 +23,5 @@ async def search_wikidata(query):
         wikidata_id = response["json"]["query"]["search"][0]["title"]
     except (KeyError, IndexError):
         raise ValueError(f"Couldn't find '{query}' in Wikidata")
+    log.info(f"Matched query: '{query}' to wikidata ID: {wikidata_id}")
     return wikidata_id
