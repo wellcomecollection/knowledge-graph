@@ -1,7 +1,10 @@
+import logging
 from os.path import basename, splitext
 from urllib.parse import quote
 
 from . import fetch_url_json
+
+log = logging.getLogger(__name__)
 
 
 async def search_loc(query, authority_type):
@@ -22,12 +25,22 @@ async def search_loc(query, authority_type):
         )
 
     try:
-        lc_subjects_id = get_id_from_api_response(api_response["json"])
+        loc_id = get_id_from_api_response(api_response["json"])
     except (ValueError, KeyError, IndexError):
         raise ValueError(
             f"Couldn't find '{query}' in Library of Congress {authority_type}"
         )
+    log.info(f"Matched query: '{query}' to lc-{authority_type} ID: {loc_id}")
+    return loc_id
 
+
+def search_lc_names(query):
+    lc_names_id = search_loc(query, authority_type="names")
+    return lc_names_id
+
+
+def search_lc_subjects(query):
+    lc_subjects_id = search_loc(query, authority_type="subjects")
     return lc_subjects_id
 
 
