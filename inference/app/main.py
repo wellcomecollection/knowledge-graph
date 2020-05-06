@@ -20,6 +20,21 @@ app = FastAPI(
 logger.info("API started, awaiting requests")
 
 
+@app.get("/healthcheck")
+def healthcheck():
+    return {"status": "healthy"}
+
+
+@app.on_event("startup")
+def on_startup():
+    start_persistent_client_session()
+
+
+@app.on_event("shutdown")
+async def on_shutdown():
+    await close_persistent_client_session()
+
+# known ID endpoints
 @app.get("/lc-names/{query_id}")
 async def lc_names_endpoint(query_id: str):
     try:
@@ -99,39 +114,18 @@ async def wikidata_endpoint(query_id: str):
         raise HTTPException(status_code=404, detail=error_string)
     return response
 
-
+# unknown ID endpoint
 @app.get("/search/{query}")
 async def search_endpoint(query: str):
     try:
-        # start_time = time.time()
-        # wikidata_id = await search_wikidata(query)
-        # response = await aggregate(
-        #     query_id=wikidata_id,
-        #     id_type="wikidata",
-        #     confidence="inferred"
-        # )
-        # logger.info(
-        #     f"Aggregated concept data for wikidata ID: {wikidata_id}"
-        #     f", which took took {round(time.time() - start_time, 2)}s"
-        # )
+        start_time = time.time()
         response = await search(query)
+        logger.info(
+            f"Aggregated concept data for query: '{query}'"
+            f", which took took {round(time.time() - start_time, 2)}s"
+        )
     except ValueError as e:
         error_string = str(e)
         logger.error(error_string)
         raise HTTPException(status_code=404, detail=error_string)
     return response
-
-
-@app.get("/healthcheck")
-def healthcheck():
-    return {"status": "healthy"}
-
-
-@app.on_event("startup")
-def on_startup():
-    start_persistent_client_session()
-
-
-@app.on_event("shutdown")
-async def on_shutdown():
-    await close_persistent_client_session()
