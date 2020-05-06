@@ -16,7 +16,7 @@ def extract_years(cleaned_query):
     years = [
         int(token)
         for token in cleaned_query.split()
-        if re.match('^\d{4}$', token)
+        if re.match("^\d{4}$", token)
     ]
     return years
 

@@ -77,7 +77,7 @@ async def search(query):
 
     if not query_id:
         raise ValueError(
-            f"Could not find a plausible match for {query} in external authorities"
+            f"Could not find a plausible match for '{query}' in external authorities"
         )
 
     response = await aggregate(query_id, id_type, "inferred")
