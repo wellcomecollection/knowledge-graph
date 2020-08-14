@@ -1,0 +1,13 @@
+version: "3.8"
+services:
+  graph_store:
+    build: graph_store/
+    volumes:
+      - ${HOME}/.aws/credentials:/root/.aws/credentials:ro
+    command: python graph_store.py populate --start 18000
+    depends_on:
+      - enricher
+  enricher:
+    build: enricher/
+    ports:
+      - 80:80

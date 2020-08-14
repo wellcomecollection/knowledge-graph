@@ -33,7 +33,7 @@ def get_variants(api_response):
         ]
     except KeyError:
         lc_subjects_id = os.path.basename(api_response['@id'])
-        log.info(f"Couldn't find variants for ID: {lc_subjects_id}")
+        log.debug(f"Couldn't find variants for ID: {lc_subjects_id}")
         variants = []
     return variants
 
@@ -43,7 +43,7 @@ def get_label(api_response):
         label = api_response["http://www.loc.gov/mads/rdf/v1#authoritativeLabel"][0]["@value"]
     except (KeyError, IndexError):
         lc_subjects_id = os.path.basename(api_response['@id'])
-        log.info(f"Couldn't find label for ID: {lc_subjects_id}")
+        log.debug(f"Couldn't find label for ID: {lc_subjects_id}")
         label = None
     return label
 
@@ -55,7 +55,7 @@ async def get_hierarchical_concepts(api_response, direction):
     try:
         elements = api_response[response_element_id]
     except KeyError:
-        log.info(
+        log.debug(
             f"Couldn't find {direction.lower()} concepts for ID: {lc_names_id}"
         )
         return None
@@ -66,7 +66,7 @@ async def get_hierarchical_concepts(api_response, direction):
 
     concepts = [get_label(response) for response in responses]
 
-    log.info(
+    log.debug(
         f'Got {direction.lower()} concepts for ID: {lc_names_id}'
         f', which took took {round(time.time() - start_time, 2)}s'
     )

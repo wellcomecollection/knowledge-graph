@@ -11,12 +11,10 @@ from .src.http import (close_persistent_client_session,
 logger = logging.getLogger(__name__)
 
 # initialise API
-logger.info("Starting API")
 app = FastAPI(
-    title="Concepts Enhancer",
-    description="One-stop-shop for sanitizing and enhancing concepts with wikidata",
+    title="Concepts Enricher",
+    description="One-stop-shop for sanitizing and enriching concepts with wikidata",
 )
-logger.info("API started, awaiting requests")
 
 
 @app.get("/lc-names/{query_id}")
@@ -24,7 +22,7 @@ async def lc_names_endpoint(query_id: str):
     try:
         start_time = time.time()
         response = await aggregate(query_id=query_id, id_type="lc_names")
-        logger.info(
+        logger.debug(
             f"Aggregated concept data for lc_names ID: {query_id}"
             f", which took took {round(time.time() - start_time, 2)}s"
         )
@@ -40,7 +38,7 @@ async def lc_subjects_endpoint(query_id: str):
     try:
         start_time = time.time()
         response = await aggregate(query_id=query_id, id_type="lc_subjects")
-        logger.info(
+        logger.debug(
             f"Aggregated concept data for lc_subjects ID: {query_id}"
             f", which took took {round(time.time() - start_time, 2)}s"
         )
@@ -51,12 +49,12 @@ async def lc_subjects_endpoint(query_id: str):
     return response
 
 
-@app.get("/mesh/{query_id}")
+@app.get("/nlm-mesh/{query_id}")
 async def mesh_endpoint(query_id: str):
     try:
         start_time = time.time()
         response = await aggregate(query_id=query_id, id_type="mesh")
-        logger.info(
+        logger.debug(
             f"Aggregated concept data for MeSH ID: {query_id}"
             f", which took took {round(time.time() - start_time, 2)}s"
         )
@@ -72,7 +70,7 @@ async def wikidata_endpoint(query_id: str):
     try:
         start_time = time.time()
         response = await aggregate(query_id=query_id, id_type="wikidata")
-        logger.info(
+        logger.debug(
             f"Aggregated concept data for wikidata ID: {query_id}"
             f", which took took {round(time.time() - start_time, 2)}s"
         )

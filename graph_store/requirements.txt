@@ -8,7 +8,7 @@ boto3==1.14.38            # via -r requirements.in
 botocore==1.17.38         # via boto3, s3transfer
 certifi==2020.6.20        # via requests
 chardet==3.0.4            # via requests
-click==7.1.2              # via -r requirements.in
+click==7.1.2              # via typer
 docutils==0.15.2          # via botocore
 elasticsearch==7.6.0      # via -r requirements.in
 idna==2.10                # via requests
@@ -23,5 +23,6 @@ pytz==2020.1              # via neotime
 requests==2.23.0          # via -r requirements.in
 s3transfer==0.3.3         # via boto3
 six==1.15.0               # via neotime, python-cypher, python-dateutil
+typer==0.3.1              # via -r requirements.in
 urllib3==1.25.10          # via botocore, elasticsearch, requests
 wcwidth==0.2.5            # via prompt-toolkit

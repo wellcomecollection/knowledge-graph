@@ -1,5 +1,4 @@
 aiohttp[speedups]==3.6.2
-elasticsearch==7.1.0
 fastapi==0.54.1
 numpy==1.17.0
 tqdm==4.41.1

@@ -1,7 +1,0 @@
-version: "3.8"
-services:
-  graph_store:
-    build: .
-    volumes:
-      - ${HOME}/.aws/credentials:/root/.aws/credentials:ro
-    command: python graph_store.py populate

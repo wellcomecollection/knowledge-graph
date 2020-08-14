@@ -13,7 +13,6 @@ cchardet==2.1.6           # via aiohttp
 cffi==1.14.0              # via brotlipy, pycares
 chardet==3.0.4            # via aiohttp
 click==7.1.1              # via uvicorn
-elasticsearch==7.1.0      # via -r requirements.in
 fastapi==0.54.1           # via -r requirements.in
 h11==0.9.0                # via uvicorn
 httptools==0.1.1          # via uvicorn
@@ -26,7 +25,7 @@ pydantic==1.5             # via fastapi
 starlette==0.13.2         # via fastapi
 tqdm==4.41.1              # via -r requirements.in
 unidecode==1.1.1          # via -r requirements.in
-urllib3==1.24.2           # via -r requirements.in, elasticsearch
+urllib3==1.24.2           # via -r requirements.in
 uvicorn==0.11.3           # via -r requirements.in
 uvloop==0.14.0            # via uvicorn
 websockets==8.1           # via uvicorn
