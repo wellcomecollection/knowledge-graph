@@ -24,7 +24,10 @@ class ES:
     ):
         log.info(f"fetching data from {index} with query: {str(query)}")
         results_generator = helpers.scan(
-            client=self.session, index=index, query=query
+            client=self.session,
+            index=index,
+            query=query,
+            request_timeout=14400
         )
         for result in results_generator:
             yield result

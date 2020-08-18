@@ -70,7 +70,10 @@ async def aggregate_wikidata(wikidata_id, label_type):
     }
 
     response = await get_wikidata_data(wikidata_id)
-    for variant in response["variants"]:
+    names = [
+        name for name in response["variants"] + [response["title"]] if name
+    ]
+    for variant in names:
         wikidata["children"].append({
             "label": variant,
             "label_type": "name",
@@ -86,7 +89,10 @@ async def aggregate_wikidata(wikidata_id, label_type):
             "children": []
         }
         response = await get_lc_subjects_data(alt_source_ids["lc_subjects"])
-        for variant in response["variants"]:
+        names = [
+            name for name in response["variants"] + [response["title"]] if name
+        ]
+        for variant in names:
             lc_subjects_data["children"].append({
                 "label": variant,
                 "label_type": "name",
@@ -102,7 +108,10 @@ async def aggregate_wikidata(wikidata_id, label_type):
             "children": []
         }
         response = await get_lc_names_data(alt_source_ids["lc_names"])
-        for variant in response["variants"]:
+        names = [
+            name for name in response["variants"] + [response["title"]] if name
+        ]
+        for variant in names:
             lc_names_data["children"].append({
                 "label": variant,
                 "label_type": "name",
@@ -118,7 +127,10 @@ async def aggregate_wikidata(wikidata_id, label_type):
             "children": []
         }
         response = await get_mesh_data(alt_source_ids["mesh"])
-        for variant in response["variants"]:
+        names = [
+            name for name in response["variants"] + [response["title"]] if name
+        ]
+        for variant in names:
             mesh_data["children"].append({
                 "label": variant,
                 "label_type": "name",
@@ -151,8 +163,10 @@ async def aggregate(label, label_type):
         return enriched_concept
     else:
         raise ValueError(f"{label_type} is not a valid label_type")
-
-    for variant in response["variants"]:
+    names = [
+        name for name in response["variants"] + [response["title"]] if name
+    ]
+    for variant in names:
         enriched_concept["children"].append({
             "label": variant,
             "label_type": "name",

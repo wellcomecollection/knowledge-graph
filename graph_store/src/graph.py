@@ -69,7 +69,7 @@ class Graph:
 
     def create_node(self, node):
         self._run_command(
-            Pypher().CREATE.node(
+            Pypher().MERGE.node(
                 'n', node["label_type"],
                 label=node["label"],
                 label_type=node["label_type"],
@@ -105,4 +105,13 @@ class Graph:
         q = Pypher()
         q.MATCH.node("n")
         q.RETURN.count(__.n).AS("count")
+        return self._run_query(q)
+
+    def search(self, query):
+        q = Pypher()
+        q.MATCH
+        q.node("n", "name", label=query)
+        q.rel("*")
+        q.node("connected", label_type="name")
+        q.RETURN.node(__.connected.__label__)
         return self._run_query(q)

@@ -25,13 +25,13 @@ async def get_wikidata_api_response(wikidata_id):
     return response["json"]["entities"][wikidata_id]
 
 
-def get_label(api_response):
+def get_title(api_response):
     try:
-        label = api_response["labels"]["en"]["value"]
+        title = api_response["labels"]["en"]["value"]
     except KeyError:
-        log.debug(f"Couldn't find label for ID: {api_response['id']}")
-        label = None
-    return label
+        log.debug(f"Couldn't find title for ID: {api_response['id']}")
+        title = None
+    return title
 
 
 def get_description(api_response):
@@ -79,7 +79,7 @@ async def get_variants(api_response):
     same_as_responses = await asyncio.gather(
         *[get_wikidata_api_response(id) for id in same_as_ids]
     )
-    same_as = [get_label(response) for response in same_as_responses]
+    same_as = [get_title(response) for response in same_as_responses]
 
     variants = aliases + same_as
     if not variants:
@@ -116,7 +116,7 @@ async def get_broader_concepts(api_response):
         *[get_wikidata_api_response(id) for id in concept_ids]
     )
 
-    concepts = [get_label(response) for response in responses]
+    concepts = [get_title(response) for response in responses]
 
     log.debug(
         f'Got broader concepts for ID: {api_response["id"]}, '
@@ -128,7 +128,7 @@ async def get_broader_concepts(api_response):
 async def get_wikidata_data(wikidata_id):
     api_response = await get_wikidata_api_response(wikidata_id)
 
-    label = get_label(api_response)
+    title = get_title(api_response)
     description = get_description(api_response)
     birth_date = get_birth_date(api_response)
     death_date = get_death_date(api_response)
@@ -139,7 +139,7 @@ async def get_wikidata_data(wikidata_id):
 
     return {
         "id": wikidata_id,
-        "title": label,
+        "title": title,
         "description": description,
         "birth_date": birth_date,
         "death_date": death_date,

@@ -3,9 +3,17 @@ import requests
 
 
 def get_enriched_concept(authority, authority_id):
-    return requests.get(
+    response = requests.get(
         f"http://enricher:80/{authority}/{authority_id}"
-    ).json()
+    )
+    if response.status_code == 200:
+        return response.json()
+    else:
+        return {
+            "label": authority_id,
+            "label_type": authority,
+            "children": []
+        }
 
 
 def traverse(node, parent=None):

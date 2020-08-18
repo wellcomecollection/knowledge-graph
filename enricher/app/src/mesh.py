@@ -14,7 +14,7 @@ async def get_mesh_api_response(mesh_id):
         "searchMethod": "FullWord",
         "q": mesh_id
     }
-    response = await fetch_url_json(url, params)
+    response = fetch_url_json(url, params)
     try:
         generated_response = (
             response["json"]['hits']['hits'][0]['_source']['_generated']
@@ -29,13 +29,13 @@ async def get_mesh_api_response(mesh_id):
     return generated_response
 
 
-def get_label(api_response):
+def get_title(api_response):
     try:
-        label = api_response["RecordName"]
+        title = api_response["RecordName"]
     except KeyError:
-        log.info(f"Couldn't find label for ID: {api_response['RecordUI']}")
-        label = None
-    return label
+        log.info(f"Couldn't find title for ID: {api_response['RecordUI']}")
+        title = None
+    return title
 
 
 def get_description(api_response):
@@ -62,7 +62,7 @@ def get_variants(api_response):
 
 async def get_mesh_data(mesh_id):
     api_response = await get_mesh_api_response(mesh_id)
-    label = get_label(api_response)
+    title = get_title(api_response)
     description = get_description(api_response)
     variants = get_variants(api_response)
 
@@ -70,7 +70,7 @@ async def get_mesh_data(mesh_id):
 
     return {
         "id": mesh_id,
-        "label": label,
+        "title": title,
         "description": description,
         "variants": variants
     }

@@ -25,17 +25,20 @@ def populate(
     es = ES()
 
     for concept in es.get_concepts_data():
-        if "ids" in concept["_source"]:
-            for id in concept["_source"]["ids"]:
-                if "lc-names" in id or "lc-subjects" in id or "nlm-mesh" in id:
-                    authority, authority_id = id.split("/")
-                    enriched_concept = get_enriched_concept(
-                        authority, authority_id
-                    )
-                    for node in traverse(enriched_concept):
-                        graph.create_node(node["child"])
-                        if node["parent"]:
-                            graph.create_edge(node["parent"], node["child"])
+        graph.create_node({
+            "label": concept["_source"]["label"],
+            "label_type": "name"
+        })
+
+        for id in concept["_source"]["ids"]:
+            if "lc-names" in id or "lc-subjects" in id or "nlm-mesh" in id:
+                authority, authority_id = id.split("/")
+                enriched_concept = get_enriched_concept(
+                    authority, authority_id)
+                for node in traverse(enriched_concept):
+                    graph.create_node(node["child"])
+                    if node["parent"]:
+                        graph.create_edge(node["parent"], node["child"])
 
 
 @app.command()
@@ -55,6 +58,13 @@ def get_stats():
     """Get some headline statistics about the data in the graph store"""
     response = Graph().get_stats()
     print(response)
+
+
+@app.command()
+def search():
+    query = typer.prompt("Query")
+    variant_names = Graph().search(query)
+    print(variant_names)
 
 
 if __name__ == "__main__":

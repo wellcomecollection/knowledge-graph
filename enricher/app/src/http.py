@@ -1,4 +1,4 @@
-from json.decoder import JSONDecodeError
+import json
 import aiohttp
 
 from .logging import get_logger
@@ -33,5 +33,5 @@ async def fetch_url_json(url, params=None):
     async with session.get(url, params=params) as response:
         try:
             return {"object": response, "json": await response.json()}
-        except JSONDecodeError:
+        except (json.JSONDecodeError, aiohttp.client_exceptions.ContentTypeError):
             raise ValueError(f"Couldn't decode json from {url}")
