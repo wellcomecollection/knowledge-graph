@@ -1,15 +1,19 @@
+
 import asyncio
-import logging
 import os
 import time
 
 from .http import fetch_url_json
+from .logging import get_logger
 
-log = logging.getLogger(__name__)
+log = get_logger(__name__)
 
 
 async def get_api_response(url):
-    response = await fetch_url_json(url + '.json')
+    try:
+        response = await fetch_url_json(url + '.json')
+    except ValueError as e:
+        raise e
     if response["object"].status == 200:
         pass
     elif response["object"].status == 404:

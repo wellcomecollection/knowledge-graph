@@ -1,11 +1,11 @@
 import asyncio
-import logging
 import re
 import time
 
 from .http import fetch_url_json
+from .logging import get_logger
 
-log = logging.getLogger(__name__)
+log = get_logger(__name__)
 
 
 async def get_wikidata_api_response(wikidata_id):
@@ -84,7 +84,7 @@ async def get_variants(api_response):
     variants = aliases + same_as
     if not variants:
         log.debug(f"Couldn't find variants for ID: {api_response['id']}")
-        variants = None
+        variants = []
 
     return variants
 

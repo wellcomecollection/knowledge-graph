@@ -1,8 +1,9 @@
-import logging
-
+from json.decoder import JSONDecodeError
 import aiohttp
 
-log = logging.getLogger(__name__)
+from .logging import get_logger
+
+log = get_logger(__name__)
 
 _session_store = {}
 
@@ -30,4 +31,7 @@ def _get_persistent_session():
 async def fetch_url_json(url, params=None):
     session = _get_persistent_session()
     async with session.get(url, params=params) as response:
-        return {"object": response, "json": await response.json()}
+        try:
+            return {"object": response, "json": await response.json()}
+        except JSONDecodeError:
+            raise ValueError(f"Couldn't decode json from {url}")

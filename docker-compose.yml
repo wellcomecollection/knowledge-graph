@@ -4,7 +4,7 @@ services:
     build: graph_store/
     volumes:
       - ${HOME}/.aws/credentials:/root/.aws/credentials:ro
-    command: python graph_store.py populate --start 18000
+    command: python graph_store.py populate
     depends_on:
       - enricher
   enricher:

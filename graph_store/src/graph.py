@@ -6,7 +6,7 @@ from neo4j import GraphDatabase, basic_auth
 from pypher import Pypher, __
 
 from .credentials import get_secrets
-from .enrich import enrich
+
 from .logging import get_logger
 
 log = get_logger(__name__)
@@ -22,7 +22,7 @@ class Graph:
         secrets = get_secrets("neo4j/credentials")
 
         self.driver = GraphDatabase.driver(
-            uri=secrets["connection_uri"].replace("neo4j+s", "bolt+routing"),
+            uri=secrets["connection_uri"],
             auth=basic_auth(
                 user=secrets["username"],
                 password=secrets["password"]
@@ -67,36 +67,29 @@ class Graph:
             response = list(session.read_transaction(_query_fn))
         return response
 
-    def create_node(self, properties):
-        authority, authority_id, enriched_concept = "", "", ""
-        if len(properties["ids"]) > 2:
-            log.info(len(properties["ids"]))
-
-        for id in properties["ids"]:
-            if (
-                "lc-names" in id or
-                "lc-subjects" in id or
-                "nlm-mesh" in id
-            ):
-                authority, authority_id = id.split("/")
-                enriched_concept = enrich(authority, authority_id)
-                log.info(enriched_concept)
-
+    def create_node(self, node):
         self._run_command(
             Pypher().CREATE.node(
-                'n', properties["type"],
-                id=properties["id"],
-                type=properties["type"],
-                label=properties["label"],
-                authority=authority,
-                authority_id=authority_id,
-                enrichments=json.dumps(enriched_concept)
+                'n', node["label_type"],
+                label=node["label"],
+                label_type=node["label_type"],
             )
         )
-        log.info(f"Created {properties['type']}: {properties['label']}")
+        log.info(f"Created {node['label_type']}: {node['label']}")
 
-    def create_edge(self, work_id, concept_id):
-        log.info(f"Created edge from {work_id} -> {concept_id}")
+    def create_edge(self, source, target):
+        q = Pypher()
+        q.MATCH(
+            __.node("source", source["label_type"], label=source["label"]),
+            __.node("target", target["label_type"], label=target["label"])
+        )
+        q.MERGE.node("source").rel_out("r", "rel").node("target")
+
+        self._run_command(q)
+        log.info(
+            "Created an edge between "
+            f"\"{source['label']}\" and \"{target['label']}\""
+        )
 
     def clear(self, limit=None):
         if limit:
@@ -113,17 +106,3 @@ class Graph:
         q.MATCH.node("n")
         q.RETURN.count(__.n).AS("count")
         return self._run_query(q)
-
-    def get_authority_labelled(self):
-        return None
-        # (
-        #     MATCH(n)
-        #     WHERE EXISTS(n.authority_id)
-        #     RETURN DISTINCT "node" as entity, n.authority_id AS authority_id
-        #     LIMIT 25
-        #     UNION ALL
-        #     MATCH()-[r]-()
-        #     WHERE EXISTS(r.authority_id)
-        #     RETURN DISTINCT "relationship" AS entity, r.authority_id AS authority_id
-        #     LIMIT 25
-        # )

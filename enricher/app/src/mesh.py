@@ -1,8 +1,7 @@
-import logging
-
 from .http import fetch_url_json
+from .logging import get_logger
 
-log = logging.getLogger(__name__)
+log = get_logger(__name__)
 
 
 async def get_mesh_api_response(mesh_id):

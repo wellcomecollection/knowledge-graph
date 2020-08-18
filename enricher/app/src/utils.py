@@ -1,10 +1,10 @@
-import logging
 import os
 
 from .http import fetch_url_json
+from .logging import get_logger
 from .wikidata import get_wikidata_api_response
 
-log = logging.getLogger(__name__)
+log = get_logger(__name__)
 
 
 async def find_alt_source_id_in_wikidata(alt_source_id):

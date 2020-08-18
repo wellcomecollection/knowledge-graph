@@ -2,7 +2,7 @@ import typer
 from src.elastic import ES
 from src.graph import Graph
 from src.logging import get_logger
-from src.enrich import enrich
+from src.enrich import get_enriched_concept, traverse
 
 log = get_logger(__name__)
 app = typer.Typer()
@@ -23,14 +23,19 @@ def populate(
     """
     graph = Graph()
     es = ES()
-    i = 0
+
     for concept in es.get_concepts_data():
-        i += 1
-        if i < start:
-            log.info("Skipping " + concept["_source"]["label"])
-            pass
-        else:
-            graph.create_node(concept["_source"])
+        if "ids" in concept["_source"]:
+            for id in concept["_source"]["ids"]:
+                if "lc-names" in id or "lc-subjects" in id or "nlm-mesh" in id:
+                    authority, authority_id = id.split("/")
+                    enriched_concept = get_enriched_concept(
+                        authority, authority_id
+                    )
+                    for node in traverse(enriched_concept):
+                        graph.create_node(node["child"])
+                        if node["parent"]:
+                            graph.create_edge(node["parent"], node["child"])
 
 
 @app.command()
@@ -50,11 +55,6 @@ def get_stats():
     """Get some headline statistics about the data in the graph store"""
     response = Graph().get_stats()
     print(response)
-
-
-@app.command()
-def test_enrichment():
-    enrich("lc-names", "nb2015021801")
 
 
 if __name__ == "__main__":

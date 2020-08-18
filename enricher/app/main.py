@@ -21,7 +21,7 @@ app = FastAPI(
 async def lc_names_endpoint(query_id: str):
     try:
         start_time = time.time()
-        response = await aggregate(query_id=query_id, id_type="lc_names")
+        response = await aggregate(query_id, "lc_names")
         logger.debug(
             f"Aggregated concept data for lc_names ID: {query_id}"
             f", which took took {round(time.time() - start_time, 2)}s"
@@ -37,7 +37,7 @@ async def lc_names_endpoint(query_id: str):
 async def lc_subjects_endpoint(query_id: str):
     try:
         start_time = time.time()
-        response = await aggregate(query_id=query_id, id_type="lc_subjects")
+        response = await aggregate(query_id, "lc_subjects")
         logger.debug(
             f"Aggregated concept data for lc_subjects ID: {query_id}"
             f", which took took {round(time.time() - start_time, 2)}s"
@@ -53,7 +53,7 @@ async def lc_subjects_endpoint(query_id: str):
 async def mesh_endpoint(query_id: str):
     try:
         start_time = time.time()
-        response = await aggregate(query_id=query_id, id_type="mesh")
+        response = await aggregate(query_id, "mesh")
         logger.debug(
             f"Aggregated concept data for MeSH ID: {query_id}"
             f", which took took {round(time.time() - start_time, 2)}s"
@@ -69,7 +69,7 @@ async def mesh_endpoint(query_id: str):
 async def wikidata_endpoint(query_id: str):
     try:
         start_time = time.time()
-        response = await aggregate(query_id=query_id, id_type="wikidata")
+        response = await aggregate(query_id, "wikidata")
         logger.debug(
             f"Aggregated concept data for wikidata ID: {query_id}"
             f", which took took {round(time.time() - start_time, 2)}s"

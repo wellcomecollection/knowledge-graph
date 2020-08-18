@@ -9,7 +9,7 @@ log = get_logger(__name__)
 
 class ES:
     def __init__(self):
-        log.info("Ceating elasticsearch session")
+        log.info("Creating elasticsearch session")
         secrets = get_secrets("reporting/concepts_credentials")
         self.session = Elasticsearch(
             secrets["host"],
