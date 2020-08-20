@@ -14,7 +14,7 @@ async def get_mesh_api_response(mesh_id):
         "searchMethod": "FullWord",
         "q": mesh_id
     }
-    response = fetch_url_json(url, params)
+    response = await fetch_url_json(url, params)
     try:
         generated_response = (
             response["json"]['hits']['hits'][0]['_source']['_generated']

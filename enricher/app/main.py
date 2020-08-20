@@ -50,7 +50,7 @@ async def lc_subjects_endpoint(query_id: str):
     return response
 
 
-@app.get("/nlm-mesh/{query_id}")
+@app.get("/mesh/{query_id}")
 async def mesh_endpoint(query_id: str):
     try:
         start_time = time.time()

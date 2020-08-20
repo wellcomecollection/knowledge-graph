@@ -57,14 +57,20 @@ def clear(
 def get_stats():
     """Get some headline statistics about the data in the graph store"""
     response = Graph().get_stats()
-    print(response)
+    log.info(f"Number of nodes: {response['nodes']}")
+    log.info(f"Number of edges: {response['edges']}")
+    log.info(f"Number of disconnected nodes: {response['disconnected']}")
+
 
 
 @app.command()
 def search():
     query = typer.prompt("Query")
-    variant_names = Graph().search(query)
-    print(variant_names)
+    try:
+        variant_names = Graph().search(query)
+        log.info(variant_names)
+    except ValueError as e:
+        log.error(e)
 
 
 if __name__ == "__main__":

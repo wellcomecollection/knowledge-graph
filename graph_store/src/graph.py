@@ -102,10 +102,26 @@ class Graph:
         log.info("Cleared graph")
 
     def get_stats(self):
-        q = Pypher()
-        q.MATCH.node("n")
-        q.RETURN.count(__.n).AS("count")
-        return self._run_query(q)
+        stats = {
+            "nodes": self._run_query(
+                Pypher()
+                .MATCH.node("n")
+                .RETURN.count(__.n).AS("nodes")
+            )[0]["nodes"],
+            "edges": self._run_query(
+                Pypher()
+                .MATCH.node("n").rel("r").node()
+                .RETURN.count(__.r).AS("edges")
+            )[0]["edges"],
+            "disconnected": self._run_query(
+                Pypher()
+                .MATCH.node("n")
+                .WHERE.NOT.node("n").rel().node()
+                .RETURN.count(__.n).AS("disconnected")
+            )[0]["disconnected"],
+        }
+
+        return stats
 
     def search(self, query):
         q = Pypher()
@@ -113,5 +129,13 @@ class Graph:
         q.node("n", "name", label=query)
         q.rel("*")
         q.node("connected", label_type="name")
-        q.RETURN.node(__.connected.__label__)
-        return self._run_query(q)
+        q.RETURN.node("connected")
+
+        variant_names = [
+            record["connected"]["label"]
+            for record in self._run_query(q)
+        ]
+        if variant_names:
+            return variant_names + [query]
+        else:
+            raise ValueError(f"\"{query}\" isn't a node in the graph store ")
