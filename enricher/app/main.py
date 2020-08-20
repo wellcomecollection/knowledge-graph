@@ -4,10 +4,10 @@ import time
 
 from fastapi import FastAPI, HTTPException
 
-from .src.logging import get_logger
 from .src.aggregate import aggregate
 from .src.http import (close_persistent_client_session,
                        start_persistent_client_session)
+from .src.logging import get_logger
 
 log = get_logger(__name__)
 
@@ -17,62 +17,23 @@ app = FastAPI(
     description="One-stop-shop for sanitizing and enriching concepts with wikidata",
 )
 
+valid_id_types = [
+    "lc_names", "lc_subjects", "mesh", "wikidata"
+]
 
-@app.get("/lc-names/{query_id}")
-async def lc_names_endpoint(query_id: str):
-    try:
-        start_time = time.time()
-        response = await aggregate(query_id, "lc_names")
-        log.debug(
-            f"Aggregated concept data for lc_names ID: {query_id}"
-            f", which took took {round(time.time() - start_time, 2)}s"
-        )
-    except ValueError as e:
-        error_string = str(e)
+
+@app.get("/{id_type}/{id}")
+async def query(id_type: str, id: str):
+    if id_type not in valid_id_types:
+        error_string = f"id_type must be one of {valid_id_types}"
         log.error(error_string)
         raise HTTPException(status_code=404, detail=error_string)
-    return response
 
-
-@app.get("/lc-subjects/{query_id}")
-async def lc_subjects_endpoint(query_id: str):
     try:
         start_time = time.time()
-        response = await aggregate(query_id, "lc_subjects")
+        response = await aggregate(id, id_type)
         log.debug(
-            f"Aggregated concept data for lc_subjects ID: {query_id}"
-            f", which took took {round(time.time() - start_time, 2)}s"
-        )
-    except ValueError as e:
-        error_string = str(e)
-        log.error(error_string)
-        raise HTTPException(status_code=404, detail=error_string)
-    return response
-
-
-@app.get("/mesh/{query_id}")
-async def mesh_endpoint(query_id: str):
-    try:
-        start_time = time.time()
-        response = await aggregate(query_id, "mesh")
-        log.debug(
-            f"Aggregated concept data for MeSH ID: {query_id}"
-            f", which took took {round(time.time() - start_time, 2)}s"
-        )
-    except ValueError as e:
-        error_string = str(e)
-        log.error(error_string)
-        raise HTTPException(status_code=404, detail=error_string)
-    return response
-
-
-@app.get("/wikidata/{query_id}")
-async def wikidata_endpoint(query_id: str):
-    try:
-        start_time = time.time()
-        response = await aggregate(query_id, "wikidata")
-        log.debug(
-            f"Aggregated concept data for wikidata ID: {query_id}"
+            f"Aggregated concept data for {id_type} ID: {id}"
             f", which took took {round(time.time() - start_time, 2)}s"
         )
     except ValueError as e:
