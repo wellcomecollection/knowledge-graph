@@ -2,8 +2,8 @@ import asyncio
 import re
 import time
 
-from .http import fetch_url_json
-from .logging import get_logger
+from weco_datascience.http import fetch_url_json
+from weco_datascience.logging import get_logger
 
 log = get_logger(__name__)
 
@@ -19,9 +19,7 @@ async def get_wikidata_api_response(wikidata_id):
     elif response["object"].status in [400, 404]:
         raise ValueError(f"{wikidata_id} is not a valid wikidata ID")
     else:
-        raise ValueError(
-            f"something unexpected happened when calling url: {url}"
-        )
+        raise ValueError(f"something unexpected happened when calling url: {url}")
     return response["json"]["entities"][wikidata_id]
 
 
@@ -45,7 +43,9 @@ def get_description(api_response):
 
 def get_birth_date(api_response):
     try:
-        birth_date = api_response["claims"]["P569"][0]["mainsnak"]["datavalue"]["value"]["time"]
+        birth_date = api_response["claims"]["P569"][0]["mainsnak"]["datavalue"][
+            "value"
+        ]["time"]
     except KeyError:
         log.debug(f"Couldn't find birth date for ID: {api_response['id']}")
         birth_date = None
@@ -54,7 +54,9 @@ def get_birth_date(api_response):
 
 def get_death_date(api_response):
     try:
-        death_date = api_response["claims"]["P570"][0]["mainsnak"]["datavalue"]["value"]["time"]
+        death_date = api_response["claims"]["P570"][0]["mainsnak"]["datavalue"][
+            "value"
+        ]["time"]
     except KeyError:
         log.debug(f"Couldn't find death date for ID: {api_response['id']}")
         death_date = None
@@ -73,8 +75,7 @@ async def get_variants(api_response):
         same_as_elements = []
 
     same_as_ids = [
-        element["mainsnak"]["datavalue"]["value"]["id"]
-        for element in same_as_elements
+        element["mainsnak"]["datavalue"]["value"]["id"] for element in same_as_elements
     ]
     same_as_responses = await asyncio.gather(
         *[get_wikidata_api_response(id) for id in same_as_ids]
@@ -102,14 +103,11 @@ async def get_broader_concepts(api_response):
 
     concept_elements = instace_of + subclass_of
     if not concept_elements:
-        log.debug(
-            f"Couldn't find broader concepts for ID: {api_response['id']}"
-        )
+        log.debug(f"Couldn't find broader concepts for ID: {api_response['id']}")
         return None
 
     concept_ids = [
-        element["mainsnak"]["datavalue"]["value"]["id"]
-        for element in concept_elements
+        element["mainsnak"]["datavalue"]["value"]["id"] for element in concept_elements
     ]
 
     responses = await asyncio.gather(
@@ -120,7 +118,7 @@ async def get_broader_concepts(api_response):
 
     log.debug(
         f'Got broader concepts for ID: {api_response["id"]}, '
-        f'which took took {round(time.time() - start_time, 2)}s'
+        f"which took took {round(time.time() - start_time, 2)}s"
     )
     return concepts
 
@@ -135,7 +133,7 @@ async def get_wikidata_data(wikidata_id):
     variants = await get_variants(api_response)
     broader_concepts = await get_broader_concepts(api_response)
 
-    log.info(f"Got data from wikidata for ID: {wikidata_id}")
+    log.debug(f"Got data from wikidata for ID: {wikidata_id}")
 
     return {
         "id": wikidata_id,

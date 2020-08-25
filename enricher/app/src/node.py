@@ -21,15 +21,10 @@ class Node:
             )
 
     def _add_child_raw(self, label, label_type):
-        self.children.append(
-            Node(label, label_type)
-        )
+        self.children.append(Node(label, label_type))
 
     def _add_child_node(self, node):
         self.children.append(node)
 
     def json(self):
-        return json.dumps(
-            self,
-            default=lambda o: getattr(o, '__dict__', str(o))
-        )
+        return json.dumps(self, default=lambda o: getattr(o, "__dict__", str(o)))

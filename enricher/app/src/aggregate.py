@@ -1,41 +1,47 @@
-import logging
+from weco_datascience.logging import get_logger
 
 from .library_of_congress import get_lc_names_data, get_lc_subjects_data
-from .logging import get_logger
 from .mesh import get_mesh_data
 from .node import Node
-from .utils import (loc_id_to_wikidata_id, mesh_id_to_wikidata_id,
+from .utils import (get_unknown_label_data, loc_id_to_wikidata_id,
+                    mesh_id_to_wikidata_id, unknown_label_to_wikidata_id,
                     wikidata_id_to_alt_source_ids)
 from .wikidata import get_wikidata_data
 
 log = get_logger(__name__)
 
 THIRD_PARTIES = (
-    ("lc_subjects", get_lc_subjects_data),
-    ("lc_names", get_lc_names_data),
-    ("mesh", get_mesh_data),
+    ("lc_subjects", get_lc_subjects_data, loc_id_to_wikidata_id),
+    ("lc_names", get_lc_names_data, loc_id_to_wikidata_id),
+    ("mesh", get_mesh_data, mesh_id_to_wikidata_id),
+    ("unknown", get_unknown_label_data, unknown_label_to_wikidata_id),
 )
 
 
-async def aggregate_wikidata(wikidata_id, label_type):
-    wikidata = Node(label=wikidata_id, label_type=wikidata_id)
+async def aggregate_wikidata(wikidata_id, label_type="wikidata"):
+    wikidata = Node(label=wikidata_id, label_type="wikidata_id")
     response = await get_wikidata_data(wikidata_id)
-    for variant in response["variants"] + [response["title"]]:
+    variant_names = response["variants"] + [response["title"]]
+    for variant in variant_names:
         wikidata.add_child(variant)
 
     alt_source_ids = await wikidata_id_to_alt_source_ids(wikidata_id)
 
-    for label_type, get_data in THIRD_PARTIES:
-        if alt_source_ids[label_type] and label_type != label_type:
-            lc_subjects_data = Node(
-                label=alt_source_ids[label_type],
-                label_type=label_type + "_id"
+    for third_party_label_type, get_data, _ in THIRD_PARTIES:
+        if (
+            alt_source_ids[third_party_label_type]
+            and third_party_label_type != label_type
+        ):
+            children = Node(
+                label=alt_source_ids[third_party_label_type],
+                label_type=third_party_label_type + "_id",
             )
-            response = await get_data(alt_source_ids[label_type])
-            for variant in response["variants"] + [response["title"]]:
-                lc_subjects_data.add_child(variant)
+            response = await get_data(alt_source_ids[third_party_label_type])
+            variant_names = response["variants"] + [response["title"]]
+            for variant in variant_names:
+                children.add_child(variant)
 
-            wikidata.add_child(lc_subjects_data)
+            wikidata.add_child(children)
 
     return wikidata
 
@@ -43,26 +49,20 @@ async def aggregate_wikidata(wikidata_id, label_type):
 async def aggregate(label, label_type):
     enriched_concept = Node(label, label_type)
 
-    if label_type == "lc_names":
-        response = await get_lc_names_data(label)
-        wikidata_id = await loc_id_to_wikidata_id(label)
-    elif label_type == "lc_subjects":
-        response = await get_lc_subjects_data(label)
-        wikidata_id = await loc_id_to_wikidata_id(label)
-    elif label_type == "mesh":
-        response = await get_mesh_data(label)
-        wikidata_id = await mesh_id_to_wikidata_id(label)
-    elif label_type == "wikidata":
-        enriched_concept = await aggregate_wikidata(label, label_type)
-        return enriched_concept
+    if label_type == "wikidata":
+        enriched_concept = await aggregate_wikidata(label)
+
     else:
-        raise ValueError(f"{label_type} is not a valid label_type")
+        for third_party_label_type, get_data, wiki_conversion in THIRD_PARTIES:
+            if third_party_label_type == label_type:
+                response = await get_data(label)
+                variant_names = response["variants"] + [response["title"]]
+                for variant in variant_names:
+                    enriched_concept.add_child(variant)
 
-    for variant in response["variants"] + [response["title"]]:
-        enriched_concept.add_child(variant)
-
-    if wikidata_id:
-        wikidata = await aggregate_wikidata(wikidata_id, label_type)
-        enriched_concept.add_child(wikidata)
+                wikidata_id = await wiki_conversion(label)
+                if wikidata_id:
+                    wikidata = await aggregate_wikidata(wikidata_id, label_type)
+                    enriched_concept.add_child(wikidata)
 
     return enriched_concept

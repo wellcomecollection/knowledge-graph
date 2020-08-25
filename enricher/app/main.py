@@ -4,10 +4,13 @@ import time
 
 from fastapi import FastAPI, HTTPException
 
+from weco_datascience.http import (
+    close_persistent_client_session,
+    start_persistent_client_session,
+)
+from weco_datascience.logging import get_logger
+
 from .src.aggregate import aggregate
-from .src.http import (close_persistent_client_session,
-                       start_persistent_client_session)
-from .src.logging import get_logger
 
 log = get_logger(__name__)
 
@@ -17,9 +20,7 @@ app = FastAPI(
     description="One-stop-shop for sanitizing and enriching concepts with wikidata",
 )
 
-valid_id_types = [
-    "lc_names", "lc_subjects", "mesh", "wikidata"
-]
+valid_id_types = ["lc_names", "lc_subjects", "mesh", "wikidata", "unknown"]
 
 
 @app.get("/{id_type}/{id}")
@@ -30,17 +31,11 @@ async def query(id_type: str, id: str):
         raise HTTPException(status_code=404, detail=error_string)
 
     try:
-        start_time = time.time()
-        response = await aggregate(id, id_type)
-        log.debug(
-            f"Aggregated concept data for {id_type} ID: {id}"
-            f", which took took {round(time.time() - start_time, 2)}s"
-        )
+        return await aggregate(id, id_type)
     except ValueError as e:
         error_string = str(e)
         log.error(error_string)
         raise HTTPException(status_code=404, detail=error_string)
-    return response
 
 
 @app.get("/healthcheck")

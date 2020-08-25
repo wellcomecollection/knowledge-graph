@@ -4,25 +4,44 @@
 #
 #    pip-compile requirements.in
 #
-boto3==1.14.38            # via -r requirements.in
-botocore==1.17.38         # via boto3, s3transfer
+aiodns==2.0.0             # via aiohttp
+aiofile==3.0.0            # via weco-datascience
+aiohttp[speedups]==3.6.2  # via weco-datascience
+async-timeout==3.0.1      # via aiohttp, weco-datascience
+attrs==20.1.0             # via aiohttp
+boto3==1.12.14            # via weco-datascience
+botocore==1.15.49         # via boto3, s3transfer
+brotlipy==0.7.0           # via aiohttp
+cached-property==1.5.1    # via piffle
+caio==0.5.3               # via aiofile
+cchardet==2.1.6           # via aiohttp
 certifi==2020.6.20        # via requests
-chardet==3.0.4            # via requests
+cffi==1.14.2              # via brotlipy, pycares
+chardet==3.0.4            # via aiohttp, requests
 click==7.1.2              # via typer
 docutils==0.15.2          # via botocore
 elasticsearch==7.6.0      # via -r requirements.in
-idna==2.10                # via requests
+future==0.18.2            # via piffle
+idna==2.10                # via requests, yarl
 jmespath==0.10.0          # via boto3, botocore
+multidict==4.7.6          # via aiohttp, yarl
 neo4j==1.7.6              # via -r requirements.in
 neobolt==1.7.17           # via neo4j
 neotime==1.7.4            # via neo4j
+piffle==0.3.0             # via weco-datascience
+pillow==7.0.0             # via weco-datascience
 prompt-toolkit==3.0.6     # via python-cypher
+pycares==3.1.1            # via aiodns
+pycparser==2.20           # via cffi
 python-cypher==0.18.1     # via -r requirements.in
 python-dateutil==2.8.1    # via botocore
 pytz==2020.1              # via neotime
-requests==2.23.0          # via -r requirements.in
+requests==2.23.0          # via -r requirements.in, piffle
 s3transfer==0.3.3         # via boto3
-six==1.15.0               # via neotime, python-cypher, python-dateutil
+six==1.15.0               # via neotime, piffle, python-cypher, python-dateutil
 typer==0.3.1              # via -r requirements.in
+typing-extensions==3.7.4.3  # via yarl
 urllib3==1.25.10          # via botocore, elasticsearch, requests
 wcwidth==0.2.5            # via prompt-toolkit
+weco-datascience==0.1.2   # via -r requirements.in
+yarl==1.5.1               # via aiohttp

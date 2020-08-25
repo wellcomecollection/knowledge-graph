@@ -1,13 +1,8 @@
-import json
-import logging
-import os
-
 from neo4j import GraphDatabase, basic_auth
 from pypher import Pypher, __
 
-from .credentials import get_secrets
-
-from .logging import get_logger
+from weco_datascience.credentials import get_secrets
+from weco_datascience.logging import get_logger
 
 log = get_logger(__name__)
 
@@ -23,10 +18,8 @@ class Graph:
 
         self.driver = GraphDatabase.driver(
             uri=secrets["connection_uri"],
-            auth=basic_auth(
-                user=secrets["username"],
-                password=secrets["password"]
-            )
+            auth=basic_auth(user=secrets["username"],
+                            password=secrets["password"]),
         )
         log.info("Successfully initialised graph client")
 
@@ -40,7 +33,7 @@ class Graph:
         if query.bound_params:
             for key, value in query.bound_params.items():
                 key = "$" + key
-                value = "\"" + value.replace('"', '\\"') + "\""
+                value = '"' + value.replace('"', '\\"') + '"'
                 query_string = query_string.replace(key, value)
         return query_string
 
@@ -70,7 +63,8 @@ class Graph:
     def create_node(self, node):
         self._run_command(
             Pypher().MERGE.node(
-                'n', node["label_type"],
+                "n",
+                node["label_type"],
                 label=node["label"],
                 label_type=node["label_type"],
             )
@@ -81,7 +75,7 @@ class Graph:
         q = Pypher()
         q.MATCH(
             __.node("source", source["label_type"], label=source["label"]),
-            __.node("target", target["label_type"], label=target["label"])
+            __.node("target", target["label_type"], label=target["label"]),
         )
         q.MERGE.node("source").rel_out("r", "rel").node("target")
 
@@ -104,20 +98,19 @@ class Graph:
     def get_stats(self):
         stats = {
             "nodes": self._run_query(
-                Pypher()
-                .MATCH.node("n")
-                .RETURN.count(__.n).AS("nodes")
+                Pypher().MATCH.node("n").RETURN.count(__.n).AS("nodes")
             )[0]["nodes"],
             "edges": self._run_query(
-                Pypher()
-                .MATCH.node("n").rel("r").node()
-                .RETURN.count(__.r).AS("edges")
+                Pypher().MATCH.node("n").rel("r").node().RETURN.count(__.r).AS("edges")
             )[0]["edges"],
             "disconnected": self._run_query(
                 Pypher()
                 .MATCH.node("n")
-                .WHERE.NOT.node("n").rel().node()
-                .RETURN.count(__.n).AS("disconnected")
+                .WHERE.NOT.node("n")
+                .rel()
+                .node()
+                .RETURN.count(__.n)
+                .AS("disconnected")
             )[0]["disconnected"],
         }
 
@@ -131,11 +124,9 @@ class Graph:
         q.node("connected", label_type="name")
         q.RETURN.node("connected")
 
-        variant_names = [
-            record["connected"]["label"]
-            for record in self._run_query(q)
-        ]
+        variant_names = [record["connected"]["label"]
+                         for record in self._run_query(q)]
         if variant_names:
             return variant_names + [query]
         else:
-            raise ValueError(f"\"{query}\" isn't a node in the graph store ")
+            raise ValueError(f'"{query}" isn\'t a node in the graph store ')

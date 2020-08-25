@@ -1,5 +1,5 @@
-from .http import fetch_url_json
-from .logging import get_logger
+from weco_datascience.http import fetch_url_json
+from weco_datascience.logging import get_logger
 
 log = get_logger(__name__)
 
@@ -12,15 +12,15 @@ async def get_mesh_api_response(mesh_id):
         "size": "1",
         "searchType": "exactMatch",
         "searchMethod": "FullWord",
-        "q": mesh_id
+        "q": mesh_id,
     }
     response = await fetch_url_json(url, params)
     try:
-        generated_response = (
-            response["json"]['hits']['hits'][0]['_source']['_generated']
-        )
+        generated_response = response["json"]["hits"]["hits"][0]["_source"][
+            "_generated"
+        ]
     except IndexError:
-        raise ValueError(f'{mesh_id} is not a valid MeSH ID')
+        raise ValueError(f"{mesh_id} is not a valid MeSH ID")
     except KeyError:
         requested_url = response["object"].url
         raise ValueError(
@@ -44,9 +44,7 @@ def get_description(api_response):
     elif "scrNote" in api_response:
         description = api_response["scrNote"]
     else:
-        log.info(
-            f"Couldn't find description for ID: {api_response['RecordUI']}"
-        )
+        log.info(f"Couldn't find description for ID: {api_response['RecordUI']}")
         description = None
     return description
 
@@ -72,5 +70,5 @@ async def get_mesh_data(mesh_id):
         "id": mesh_id,
         "title": title,
         "description": description,
-        "variants": variants
+        "variants": variants,
     }
