@@ -7,7 +7,6 @@ from weco_datascience.logging import get_logger
 
 log = get_logger(__name__)
 
-
 async def get_wikidata_api_response(wikidata_id):
     if not re.match("Q[0-9]+", wikidata_id):
         raise ValueError(f"{wikidata_id} is not a valid wikidata ID")
@@ -19,7 +18,8 @@ async def get_wikidata_api_response(wikidata_id):
     elif response["object"].status in [400, 404]:
         raise ValueError(f"{wikidata_id} is not a valid wikidata ID")
     else:
-        raise ValueError(f"something unexpected happened when calling url: {url}")
+        raise ValueError(
+            f"something unexpected happened when calling url: {url}")
     return response["json"]["entities"][wikidata_id]
 
 
@@ -103,7 +103,8 @@ async def get_broader_concepts(api_response):
 
     concept_elements = instace_of + subclass_of
     if not concept_elements:
-        log.debug(f"Couldn't find broader concepts for ID: {api_response['id']}")
+        log.debug(
+            f"Couldn't find broader concepts for ID: {api_response['id']}")
         return None
 
     concept_ids = [

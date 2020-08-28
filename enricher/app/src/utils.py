@@ -5,29 +5,9 @@ from weco_datascience.logging import get_logger
 
 from .library_of_congress import (get_api_response, get_lc_subjects_data,
                                   get_wikidata_id)
-from .wikidata import get_wikidata_api_response
+from .wikidata import get_wikidata_api_response, get_wikidata_id_from_prop
 
 log = get_logger(__name__)
-
-
-async def find_alt_source_id_in_wikidata(alt_source_id):
-    response = await fetch_url_json(
-        url="https://www.wikidata.org/w/api.php",
-        params={
-            "action": "query",
-            "list": "search",
-            "srsearch": alt_source_id,
-            "format": "json",
-        },
-    )
-    if response["object"].status != 200:
-        raise ValueError(f"Couldn't find '{alt_source_id}' in Wikidata")
-
-    try:
-        wikidata_id = response["json"]["query"]["search"][0]["title"]
-    except (KeyError, IndexError):
-        raise ValueError(f"Couldn't find '{alt_source_id}' in Wikidata")
-    return wikidata_id
 
 
 async def loc_id_to_wikidata_id(loc_id):
@@ -36,25 +16,30 @@ async def loc_id_to_wikidata_id(loc_id):
             f"http://id.loc.gov/authorities/subjects/{loc_id}"
         )
         wikidata_id = get_wikidata_id(api_response)
-        log.info(f"Found a link from LoC ID: {loc_id} to wikidata ID: {wikidata_id}")
+        log.debug(
+            f"Found a link from LoC ID: {loc_id} to wikidata ID: {wikidata_id}"
+        )
     except ValueError:
         try:
-            wikidata_id = await find_alt_source_id_in_wikidata(loc_id)
-            log.info(
+            wikidata_id = await get_wikidata_id_from_prop("P244", loc_id)
+            log.debug(
                 f"Found a link from wikidata ID: {wikidata_id} to LoC ID: {loc_id}"
             )
         except ValueError:
-            log.info(f"No link found between LoC and Wikidata for ID: {loc_id}")
+            log.debug(
+                f"No link found between LoC and Wikidata for ID: {loc_id}")
             wikidata_id = None
     return wikidata_id
 
 
 async def mesh_id_to_wikidata_id(mesh_id):
     try:
-        wikidata_id = await find_alt_source_id_in_wikidata(mesh_id)
-        log.info(f"Found a link from mesh ID: {mesh_id} to wikidata ID: {wikidata_id}")
+        wikidata_id = await get_wikidata_id_from_prop("P486", mesh_id)
+        log.debug(
+            f"Found a link from mesh ID: {mesh_id} to wikidata ID: {wikidata_id}"
+        )
     except ValueError:
-        log.info(f"No link found between MeSH and Wikidata for ID: {mesh_id}")
+        log.debug(f"No link found between MeSH and Wikidata for ID: {mesh_id}")
         wikidata_id = None
     return wikidata_id
 
@@ -93,17 +78,7 @@ async def unknown_label_to_loc_id(label):
             "https://id.loc.gov/authorities/label/" + label
         )
         loc_id = os.path.splitext(os.path.basename(str(redirect_url)))[0]
-        log.info(f"{label} = {loc_id}")
+        log.debug(f"Matched \"{label}\" to LoC ID: {loc_id}")
         return loc_id
     except ValueError:
         raise ValueError(f'Couldn\'t find "{label}" in LoC')
-
-
-async def get_unknown_label_data(label):
-    loc_id = await unknown_label_to_loc_id(label)
-    return await get_lc_subjects_data(loc_id)
-
-
-async def unknown_label_to_wikidata_id(label):
-    loc_id = await unknown_label_to_loc_id(label)
-    return await loc_id_to_wikidata_id(loc_id)
