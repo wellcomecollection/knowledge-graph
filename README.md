@@ -9,7 +9,7 @@ Working towards something like this:
 ## Populating the graph store with enriched concepts
 
 ```
-docker-compose up --build
+make run
 ```
 
 This starts up:

@@ -8,7 +8,7 @@ class Node:
         self.children = []
 
     def add_child(self, child, child_type="name"):
-        if child == None:
+        if child is None:
             pass
         if child.__class__ == Node:
             self._add_child_node(child)
@@ -27,4 +27,6 @@ class Node:
         self.children.append(node)
 
     def json(self):
-        return json.dumps(self, default=lambda o: getattr(o, "__dict__", str(o)))
+        return json.dumps(
+            self, default=lambda o: getattr(o, "__dict__", str(o))
+        )

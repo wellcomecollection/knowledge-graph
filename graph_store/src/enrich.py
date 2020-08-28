@@ -1,4 +1,3 @@
-import json
 import requests
 
 
@@ -12,7 +11,7 @@ def get_enriched_concept(authority, authority_id):
 
 def traverse(node, parent=None):
     """
-    recursively yields each node in a tree alongside its parent node (if the 
+    recursively yields each node in a tree alongside its parent node (if the
     parent exists)
     """
     yield {

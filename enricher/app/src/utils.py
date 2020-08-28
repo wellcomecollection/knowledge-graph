@@ -1,10 +1,9 @@
 import os
 
-from weco_datascience.http import fetch_redirect_url, fetch_url_json
+from weco_datascience.http import fetch_redirect_url
 from weco_datascience.logging import get_logger
 
-from .library_of_congress import (get_api_response, get_lc_subjects_data,
-                                  get_wikidata_id)
+from .library_of_congress import get_api_response, get_wikidata_id
 from .wikidata import get_wikidata_api_response, get_wikidata_id_from_prop
 
 log = get_logger(__name__)
@@ -23,11 +22,13 @@ async def loc_id_to_wikidata_id(loc_id):
         try:
             wikidata_id = await get_wikidata_id_from_prop("P244", loc_id)
             log.debug(
-                f"Found a link from wikidata ID: {wikidata_id} to LoC ID: {loc_id}"
+                f"Found a link from wikidata ID: {wikidata_id} "
+                "to LoC ID: {loc_id}"
             )
         except ValueError:
             log.debug(
-                f"No link found between LoC and Wikidata for ID: {loc_id}")
+                f"No link found between LoC and Wikidata for ID: {loc_id}"
+            )
             wikidata_id = None
     return wikidata_id
 
@@ -36,7 +37,8 @@ async def mesh_id_to_wikidata_id(mesh_id):
     try:
         wikidata_id = await get_wikidata_id_from_prop("P486", mesh_id)
         log.debug(
-            f"Found a link from mesh ID: {mesh_id} to wikidata ID: {wikidata_id}"
+            f"Found a link from mesh ID: {mesh_id} "
+            "to wikidata ID: {wikidata_id}"
         )
     except ValueError:
         log.debug(f"No link found between MeSH and Wikidata for ID: {mesh_id}")
@@ -78,7 +80,7 @@ async def unknown_label_to_loc_id(label):
             "https://id.loc.gov/authorities/label/" + label
         )
         loc_id = os.path.splitext(os.path.basename(str(redirect_url)))[0]
-        log.debug(f"Matched \"{label}\" to LoC ID: {loc_id}")
+        log.debug(f'Matched "{label}" to LoC ID: {loc_id}')
         return loc_id
     except ValueError:
         raise ValueError(f'Couldn\'t find "{label}" in LoC')

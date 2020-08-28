@@ -1,7 +1,3 @@
-import base64
-import logging
-import time
-
 from fastapi import FastAPI, HTTPException
 
 from weco_datascience.http import (
@@ -17,10 +13,10 @@ log = get_logger(__name__)
 # initialise API
 app = FastAPI(
     title="Concepts Enricher",
-    description="One-stop-shop for sanitizing and enriching concepts with wikidata",
+    description="One-stop-shop for enriching concepts with wikidata",
 )
 
-valid_id_types = ["lc_names", "lc_subjects", "mesh", "wikidata", "unknown"]
+valid_id_types = ["lc_names", "lc_subjects", "mesh", "wikidata"]
 
 
 @app.get("/{id_type}/{id}")

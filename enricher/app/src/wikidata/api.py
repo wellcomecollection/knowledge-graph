@@ -7,6 +7,7 @@ from weco_datascience.logging import get_logger
 
 log = get_logger(__name__)
 
+
 async def get_wikidata_api_response(wikidata_id):
     if not re.match("Q[0-9]+", wikidata_id):
         raise ValueError(f"{wikidata_id} is not a valid wikidata ID")
@@ -19,7 +20,8 @@ async def get_wikidata_api_response(wikidata_id):
         raise ValueError(f"{wikidata_id} is not a valid wikidata ID")
     else:
         raise ValueError(
-            f"something unexpected happened when calling url: {url}")
+            f"something unexpected happened when calling url: {url}"
+        )
     return response["json"]["entities"][wikidata_id]
 
 
@@ -75,7 +77,8 @@ async def get_variants(api_response):
         same_as_elements = []
 
     same_as_ids = [
-        element["mainsnak"]["datavalue"]["value"]["id"] for element in same_as_elements
+        element["mainsnak"]["datavalue"]["value"]["id"]
+        for element in same_as_elements
     ]
     same_as_responses = await asyncio.gather(
         *[get_wikidata_api_response(id) for id in same_as_ids]
@@ -104,11 +107,13 @@ async def get_broader_concepts(api_response):
     concept_elements = instace_of + subclass_of
     if not concept_elements:
         log.debug(
-            f"Couldn't find broader concepts for ID: {api_response['id']}")
+            f"Couldn't find broader concepts for ID: {api_response['id']}"
+        )
         return None
 
     concept_ids = [
-        element["mainsnak"]["datavalue"]["value"]["id"] for element in concept_elements
+        element["mainsnak"]["datavalue"]["value"]["id"]
+        for element in concept_elements
     ]
 
     responses = await asyncio.gather(

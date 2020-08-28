@@ -3,9 +3,11 @@ from weco_datascience.logging import get_logger
 from .library_of_congress import get_lc_names_data, get_lc_subjects_data
 from .mesh import get_mesh_data
 from .node import Node
-from .utils import (get_unknown_label_data, loc_id_to_wikidata_id,
-                    mesh_id_to_wikidata_id, unknown_label_to_wikidata_id,
-                    wikidata_id_to_alt_source_ids)
+from .utils import (
+    loc_id_to_wikidata_id,
+    mesh_id_to_wikidata_id,
+    wikidata_id_to_alt_source_ids,
+)
 from .wikidata import get_wikidata_data
 
 log = get_logger(__name__)
@@ -14,7 +16,6 @@ THIRD_PARTIES = (
     ("lc_subjects", get_lc_subjects_data, loc_id_to_wikidata_id),
     ("lc_names", get_lc_names_data, loc_id_to_wikidata_id),
     ("mesh", get_mesh_data, mesh_id_to_wikidata_id),
-    ("unknown", get_unknown_label_data, unknown_label_to_wikidata_id),
 )
 
 

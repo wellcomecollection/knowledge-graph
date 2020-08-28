@@ -20,7 +20,8 @@ async def get_api_response(url):
         raise ValueError(f"{loc_id} is not a valid library of congress ID")
     else:
         raise ValueError(
-            f"something unexpected happened when calling url: {url}")
+            f"something unexpected happened when calling url: {url}"
+        )
 
     for element in response["json"]:
         if element["@id"] == url:
@@ -47,7 +48,9 @@ def get_variants(api_response):
     try:
         variants = [
             altlabel["@value"]
-            for altlabel in api_response["http://www.w3.org/2004/02/skos/core#altLabel"]
+            for altlabel in api_response[
+                "http://www.w3.org/2004/02/skos/core#altLabel"
+            ]
         ]
     except KeyError:
         loc_id = os.path.basename(api_response["@id"])
@@ -58,9 +61,9 @@ def get_variants(api_response):
 
 def get_label(api_response):
     try:
-        label = api_response["http://www.loc.gov/mads/rdf/v1#authoritativeLabel"][0][
-            "@value"
-        ]
+        label = api_response[
+            "http://www.loc.gov/mads/rdf/v1#authoritativeLabel"
+        ][0]["@value"]
     except (KeyError, IndexError):
         loc_id = os.path.basename(api_response["@id"])
         log.debug(f"Couldn't find label for ID: {loc_id}")
@@ -71,12 +74,15 @@ def get_label(api_response):
 async def get_hierarchical_concepts(api_response, direction):
     start_time = time.time()
     loc_id = os.path.basename(api_response["@id"])
-    response_element_id = f"http://www.loc.gov/mads/rdf/v1#has{direction}Authority"
+    response_element_id = (
+        f"http://www.loc.gov/mads/rdf/v1#has{direction}Authority"
+    )
     try:
         elements = api_response[response_element_id]
     except KeyError:
         log.debug(
-            f"Couldn't find {direction.lower()} concepts for ID: {loc_id}")
+            f"Couldn't find {direction.lower()} concepts for ID: {loc_id}"
+        )
         return None
 
     responses = await asyncio.gather(
@@ -100,7 +106,9 @@ async def get_lc_subjects_data(loc_id):
     label = get_label(api_response)
     variants = get_variants(api_response)
     broader_concepts = await get_hierarchical_concepts(api_response, "Broader")
-    narrower_concepts = await get_hierarchical_concepts(api_response, "Narrower")
+    narrower_concepts = await get_hierarchical_concepts(
+        api_response, "Narrower"
+    )
 
     log.info(f"Got data from lc_subjects for ID: {loc_id}")
     return {

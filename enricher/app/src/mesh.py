@@ -44,7 +44,9 @@ def get_description(api_response):
     elif "scrNote" in api_response:
         description = api_response["scrNote"]
     else:
-        log.info(f"Couldn't find description for ID: {api_response['RecordUI']}")
+        log.info(
+            f"Couldn't find description for ID: {api_response['RecordUI']}"
+        )
         description = None
     return description
 

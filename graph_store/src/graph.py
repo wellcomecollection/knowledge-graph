@@ -18,8 +18,9 @@ class Graph:
 
         self.driver = GraphDatabase.driver(
             uri=secrets["connection_uri"],
-            auth=basic_auth(user=secrets["username"],
-                            password=secrets["password"]),
+            auth=basic_auth(
+                user=secrets["username"], password=secrets["password"]
+            ),
         )
         log.info("Successfully initialised graph client")
 
@@ -88,7 +89,13 @@ class Graph:
     def clear(self, limit=None):
         if limit:
             log.info(f"Clearing {limit} nodes from graph")
-            q = Pypher().Match.node("n").WITH("n").LIMIT(limit).DETACH.DELETE("n")
+            q = (
+                Pypher()
+                .Match.node("n")
+                .WITH("n")
+                .LIMIT(limit)
+                .DETACH.DELETE("n")
+            )
         else:
             log.info("Clearing all nodes from graph")
             q = Pypher().MATCH.node("n").DETACH.DELETE("n")
@@ -101,7 +108,12 @@ class Graph:
                 Pypher().MATCH.node("n").RETURN.count(__.n).AS("nodes")
             )[0]["nodes"],
             "edges": self._run_query(
-                Pypher().MATCH.node("n").rel("r").node().RETURN.count(__.r).AS("edges")
+                Pypher()
+                .MATCH.node("n")
+                .rel("r")
+                .node()
+                .RETURN.count(__.r)
+                .AS("edges")
             )[0]["edges"],
             "disconnected": self._run_query(
                 Pypher()
@@ -124,8 +136,9 @@ class Graph:
         q.node("connected", label_type="name")
         q.RETURN.node("connected")
 
-        variant_names = [record["connected"]["label"]
-                         for record in self._run_query(q)]
+        variant_names = [
+            record["connected"]["label"] for record in self._run_query(q)
+        ]
         if variant_names:
             return variant_names + [query]
         else:

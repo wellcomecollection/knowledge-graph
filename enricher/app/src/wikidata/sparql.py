@@ -1,6 +1,3 @@
-import asyncio
-import re
-import time
 from pathlib import Path
 
 from weco_datascience.http import fetch_url_json
@@ -12,14 +9,9 @@ log = get_logger(__name__)
 async def get_wikidata_sparql_response(query):
     response = await fetch_url_json(
         url="https://query.wikidata.org/sparql",
-        params={
-            "query": query,
-            "format": "json"
-        }
+        params={"query": query, "format": "json"},
     )
-    response = [
-        item["q"] for item in response.json()["results"]["bindings"]
-    ]
+    response = [item["q"] for item in response.json()["results"]["bindings"]]
     return response
 
 
