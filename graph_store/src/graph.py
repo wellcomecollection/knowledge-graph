@@ -140,6 +140,7 @@ class Graph:
             record["connected"]["label"] for record in self._run_query(q)
         ]
         if variant_names:
-            return variant_names + [query]
+            unique_variants = set(variant_names + [query])
+            return unique_variants
         else:
-            raise ValueError(f'"{query}" isn\'t a node in the graph store ')
+            raise ValueError(f"'{query}' isn't a node in the graph store")

@@ -29,13 +29,14 @@ def populate(
     es = ES()
 
     for concept in es.get_concepts_data():
-        graph.create_node(
-            {"label": concept["_source"]["label"], "label_type": "name"}
-        )
 
         for id in concept["_source"]["ids"]:
             if "lc-names" in id or "lc-subjects" in id or "nlm-mesh" in id:
+                graph.create_node(
+                    {"label": concept["_source"]["label"], "label_type": "name"}
+                )
                 authority, authority_id = id.split("/")
+                authority = authority.replace("-", "_")
                 enriched_concept = get_enriched_concept(authority, authority_id)
                 for node in traverse(enriched_concept):
                     graph.create_node(node["child"])

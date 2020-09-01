@@ -14,8 +14,8 @@ lint:
 	flake8 .
 
 test:
-	python -m pytest ./graph_store/test/ ./enricher/test/
+	docker-compose up --build test
 
 run: clean lint test
-	docker-compose up --build
+	docker-compose up --build enricher graph_store
 

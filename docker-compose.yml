@@ -11,3 +11,7 @@ services:
     build: enricher/
     ports:
       - 80:80
+    command: uvicorn app.main:app --host 0.0.0.0 --port 80
+  test:
+    build: .
+    command: python -m pytest ./graph_store/test/ ./enricher/test/

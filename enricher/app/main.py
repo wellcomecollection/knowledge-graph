@@ -1,5 +1,4 @@
 from fastapi import FastAPI, HTTPException
-
 from weco_datascience.http import (
     close_persistent_client_session,
     start_persistent_client_session,

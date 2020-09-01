@@ -11,7 +11,7 @@ async def get_wikidata_sparql_response(query):
         url="https://query.wikidata.org/sparql",
         params={"query": query, "format": "json"},
     )
-    response = [item["q"] for item in response.json()["results"]["bindings"]]
+    response = [item["q"] for item in response["json"]["results"]["bindings"]]
     return response
 
 
@@ -22,5 +22,8 @@ async def get_wikidata_id_from_prop(prop_id, value):
         f"?q wdt:{prop_id} ?value }}"
     )
     response = await get_wikidata_sparql_response(query)
-    wikidata_id = Path(response[0]["value"]).name
-    return wikidata_id
+    try:
+        wikidata_id = Path(response[0]["value"]).name
+        return wikidata_id
+    except IndexError:
+        raise ValueError(f"{value} isn't a known ID in wikidata")

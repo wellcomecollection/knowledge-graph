@@ -110,7 +110,7 @@ async def get_lc_subjects_data(loc_id):
         api_response, "Narrower"
     )
 
-    log.info(f"Got data from lc_subjects for ID: {loc_id}")
+    log.debug(f"Got data from lc_subjects for ID: {loc_id}")
     return {
         "id": loc_id,
         "title": label,
@@ -126,6 +126,6 @@ async def get_lc_names_data(loc_id):
     label = get_label(api_response)
     variants = get_variants(api_response)
 
-    log.info(f"Got data from lc_names for ID: {loc_id}")
+    log.debug(f"Got data from lc_names for ID: {loc_id}")
 
     return {"id": loc_id, "title": label, "variants": variants}

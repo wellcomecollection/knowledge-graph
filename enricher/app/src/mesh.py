@@ -33,7 +33,7 @@ def get_title(api_response):
     try:
         title = api_response["RecordName"]
     except KeyError:
-        log.info(f"Couldn't find title for ID: {api_response['RecordUI']}")
+        log.debug(f"Couldn't find title for ID: {api_response['RecordUI']}")
         title = None
     return title
 
@@ -44,7 +44,7 @@ def get_description(api_response):
     elif "scrNote" in api_response:
         description = api_response["scrNote"]
     else:
-        log.info(
+        log.debug(
             f"Couldn't find description for ID: {api_response['RecordUI']}"
         )
         description = None
@@ -55,7 +55,7 @@ def get_variants(api_response):
     try:
         variants = api_response["originalEntryTerms"]
     except KeyError:
-        log.info(f"Couldn't find variants for ID: {api_response['RecordUI']}")
+        log.debug(f"Couldn't find variants for ID: {api_response['RecordUI']}")
         variants = []
     return variants
 
@@ -66,7 +66,7 @@ async def get_mesh_data(mesh_id):
     description = get_description(api_response)
     variants = get_variants(api_response)
 
-    log.info(f"Got data from MeSH for ID: {mesh_id}")
+    log.debug(f"Got data from MeSH for ID: {mesh_id}")
 
     return {
         "id": mesh_id,
