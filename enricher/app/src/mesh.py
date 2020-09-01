@@ -53,7 +53,10 @@ def get_description(api_response):
 
 def get_variants(api_response):
     try:
-        variants = api_response["originalEntryTerms"]
+        variants = (
+            api_response["originalEntryTerms"]
+            + api_response["permutatedEntryTerms"]
+        )
     except KeyError:
         log.debug(f"Couldn't find variants for ID: {api_response['RecordUI']}")
         variants = []

@@ -1,6 +1,5 @@
 from neo4j import GraphDatabase, basic_auth
 from pypher import Pypher, __
-
 from weco_datascience.credentials import get_secrets
 from weco_datascience.logging import get_logger
 

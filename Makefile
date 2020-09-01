@@ -1,5 +1,5 @@
   
-.PHONY: clean lint test run 
+.PHONY: clean lint test pipeline run--no-tests run
 
 default: run
 
@@ -9,13 +9,16 @@ clean:
 	rm -rf ./*/__pycache__
 
 lint:
-	isort enricher/*.py graph_store/*.py
+	isort enricher/**/*.py graph_store/**/*.py
 	black . --line-length 80
 	flake8 .
 
 test:
-	docker-compose up --build test
+	docker-compose up --build tests
 
-run: clean lint test
-	docker-compose up --build enricher graph_store
+pipeline: 
+	docker-compose up --build enricher graph_store 
 
+run--no-tests: clean lint pipeline
+
+run: clean lint test pipeline

@@ -1,7 +1,6 @@
 from elasticsearch import Elasticsearch, helpers
-
-from weco_datascience.logging import get_logger
 from weco_datascience.credentials import get_secrets
+from weco_datascience.logging import get_logger
 
 log = get_logger(__name__)
 

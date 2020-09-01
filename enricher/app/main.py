@@ -6,6 +6,7 @@ from weco_datascience.http import (
 from weco_datascience.logging import get_logger
 
 from .src.aggregate import aggregate
+from .src.wikidata.api import get_variants, get_wikidata_api_response
 
 log = get_logger(__name__)
 
@@ -46,3 +47,10 @@ def on_startup():
 @app.on_event("shutdown")
 async def on_shutdown():
     await close_persistent_client_session()
+
+
+@app.get("/test")
+async def test():
+    wikidata_response = await get_wikidata_api_response("Q42")
+    blah = await get_variants(wikidata_response)
+    return blah
