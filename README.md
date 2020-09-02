@@ -45,7 +45,7 @@ make populate--no-tests
 
 ## Querying the populated graph store
 
-Use the query api to search the existing concepts and return their variant names. Run
+Use the query API to search the existing concepts and return their variant names. To start up the API, run
 
 ```
 make api
@@ -53,4 +53,4 @@ make api
 
 ## Graph structure
 
-More detail on the internal structure of the graph store [here](graph_structure.md).
+More detail on the internal structure of the graph store [here](docs/graph_structure.md).
