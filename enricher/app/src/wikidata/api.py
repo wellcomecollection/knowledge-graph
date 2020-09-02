@@ -1,11 +1,11 @@
 import asyncio
-import logging
 import re
 import time
 
-from .http import fetch_url_json
+from weco_datascience.http import fetch_url_json
+from weco_datascience.logging import get_logger
 
-log = logging.getLogger(__name__)
+log = get_logger(__name__)
 
 
 async def get_wikidata_api_response(wikidata_id):
@@ -25,38 +25,42 @@ async def get_wikidata_api_response(wikidata_id):
     return response["json"]["entities"][wikidata_id]
 
 
-def get_label(api_response):
+def get_title(api_response):
     try:
-        label = api_response["labels"]["en"]["value"]
+        title = api_response["labels"]["en"]["value"]
     except KeyError:
-        log.info(f"Couldn't find label for ID: {api_response['id']}")
-        label = None
-    return label
+        log.debug(f"Couldn't find title for ID: {api_response['id']}")
+        title = None
+    return title
 
 
 def get_description(api_response):
     try:
         description = api_response["descriptions"]["en"]["value"]
     except KeyError:
-        log.info(f"Couldn't find description for ID: {api_response['id']}")
+        log.debug(f"Couldn't find description for ID: {api_response['id']}")
         description = None
     return description
 
 
 def get_birth_date(api_response):
     try:
-        birth_date = api_response["claims"]["P569"][0]["mainsnak"]["datavalue"]["value"]["time"]
+        birth_date = api_response["claims"]["P569"][0]["mainsnak"]["datavalue"][
+            "value"
+        ]["time"]
     except KeyError:
-        log.info(f"Couldn't find birth date for ID: {api_response['id']}")
+        log.debug(f"Couldn't find birth date for ID: {api_response['id']}")
         birth_date = None
     return birth_date
 
 
 def get_death_date(api_response):
     try:
-        death_date = api_response["claims"]["P570"][0]["mainsnak"]["datavalue"]["value"]["time"]
+        death_date = api_response["claims"]["P570"][0]["mainsnak"]["datavalue"][
+            "value"
+        ]["time"]
     except KeyError:
-        log.info(f"Couldn't find death date for ID: {api_response['id']}")
+        log.debug(f"Couldn't find death date for ID: {api_response['id']}")
         death_date = None
     return death_date
 
@@ -79,12 +83,12 @@ async def get_variants(api_response):
     same_as_responses = await asyncio.gather(
         *[get_wikidata_api_response(id) for id in same_as_ids]
     )
-    same_as = [get_label(response) for response in same_as_responses]
+    same_as = [get_title(response) for response in same_as_responses]
 
     variants = aliases + same_as
     if not variants:
-        log.info(f"Couldn't find variants for ID: {api_response['id']}")
-        variants = None
+        log.debug(f"Couldn't find variants for ID: {api_response['id']}")
+        variants = []
 
     return variants
 
@@ -102,7 +106,7 @@ async def get_broader_concepts(api_response):
 
     concept_elements = instace_of + subclass_of
     if not concept_elements:
-        log.info(
+        log.debug(
             f"Couldn't find broader concepts for ID: {api_response['id']}"
         )
         return None
@@ -116,11 +120,11 @@ async def get_broader_concepts(api_response):
         *[get_wikidata_api_response(id) for id in concept_ids]
     )
 
-    concepts = [get_label(response) for response in responses]
+    concepts = [get_title(response) for response in responses]
 
-    log.info(
+    log.debug(
         f'Got broader concepts for ID: {api_response["id"]}, '
-        f'which took took {round(time.time() - start_time, 2)}s'
+        f"which took took {round(time.time() - start_time, 2)}s"
     )
     return concepts
 
@@ -128,18 +132,18 @@ async def get_broader_concepts(api_response):
 async def get_wikidata_data(wikidata_id):
     api_response = await get_wikidata_api_response(wikidata_id)
 
-    label = get_label(api_response)
+    title = get_title(api_response)
     description = get_description(api_response)
     birth_date = get_birth_date(api_response)
     death_date = get_death_date(api_response)
     variants = await get_variants(api_response)
     broader_concepts = await get_broader_concepts(api_response)
 
-    log.info(f"Got data from wikidata for ID: {wikidata_id}")
+    log.debug(f"Got data from wikidata for ID: {wikidata_id}")
 
     return {
         "id": wikidata_id,
-        "title": label,
+        "title": title,
         "description": description,
         "birth_date": birth_date,
         "death_date": death_date,
