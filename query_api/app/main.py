@@ -3,28 +3,24 @@ from weco_datascience.http import (close_persistent_client_session,
                                    start_persistent_client_session)
 from weco_datascience.logging import get_logger
 
-from .src.aggregate import aggregate
-
 log = get_logger(__name__)
 
 # initialise API
 app = FastAPI(
-    title="Concepts Enricher",
-    description="One-stop-shop for enriching concepts with wikidata",
+    title="Graph store querier",
+    description="Queries the graph store",
 )
 
-valid_id_types = ["lc_names", "lc_subjects", "mesh", "wikidata"]
 
-
-@app.get("/{id_type}/{id}")
-async def query(id_type: str, id: str):
-    if id_type not in valid_id_types:
-        error_string = f"id_type must be one of {valid_id_types}"
+@app.get("/query/{query}")
+async def query(query: str):
+    if query == "invalid":
+        error_string = f"{query} isn't a valid query"
         log.error(error_string)
         raise HTTPException(status_code=404, detail=error_string)
 
     try:
-        return await aggregate(id, id_type)
+        return query
     except ValueError as e:
         error_string = str(e)
         log.error(error_string)
