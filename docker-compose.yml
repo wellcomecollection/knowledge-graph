@@ -14,6 +14,8 @@ services:
     command: uvicorn app.main:app --host 0.0.0.0 --port 80
   query_api:
     build: query_api/
+    volumes:
+      - ${HOME}/.aws/credentials:/root/.aws/credentials:ro
     ports:
       - 80:80
     command: uvicorn app.main:app --host 0.0.0.0 --port 80

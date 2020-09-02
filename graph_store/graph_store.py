@@ -68,15 +68,5 @@ def get_stats():
     log.info(f"Number of disconnected nodes: {response['disconnected']}")
 
 
-@app.command()
-def search():
-    query = typer.prompt("Query")
-    try:
-        variant_names = Graph().search(query)
-        log.info(variant_names)
-    except ValueError as e:
-        log.error(e)
-
-
 if __name__ == "__main__":
     app()

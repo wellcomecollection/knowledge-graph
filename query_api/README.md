@@ -4,4 +4,4 @@ Queries the graph store.
 
 hit
 
-- `http://localhost/query/Charles Darwin`
+- `http://localhost?query=something`
