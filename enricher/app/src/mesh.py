@@ -1,8 +1,7 @@
-import logging
+from weco_datascience.http import fetch_url_json
+from weco_datascience.logging import get_logger
 
-from .http import fetch_url_json
-
-log = logging.getLogger(__name__)
+log = get_logger(__name__)
 
 
 async def get_mesh_api_response(mesh_id):
@@ -13,15 +12,15 @@ async def get_mesh_api_response(mesh_id):
         "size": "1",
         "searchType": "exactMatch",
         "searchMethod": "FullWord",
-        "q": mesh_id
+        "q": mesh_id,
     }
     response = await fetch_url_json(url, params)
     try:
-        generated_response = (
-            response["json"]['hits']['hits'][0]['_source']['_generated']
-        )
+        generated_response = response["json"]["hits"]["hits"][0]["_source"][
+            "_generated"
+        ]
     except IndexError:
-        raise ValueError(f'{mesh_id} is not a valid MeSH ID')
+        raise ValueError(f"{mesh_id} is not a valid MeSH ID")
     except KeyError:
         requested_url = response["object"].url
         raise ValueError(
@@ -30,13 +29,13 @@ async def get_mesh_api_response(mesh_id):
     return generated_response
 
 
-def get_label(api_response):
+def get_title(api_response):
     try:
-        label = api_response["RecordName"]
+        title = api_response["RecordName"]
     except KeyError:
-        log.info(f"Couldn't find label for ID: {api_response['RecordUI']}")
-        label = None
-    return label
+        log.debug(f"Couldn't find title for ID: {api_response['RecordUI']}")
+        title = None
+    return title
 
 
 def get_description(api_response):
@@ -45,7 +44,7 @@ def get_description(api_response):
     elif "scrNote" in api_response:
         description = api_response["scrNote"]
     else:
-        log.info(
+        log.debug(
             f"Couldn't find description for ID: {api_response['RecordUI']}"
         )
         description = None
@@ -54,24 +53,27 @@ def get_description(api_response):
 
 def get_variants(api_response):
     try:
-        variants = api_response["originalEntryTerms"]
+        variants = (
+            api_response["originalEntryTerms"]
+            + api_response["permutatedEntryTerms"]
+        )
     except KeyError:
-        log.info(f"Couldn't find variants for ID: {api_response['RecordUI']}")
+        log.debug(f"Couldn't find variants for ID: {api_response['RecordUI']}")
         variants = []
     return variants
 
 
 async def get_mesh_data(mesh_id):
     api_response = await get_mesh_api_response(mesh_id)
-    label = get_label(api_response)
+    title = get_title(api_response)
     description = get_description(api_response)
     variants = get_variants(api_response)
 
-    log.info(f"Got data from MeSH for ID: {mesh_id}")
+    log.debug(f"Got data from MeSH for ID: {mesh_id}")
 
     return {
         "id": mesh_id,
-        "label": label,
+        "title": title,
         "description": description,
-        "variants": variants
+        "variants": variants,
     }
