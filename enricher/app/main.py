@@ -16,7 +16,7 @@ app = FastAPI(
 valid_id_types = ["lc_names", "lc_subjects", "mesh", "wikidata"]
 
 
-@app.get("/{id_type}/{id}")
+@app.get("/")
 async def query(id_type: str, id: str):
     if id_type not in valid_id_types:
         error_string = f"id_type must be one of {valid_id_types}"

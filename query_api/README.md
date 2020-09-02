@@ -1,6 +1,6 @@
 # Query API
 
-Queries the graph store.
+Queries a pre-populated graph store to return variant names
 
 hit
 
