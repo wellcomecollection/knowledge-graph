@@ -1,7 +1,7 @@
   
-.PHONY: clean lint test pipeline run--no-tests run
+.PHONY: clean lint test pipeline populate--no-tests populate
 
-default: run
+default: populate
 
 clean:
 	rm -rf .hypothesis
@@ -19,6 +19,9 @@ test:
 pipeline: 
 	docker-compose up --build enricher graph_store 
 
-run--no-tests: clean lint pipeline
+populate--no-tests: clean lint pipeline
 
-run: clean lint test pipeline
+populate: clean lint test pipeline
+ 
+api: clean lint
+	docker-compose up --build query_api

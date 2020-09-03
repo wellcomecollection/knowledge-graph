@@ -126,20 +126,3 @@ class Graph:
         }
 
         return stats
-
-    def search(self, query):
-        q = Pypher()
-        q.MATCH
-        q.node("n", "name", label=query)
-        q.rel("*")
-        q.node("connected", label_type="name")
-        q.RETURN.node("connected")
-
-        variant_names = [
-            record["connected"]["label"] for record in self._run_query(q)
-        ]
-        if variant_names:
-            unique_variants = set(variant_names + [query])
-            return unique_variants
-        else:
-            raise ValueError(f"'{query}' isn't a node in the graph store")

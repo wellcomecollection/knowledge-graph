@@ -1,17 +1,11 @@
 # Graph Store
 
-## Running
+`graph_store.py` is a typer cli for interacting with the graph store.
 
-To start populating the graph store, run:
-
-```
-docker-compose up --build graph_store
-```
-
-The default command is set (and can be changed) in `docker-compose.yml`.
-
-The list of available commands is determined by `graph_store.py`, which can also be viewed via the cli by running:
+To see a list of the available commands, run:
 
 ```
 python graph_store.py --help
 ```
+
+The default command used in the pipeline is set (and can be changed) in `docker-compose.yml`.
