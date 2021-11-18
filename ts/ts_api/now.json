@@ -1,8 +1,0 @@
-{
-  "env": {
-    "concepts_es_cloud_id": "@concepts_es_cloud_id",
-    "concepts_es_user": "@concepts_es_user",
-    "concepts_es_pass": "@concepts_es_pass",
-    "concepts_es_index": "@concepts_es_index"
-  }
-}

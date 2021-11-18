@@ -12,15 +12,25 @@ services:
     ports:
       - 80:80
     command: uvicorn app.main:app --host 0.0.0.0 --port 80
-  query_api:
-    build: query_api/
+  graph_query_api:
+    build: graph_query_api/
     volumes:
       - ${HOME}/.aws/credentials:/root/.aws/credentials:ro
     ports:
       - 80:80
     command: uvicorn app.main:app --host 0.0.0.0 --port 80
-  tests:
-    build:
-      context: .
-      dockerfile: test/Dockerfile
-    command: python -m pytest ./graph_store/test/ ./enricher/test/
+  notebooks:
+    build: notebooks
+    ports:
+      - 8888:8888
+    volumes:
+      - type: bind
+        source: ./notebooks/notebooks
+        target: /home/jovyan/notebooks
+      - type: bind
+        source: ./data/common
+        target: /home/jovyan/data
+    env_file:
+      - .env
+    environment:
+      - JUPYTER_ENABLE_LAB=yes
