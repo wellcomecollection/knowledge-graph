@@ -1,13 +1,15 @@
 {
     "properties": {
         "id": {
-            "type": "keyword"
+            "type": "keyword",
+            "normalizer": "lowercase_normalizer"
         },
         "Author": {
             "type": "text",
             "fields": {
                 "keyword": {
-                    "type": "keyword"
+                    "type": "keyword",
+                    "normalizer": "lowercase_normalizer"
                 }
             }
         },
@@ -19,19 +21,35 @@
             "type": "text",
             "fields": {
                 "keyword": {
-                    "type": "keyword"
+                    "type": "keyword",
+                    "normalizer": "lowercase_normalizer"
                 }
             }
         },
         "Keywords": {
             "type": "text",
-            "analyzer": "csv_analyzer"
+            "analyzer": "csv_analyzer",
+            "fields": {
+                "keyword": {
+                    "type": "keyword",
+                    "normalizer": "lowercase_normalizer"
+                },
+                "english": {
+                    "type": "text",
+                    "analyzer": "english_analyzer"
+                },
+                "shingles": {
+                    "type": "text",
+                    "analyzer": "shingle_asciifolding_analyzer"
+                }
+            }
         },
         "Notes": {
             "type": "text",
             "fields": {
                 "keyword": {
-                    "type": "keyword"
+                    "type": "keyword",
+                    "normalizer": "lowercase_normalizer"
                 }
             },
             "index": "false"
@@ -40,38 +58,72 @@
             "type": "text",
             "fields": {
                 "keyword": {
-                    "type": "keyword"
+                    "type": "keyword",
+                    "normalizer": "lowercase_normalizer"
                 }
             }
         },
         "Quarter": {
-            "type": "keyword"
+            "type": "keyword",
+            "normalizer": "lowercase_normalizer"
         },
         "Relates to": {
             "type": "text",
             "fields": {
                 "keyword": {
-                    "type": "keyword"
+                    "type": "keyword",
+                    "normalizer": "lowercase_normalizer"
                 }
             }
         },
         "Title": {
-            "type": "text"
+            "type": "text",
+            "fields": {
+                "english": {
+                    "type": "text",
+                    "analyzer": "english_analyzer"
+                },
+                "shingles": {
+                    "type": "text",
+                    "analyzer": "shingle_asciifolding_analyzer"
+                }
+            }
         },
         "Type": {
-            "type": "keyword"
+            "type": "keyword",
+            "normalizer": "lowercase_normalizer"
         },
         "URL": {
-            "type": "keyword"
+            "type": "keyword",
+            "normalizer": "lowercase_normalizer"
         },
         "Wikidata ID": {
-            "type": "keyword"
+            "type": "keyword",
+            "normalizer": "lowercase_normalizer"
+        },
+        "standfirst": {
+            "type": "text",
+            "fields": {
+                "english": {
+                    "type": "text",
+                    "analyzer": "english_analyzer"
+                },
+                "shingles": {
+                    "type": "text",
+                    "analyzer": "shingle_asciifolding_analyzer"
+                }
+            }
         },
         "fulltext": {
             "type": "text",
             "fields": {
-                "keyword": {
-                    "type": "keyword"
+                "english": {
+                    "type": "text",
+                    "analyzer": "english_analyzer"
+                },
+                "shingles": {
+                    "type": "text",
+                    "analyzer": "shingle_asciifolding_analyzer"
                 }
             }
         }

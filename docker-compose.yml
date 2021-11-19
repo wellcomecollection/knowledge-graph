@@ -30,6 +30,9 @@ services:
       - type: bind
         source: ./data/common
         target: /home/jovyan/data
+      - type: bind
+        source: ./stories_search/data
+        target: /home/jovyan/data/stories
     env_file:
       - .env
     environment:
