@@ -1,0 +1,79 @@
+{
+    "bool": {
+        "should": [
+            {
+                "match": {
+                    "Title": {
+                        "query": "{{query}}",
+                        "_name": "title",
+                        "operator": "OR",
+                        "boost": 100
+                    }
+                }
+            },
+            {
+                "match": {
+                    "Title": {
+                        "query": "{{query}}",
+                        "_name": "fuzzy title",
+                        "operator": "OR",
+                        "fuzziness": "AUTO"
+                    }
+                }
+            },
+            {
+                "multi_match": {
+                    "fields": [
+                        "Author",
+                        "Images by"
+                    ],
+                    "query": "{{query}}",
+                    "_name": "author",
+                    "operator": "OR",
+                    "boost": 100
+                }
+            },
+            {
+                "match": {
+                    "fulltext": {
+                        "query": "{{query}}",
+                        "_name": "fulltext",
+                        "operator": "OR"
+                    }
+                }
+            },
+            {
+                "match": {
+                    "fulltext": {
+                        "query": "{{query}}",
+                        "_name": "fuzzy fulltext",
+                        "operator": "OR",
+                        "fuzziness": "AUTO",
+                        "boost": 0.1
+                    }
+                }
+            },
+            {
+                "match": {
+                    "Keywords": {
+                        "query": "{{query}}",
+                        "_name": "concepts",
+                        "operator": "OR",
+                        "boost": 1000
+                    }
+                }
+            },
+            {
+                "multi_match": {
+                    "fields": [
+                        "id",
+                        "Wikidata ID"
+                    ],
+                    "query": "{{query}}",
+                    "_name": "identifiers",
+                    "boost": 1000
+                }
+            }
+        ]
+    }
+}

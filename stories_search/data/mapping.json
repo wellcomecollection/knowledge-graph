@@ -1,0 +1,79 @@
+{
+    "properties": {
+        "id": {
+            "type": "keyword"
+        },
+        "Author": {
+            "type": "text",
+            "fields": {
+                "keyword": {
+                    "type": "keyword"
+                }
+            }
+        },
+        "Date published": {
+            "type": "date",
+            "format": "epoch_millis"
+        },
+        "Images by": {
+            "type": "text",
+            "fields": {
+                "keyword": {
+                    "type": "keyword"
+                }
+            }
+        },
+        "Keywords": {
+            "type": "text",
+            "analyzer": "csv_analyzer"
+        },
+        "Notes": {
+            "type": "text",
+            "fields": {
+                "keyword": {
+                    "type": "keyword"
+                }
+            },
+            "index": "false"
+        },
+        "Part of": {
+            "type": "text",
+            "fields": {
+                "keyword": {
+                    "type": "keyword"
+                }
+            }
+        },
+        "Quarter": {
+            "type": "keyword"
+        },
+        "Relates to": {
+            "type": "text",
+            "fields": {
+                "keyword": {
+                    "type": "keyword"
+                }
+            }
+        },
+        "Title": {
+            "type": "text"
+        },
+        "Type": {
+            "type": "keyword"
+        },
+        "URL": {
+            "type": "keyword"
+        },
+        "Wikidata ID": {
+            "type": "keyword"
+        },
+        "fulltext": {
+            "type": "text",
+            "fields": {
+                "keyword": {
+                    "type": "keyword"
+                }
+            }
+        }
+    }
+}
