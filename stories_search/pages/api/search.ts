@@ -16,7 +16,7 @@ export default async function search(
     }
 
     const query = JSON.parse(
-      JSON.stringify(blankQuery).replace('{{query}}', q as string)
+      JSON.stringify(blankQuery).replace(/{{query}}/g, q as string)
     )
     await getClient()
       .search({

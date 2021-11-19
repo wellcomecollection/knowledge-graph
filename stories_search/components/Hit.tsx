@@ -11,7 +11,9 @@ const Hit: FC<Props> = ({ hit }) => {
       <a href={hit._source.URL} className="no-underline">
         <p className="text-xl font-bold">{hit._source.Title}</p>
         <div className="text-sm">
-          {hit._source.Author}, {formattedDate}
+          {hit._source.Author},{' '}
+          {hit._source['Images by'] ? hit._source['Images by'] + ',' : ''}{' '}
+          {formattedDate}
         </div>
       </a>
     </>
