@@ -32,6 +32,13 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({
 const Search: NextPage<Props> = ({ hits, query }) => {
   return (
     <>
+      <h1>Stories search</h1>
+      <div>
+        Search for stories on{' '}
+        <a href="https://wellcomecollection.org/stories">
+          wellcomecollection.org/stories
+        </a>
+      </div>
       <SearchBox query={query} />
       <ul>
         {hits.map((hit) => (
