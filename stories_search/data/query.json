@@ -1,0 +1,15 @@
+{
+    "bool": {
+        "should": [
+            {
+                "match": {
+                    "Title": {
+                        "query": "{{query}}",
+                        "_name": "title",
+                        "operator": "OR"
+                    }
+                }
+            }
+        ]
+    }
+}

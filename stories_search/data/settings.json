@@ -1,0 +1,15 @@
+{
+    "analysis": {
+        "analyzer": {
+            "csv_analyzer": {
+                "tokenizer": "csv_tokenizer"
+            }
+        },
+        "tokenizer": {
+            "csv_tokenizer": {
+                "type": "pattern",
+                "pattern": ","
+            }
+        }
+    }
+}
