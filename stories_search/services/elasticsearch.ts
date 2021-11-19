@@ -1,8 +1,8 @@
-import { Client } from "@elastic/elasticsearch";
+import { Client } from '@elastic/elasticsearch'
 
-const { ELASTIC_PASSWORD, ELASTIC_USERNAME, ELASTIC_CLOUD_ID } = process.env;
+const { ELASTIC_PASSWORD, ELASTIC_USERNAME, ELASTIC_CLOUD_ID } = process.env
 
-let client: Client;
+let client: Client
 export function getClient(): Client {
   client = new Client({
     cloud: {
@@ -12,6 +12,6 @@ export function getClient(): Client {
       username: ELASTIC_USERNAME!,
       password: ELASTIC_PASSWORD!,
     },
-  });
-  return client;
+  })
+  return client
 }

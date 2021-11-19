@@ -1,20 +1,22 @@
-export type Hit<DocType = Record<string, any>> = {
-  _id: string;
-  _score: string;
-  _source: DocType;
-  _explanation: Record<string, unknown>;
-  highlight: Record<string, string[]>;
-  matched_queries: string[];
-};
+export type Doc = {
+  Title: string
+  URL: string
+  'Date published': number
+  Author: string
+  'Images by': string | null
+  Type: string
+  'Part of': string | null
+  Keywords: string
+  Notes: string
+  Quarter: string
+  'Relates to': string
+  'Wikidata ID': string
+  id: string
+  fulltext: string
+}
 
-export type SearchResponse = {
-  took: number;
-  hits: {
-    total: {
-      value: number;
-      relation: "eq" | "gte";
-    };
-    max_score: number;
-    hits: Hit[];
-  };
-};
+export type Hit = {
+  _id: string
+  _score: string
+  _source: Doc
+}
