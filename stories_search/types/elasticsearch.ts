@@ -13,6 +13,7 @@ export type Doc = {
   'Wikidata ID': string
   id: string
   fulltext: string
+  standfirst: string
 }
 
 export type Hit = {

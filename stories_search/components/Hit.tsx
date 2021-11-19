@@ -15,6 +15,9 @@ const Hit: FC<Props> = ({ hit }) => {
           {hit._source['Images by'] ? hit._source['Images by'] + ',' : ''}{' '}
           {formattedDate}
         </div>
+        <div className="text-gray-800 text-sm pt-2">
+          {hit._source.standfirst}
+        </div>
       </a>
     </>
   )

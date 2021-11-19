@@ -2,12 +2,23 @@
     "bool": {
         "should": [
             {
+                "multi_match": {
+                    "fields": [
+                        "id",
+                        "Wikidata ID"
+                    ],
+                    "query": "{{query}}",
+                    "_name": "identifiers",
+                    "boost": 1000
+                }
+            },
+            {
                 "match": {
-                    "Title": {
+                    "Keywords": {
                         "query": "{{query}}",
-                        "_name": "title",
+                        "_name": "concepts",
                         "operator": "OR",
-                        "boost": 100
+                        "boost": 1000
                     }
                 }
             },
@@ -15,9 +26,9 @@
                 "match": {
                     "Title": {
                         "query": "{{query}}",
-                        "_name": "fuzzy title",
+                        "_name": "title",
                         "operator": "OR",
-                        "fuzziness": "AUTO"
+                        "boost": 100
                     }
                 }
             },
@@ -35,43 +46,35 @@
             },
             {
                 "match": {
+                    "standfirst": {
+                        "query": "{{query}}",
+                        "_name": "standfirst",
+                        "operator": "OR",
+                        "boost": 10
+                    }
+                }
+            },
+            {
+                "match": {
                     "fulltext": {
                         "query": "{{query}}",
                         "_name": "fulltext",
-                        "operator": "OR"
-                    }
-                }
-            },
-            {
-                "match": {
-                    "fulltext": {
-                        "query": "{{query}}",
-                        "_name": "fuzzy fulltext",
                         "operator": "OR",
-                        "fuzziness": "AUTO",
-                        "boost": 0.1
-                    }
-                }
-            },
-            {
-                "match": {
-                    "Keywords": {
-                        "query": "{{query}}",
-                        "_name": "concepts",
-                        "operator": "OR",
-                        "boost": 1000
+                        "boost": 5
                     }
                 }
             },
             {
                 "multi_match": {
                     "fields": [
-                        "id",
-                        "Wikidata ID"
+                        "standfirst",
+                        "fulltext",
+                        "Title"
                     ],
                     "query": "{{query}}",
-                    "_name": "identifiers",
-                    "boost": 1000
+                    "_name": "fuzz",
+                    "operator": "OR",
+                    "fuzziness": "AUTO"
                 }
             }
         ]
