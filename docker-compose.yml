@@ -31,9 +31,46 @@ services:
         source: ./data/common
         target: /home/jovyan/data
       - type: bind
-        source: ./stories_search/data
+        source: ./stories/search/data
         target: /home/jovyan/data/stories
     env_file:
       - .env
     environment:
       - JUPYTER_ENABLE_LAB=yes
+  neo4j:
+    image: neo4j:latest
+    volumes:
+      - type: bind
+        source: ./data/neo4j/data
+        target: /data
+      - type: bind
+        source: ./data/neo4j/logs
+        target: /logs
+      - type: bind
+        source: ./data/neo4j/plugins
+        target: /plugins
+      - type: bind
+        source: ./data/neo4j/import
+        target: /var/lib/neo4j/import
+    ports:
+      - 7474:7474
+      - 7687:7687
+    env_file: .env
+    environment:
+      - NEO4J_ACCEPT_LICENSE_AGREEMENT=yes
+      - NEO4JLABS_PLUGINS=["graph-data-science", "apoc"]
+      - NEO4J_dbms_security_procedures_whitelist=gds.*, apoc.*
+      - NEO4J_dbms_security_procedures_unrestricted=gds.*, apoc.*
+  stories_graph:
+    build: stories/graph/
+    command: python main.py
+    env_file: .env
+    depends_on:
+      - neo4j
+    volumes:
+      - type: bind
+        source: ./data/common
+        target: /home/jovyan/data
+      - type: bind
+        source: ./stories/search/data
+        target: /home/jovyan/data/stories
