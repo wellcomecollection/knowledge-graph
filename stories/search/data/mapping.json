@@ -26,7 +26,7 @@
                 }
             }
         },
-        "Keywords": {
+        "concepts_expanded": {
             "type": "text",
             "analyzer": "csv_analyzer",
             "fields": {

@@ -1,0 +1,4 @@
+elasticsearch==7.6.0
+neo4j==1.7.6
+python-cypher==0.18.1
+httpx==0.21.1
