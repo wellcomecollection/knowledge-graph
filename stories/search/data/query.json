@@ -13,23 +13,27 @@
                 }
             },
             {
-                "match": {
-                    "Keywords": {
-                        "query": "{{query}}",
-                        "_name": "concepts",
-                        "operator": "OR",
-                        "boost": 1000
-                    }
+                "multi_match": {
+                    "fields": [
+                        "Title",
+                        "Title.*"
+                    ],
+                    "query": "{{query}}",
+                    "_name": "title",
+                    "operator": "OR",
+                    "boost": 100
                 }
             },
             {
-                "match": {
-                    "Title": {
-                        "query": "{{query}}",
-                        "_name": "title",
-                        "operator": "OR",
-                        "boost": 100
-                    }
+                "multi_match": {
+                    "fields": [
+                        "concepts_expanded",
+                        "concepts_expanded.*"
+                    ],
+                    "query": "{{query}}",
+                    "_name": "concepts",
+                    "operator": "OR",
+                    "boost": 100
                 }
             },
             {
@@ -55,13 +59,15 @@
                 }
             },
             {
-                "match": {
-                    "fulltext": {
-                        "query": "{{query}}",
-                        "_name": "fulltext",
-                        "operator": "OR",
-                        "boost": 5
-                    }
+                "multi_match": {
+                    "fields": [
+                        "fulltext",
+                        "fulltext.*"
+                    ],
+                    "query": "{{query}}",
+                    "_name": "fulltext",
+                    "operator": "OR",
+                    "boost": 5
                 }
             },
             {

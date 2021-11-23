@@ -37,6 +37,8 @@ services:
       - .env
     environment:
       - JUPYTER_ENABLE_LAB=yes
+    depends_on:
+      - neo4j
   neo4j:
     image: neo4j:latest
     volumes:
@@ -54,6 +56,7 @@ services:
         target: /var/lib/neo4j/import
     ports:
       - 7474:7474
+      - 7473:7473
       - 7687:7687
     env_file: .env
     environment:
