@@ -48,12 +48,6 @@ services:
       - type: bind
         source: ./data/neo4j/logs
         target: /logs
-      - type: bind
-        source: ./data/neo4j/plugins
-        target: /plugins
-      - type: bind
-        source: ./data/neo4j/import
-        target: /var/lib/neo4j/import
     ports:
       - 7474:7474
       - 7473:7473
