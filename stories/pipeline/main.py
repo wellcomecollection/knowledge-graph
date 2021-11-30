@@ -3,13 +3,16 @@ import json
 import os
 
 import pandas as pd
+from structlog import get_logger
 
 from src.elasticsearch import format_for_indexing, get_elasticsearch_session
 from src.enrich import get_variant_names
 from src.graph import get_neo4j_session
 from src.graph.models import Concept, Contributor, Story, VariantName
 
-print("load stories dataset")
+log = get_logger()
+
+log.info("Loading stories dataset")
 df = pd.read_excel(
     pd.ExcelFile("/data/stories.xlsx", engine="openpyxl"),
     sheet_name="Articles",
@@ -17,18 +20,19 @@ df = pd.read_excel(
 ).fillna("")
 
 
-print("ingest the dataset into neo4j")
+log.info("Ingesting the dataset into neo4j")
 db = get_neo4j_session()
 
-print("ingest stories")
+log.info("Ingesting stories")
 stories = {}
 for _, story_data in df.iterrows():
+    log.debug("Ingesting story", title=story_data["Title"])
     story = Story(
         title=story_data["Title"], published=story_data["Date published"].date()
     ).save()
     stories[story_data["Title"]] = story
 
-print("ingest contributors")
+log.info("Ingesting contributors")
 unique_contributors = list(
     set(
         [
@@ -42,10 +46,11 @@ unique_contributors = list(
 
 contributors = {}
 for name in unique_contributors:
+    log.debug("Ingesting contributor", name=name)
     contributor = Contributor(name=name).save()
     contributors[name] = contributor
 
-print("ingest concepts")
+log.info("Ingesting concepts")
 unique_concepts = list(
     set(
         [
@@ -59,17 +64,18 @@ unique_concepts = list(
 
 concepts = {}
 for name in unique_concepts:
+    log.debug("Ingesting concept", name=name)
     concept = Concept(name=name).save()
     concepts[name] = concept
 
 for _, story_data in df.iterrows():
+    log.debug("Creating edges for story", title=story_data["Title"])
     story = stories[story_data["Title"]]
 
     contributor_names = [
         name.strip()
         for name in (
-            story_data["Author"].split(
-                ",") + story_data["Images by"].split(",")
+            story_data["Author"].split(",") + story_data["Images by"].split(",")
         )
         if name.strip() != ""
     ]
@@ -87,8 +93,11 @@ for _, story_data in df.iterrows():
         story.concepts.connect(concept)
 
 
-print("enrich concepts with variant names")
-variants = {concept: get_variant_names(concept) for concept in unique_concepts}
+log.info("Enriching the concepts with variant names")
+variants = {}
+for concept in unique_concepts:
+    log.debug("Enriching concept", concept=concept)
+    variants[concept] = get_variant_names(concept)
 
 all_variant_name_edges = [
     (concept_core_name, variant_name)
@@ -101,21 +110,27 @@ unique_variant_names = list(set([edge[1] for edge in all_variant_name_edges]))
 
 variant_dict = {}
 for variant_name in unique_variant_names:
+    log.debug("Ingesting variant name", variant_name=variant_name)
     v = VariantName(name=variant_name).save()
     variant_dict[variant_name] = v
 
 for concept_core_name, variant_name in all_variant_name_edges:
+    log.debug(
+        "Adding variant name",
+        concept_core_name=concept_core_name,
+        variant_name=variant_name,
+    )
     concept = concepts[concept_core_name]
     variant = variant_dict[variant_name]
     concept.variant_names.connect(variant)
 
 
-print("unpack the graph into elasticsearch")
+log.info("Unpacking the graph into elasticsearch")
 es = get_elasticsearch_session()
-stories_index_name = os.environ["STORIES_INDEX_NAME"]
-concepts_index_name = os.environ["CONCEPTS_INDEX_NAME"]
+stories_index_name = os.environ["ELASTIC_STORIES_INDEX_NAME"]
+concepts_index_name = os.environ["ELASTIC_CONCEPTS_INDEX_NAME"]
 
-print("create the stories index")
+log.info(f"Create the stories index: {stories_index_name}")
 with open("/data/elastic/stories/mapping.json", "r") as f:
     stories_mappings = json.load(f)
 with open("/data/elastic/stories/settings.json", "r") as f:
@@ -127,13 +142,14 @@ es.indices.create(
     mappings=stories_mappings,
     settings=stories_settings,
 )
-print("populate the stories index")
+log.info("Populating the stories index")
 for story in Story.nodes.all():
+    log.debug(f"Indexing story", story=story.title)
     concepts_on_node = [concept.name for concept in story.concepts.all()]
     variants_on_concepts_on_node = [
         variant.name
-        for concept in story.concept.all()
-        for variant in concept.variant_name.all()
+        for concept in story.concepts.all()
+        for variant in concept.variant_names.all()
     ]
 
     es.index(
@@ -148,7 +164,7 @@ for story in Story.nodes.all():
         ),
     )
 
-print("create the concepts index")
+log.info(f"Creating the concepts index: {concepts_index_name}")
 with open("/data/elastic/concepts/mapping.json", "r") as f:
     concepts_mappings = json.load(f)
 with open("/data/elastic/concepts/settings.json", "r") as f:
@@ -161,10 +177,11 @@ es.indices.create(
     settings=concepts_settings,
 )
 
-print("populate the concepts index")
+log.info("Populating the concepts index")
 for concept in Concept.nodes.all():
+    log.debug(f"Indexing concept", concept=concept.name)
     stories = [story.name for story in concept.stories.all()]
-    variants = [variant.name for variant in concept.variant_name.all()]
+    variants = [variant.name for variant in concept.variant_names.all()]
 
     es.index(
         index=concepts_index_name,
