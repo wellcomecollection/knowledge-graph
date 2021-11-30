@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 
 import { ApiResponse } from '@elastic/elasticsearch'
-import blankQuery from '../../../../data/common/stories/elastic/stories/query.json'
+import blankQuery from '../../data/query.json'
 import { getClient } from '../../services/elasticsearch'
 
 export default async function search(

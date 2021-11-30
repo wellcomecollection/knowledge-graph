@@ -172,3 +172,5 @@ data/**/*
 !data/**/
 !**/.gitkeep
 !**/README.md
+!data/common/stories/elastic/**/*.json
+

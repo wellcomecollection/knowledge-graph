@@ -1,0 +1,105 @@
+{
+    "properties": {
+        "id": {
+            "type": "keyword",
+            "normalizer": "lowercase_normalizer"
+        },
+        "contributors": {
+            "type": "text",
+            "fields": {
+                "keyword": {
+                    "type": "keyword",
+                    "normalizer": "lowercase_normalizer"
+                }
+            }
+        },
+        "published": {
+            "type": "date",
+            "format": "epoch_millis"
+        },
+        "concepts": {
+            "type": "text",
+            "analyzer": "csv_analyzer",
+            "fields": {
+                "keyword": {
+                    "type": "keyword",
+                    "normalizer": "lowercase_normalizer"
+                },
+                "english": {
+                    "type": "text",
+                    "analyzer": "english_analyzer"
+                },
+                "shingles": {
+                    "type": "text",
+                    "analyzer": "shingle_asciifolding_analyzer"
+                }
+            }
+        },
+        "notes": {
+            "type": "text",
+            "fields": {
+                "keyword": {
+                    "type": "keyword",
+                    "normalizer": "lowercase_normalizer"
+                }
+            },
+            "index": "false"
+        },
+        "part_of": {
+            "type": "text",
+            "fields": {
+                "keyword": {
+                    "type": "keyword",
+                    "normalizer": "lowercase_normalizer"
+                }
+            }
+        },
+        "title": {
+            "type": "text",
+            "fields": {
+                "english": {
+                    "type": "text",
+                    "analyzer": "english_analyzer"
+                },
+                "shingles": {
+                    "type": "text",
+                    "analyzer": "shingle_asciifolding_analyzer"
+                }
+            }
+        },
+        "url": {
+            "type": "keyword",
+            "normalizer": "lowercase_normalizer"
+        },
+        "wikidata": {
+            "type": "keyword",
+            "normalizer": "lowercase_normalizer"
+        },
+        "standfirst": {
+            "type": "text",
+            "fields": {
+                "english": {
+                    "type": "text",
+                    "analyzer": "english_analyzer"
+                },
+                "shingles": {
+                    "type": "text",
+                    "analyzer": "shingle_asciifolding_analyzer"
+                }
+            }
+        },
+        "full_text": {
+            "type": "text",
+            "fields": {
+                "english": {
+                    "type": "text",
+                    "analyzer": "english_analyzer"
+                },
+                "shingles": {
+                    "type": "text",
+                    "analyzer": "shingle_asciifolding_analyzer"
+                }
+            }
+        }
+    }
+}
