@@ -1,10 +1,21 @@
 import httpx
 
 
-def get_slices(id):
+def get_prismic_master_ref():
+    response = httpx.get(
+        "https://wellcomecollection.cdn.prismic.io/api",
+    ).json()
+    return response["refs"][0]["ref"]
+
+
+master_ref = get_prismic_master_ref()
+
+
+def get_slices(id, ref=master_ref):
     response = httpx.get(
         "https://wellcomecollection.cdn.prismic.io/api/v2/documents/search",
-        params={"ref": "YZZ4mREAACcAWBme", "q": f'[[at(document.id, "{id}")]]'},
+        params={"ref": ref,
+                "q": f'[[at(document.id, "{id}")]]'},
     ).json()
     slices = response["results"][0]["data"]["body"]
     return slices

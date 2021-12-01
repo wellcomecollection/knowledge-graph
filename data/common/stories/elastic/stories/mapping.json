@@ -14,8 +14,7 @@
             }
         },
         "published": {
-            "type": "date",
-            "format": "epoch_millis"
+            "type": "date"
         },
         "concepts": {
             "type": "text",
@@ -35,25 +34,6 @@
                 }
             }
         },
-        "notes": {
-            "type": "text",
-            "fields": {
-                "keyword": {
-                    "type": "keyword",
-                    "normalizer": "lowercase_normalizer"
-                }
-            },
-            "index": "false"
-        },
-        "part_of": {
-            "type": "text",
-            "fields": {
-                "keyword": {
-                    "type": "keyword",
-                    "normalizer": "lowercase_normalizer"
-                }
-            }
-        },
         "title": {
             "type": "text",
             "fields": {
@@ -67,11 +47,7 @@
                 }
             }
         },
-        "url": {
-            "type": "keyword",
-            "normalizer": "lowercase_normalizer"
-        },
-        "wikidata": {
+        "wikidata_id": {
             "type": "keyword",
             "normalizer": "lowercase_normalizer"
         },

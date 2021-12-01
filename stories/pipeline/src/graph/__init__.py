@@ -1,7 +1,6 @@
 import os
 from time import sleep
 
-import httpx
 from neo4j.exceptions import ServiceUnavailable
 from neomodel import config, db
 from neomodel.util import clear_neo4j_database
@@ -15,6 +14,7 @@ def get_neo4j_session(clean=True):
     db.set_connection(os.environ["NEO4J_BOLT_URL"])
     wait_until_neo4j_is_live()
     if clean:
+        log.info("Clearing neo4j database")
         clear_neo4j_database(db)
     return db
 
