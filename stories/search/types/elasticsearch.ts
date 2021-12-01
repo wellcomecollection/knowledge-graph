@@ -9,6 +9,12 @@ export type Story = {
   wellcome_id: string
   wikidata_id: string
 }
+export type Concept = {
+  id: string
+  name: string
+  variants: string
+  stories: string
+}
 
 export type Hit = {
   _id: string

@@ -1,4 +1,3 @@
-import Concept from './Concept'
 import { FC } from 'react'
 import { Hit as HitType } from '../types/elasticsearch'
 
