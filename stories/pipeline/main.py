@@ -1,7 +1,7 @@
-from pathlib import Path
 import datetime
 import json
 import os
+from pathlib import Path
 
 import pandas as pd
 from structlog import get_logger
@@ -84,8 +84,7 @@ for _, story_data in df.iterrows():
     contributor_names = [
         name.strip()
         for name in (
-            story_data["Author"].split(
-                ",") + story_data["Images by"].split(",")
+            story_data["Author"].split(",") + story_data["Images by"].split(",")
         )
         if name.strip() != ""
     ]
@@ -157,13 +156,19 @@ es.indices.create(
 log.info("Populating the stories index")
 for story in Story.nodes.all():
     log.debug("Indexing story", story=story.title)
-    concepts_on_node = [concept.name for concept in story.concepts.all()]
-    variants_on_concepts_on_node = [
-        variant.name
-        for concept in story.concepts.all()
-        for variant in concept.variant_names.all()
-    ]
-    concepts = list(set(concepts_on_node + variants_on_concepts_on_node))
+    concepts_on_node = list(
+        set([concept.name for concept in story.concepts.all()])
+    )
+    variants_on_concepts_on_node = list(
+        set(
+            [
+                variant.name
+                for concept in story.concepts.all()
+                for variant in concept.variant_names.all()
+            ]
+        )
+    )
+
     contributors = [
         contributor.name for contributor in story.contributors.all()
     ]
@@ -174,7 +179,8 @@ for story in Story.nodes.all():
         index=stories_index_name,
         document=format_for_indexing(
             {
-                "concepts": concepts,
+                "concepts": concepts_on_node,
+                "concepts_variants": variants_on_concepts_on_node,
                 "contributors": contributors,
                 "full_text": full_text,
                 "wellcome_id": story.wellcome_id,

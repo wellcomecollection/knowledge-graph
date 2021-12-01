@@ -1,11 +1,13 @@
 export type Story = {
-  title: string
-  published: Date
   contributors: string
-  wikidata_id: string
-  wellcome_id: string
+  concepts: string
+  concepts_variants: string
   fulltext: string
+  published: Date
   standfirst: string
+  title: string
+  wellcome_id: string
+  wikidata_id: string
 }
 
 export type Hit = {

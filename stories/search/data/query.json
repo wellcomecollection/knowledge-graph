@@ -28,7 +28,9 @@
                 "multi_match": {
                     "fields": [
                         "concepts",
-                        "concepts.*"
+                        "concepts.*",
+                        "concepts_variants",
+                        "concepts_variants.*"
                     ],
                     "query": "{{query}}",
                     "_name": "concepts",

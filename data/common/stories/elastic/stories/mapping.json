@@ -34,6 +34,24 @@
                 }
             }
         },
+        "concepts_variants": {
+            "type": "text",
+            "analyzer": "csv_analyzer",
+            "fields": {
+                "keyword": {
+                    "type": "keyword",
+                    "normalizer": "lowercase_normalizer"
+                },
+                "english": {
+                    "type": "text",
+                    "analyzer": "english_analyzer"
+                },
+                "shingles": {
+                    "type": "text",
+                    "analyzer": "shingle_asciifolding_analyzer"
+                }
+            }
+        },
         "title": {
             "type": "text",
             "fields": {
