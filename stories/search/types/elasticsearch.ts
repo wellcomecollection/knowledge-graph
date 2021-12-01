@@ -12,6 +12,7 @@ export type Story = {
 export type Concept = {
   id: string
   name: string
+  description: string
   variants: string
   stories: string
 }

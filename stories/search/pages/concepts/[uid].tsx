@@ -12,10 +12,11 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
 }
 
 const Concept: NextPage<ConceptType> = (props) => {
-  const { id, name, variants, stories } = props
+  const { id, name, variants, description, stories } = props
   return (
-    <Layout title={name} description={"it's a concept"}>
+    <Layout title={name} description={description}>
       <h1 className="capitalize">{name}</h1>
+      <p>{description}</p>
       <div className="pt-4">
         <h2 className="text-lg">Variant names</h2>
         <ul>

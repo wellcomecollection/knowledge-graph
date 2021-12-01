@@ -48,3 +48,20 @@ def get_variant_names(
         variant_names = []
 
     return variant_names
+
+
+def get_description(concept_name):
+    try:
+        wikidata_id = get_wikidata_id(concept_name)
+        response = httpx.get(
+            "http://www.wikidata.org/wiki/Special:EntityData/"
+            f"{wikidata_id}.json"
+        ).json()
+
+        data = response["entities"][wikidata_id]
+        description = data["descriptions"]["en"]["value"]
+
+    except (IndexError, KeyError, ConnectError):
+        description = ''
+
+    return description

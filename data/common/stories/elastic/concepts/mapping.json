@@ -30,6 +30,10 @@
                 }
             }
         },
+        "description": {
+            "type": "text",
+            "analyzer": "english_analyzer"
+        },
         "stories": {
             "type": "text",
             "analyzer": "csv_analyzer",

@@ -11,6 +11,7 @@ from neomodel import (
 class Concept(StructuredNode):
     uid = UniqueIdProperty()
     name = StringProperty(unique_index=True, required=True)
+    description = StringProperty()
     stories = RelationshipTo("Story", "HAS_CONCEPT")
     variant_names = RelationshipTo("VariantName", "AKA")
 
