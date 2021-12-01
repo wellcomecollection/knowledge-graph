@@ -1,5 +1,6 @@
+import Concept from './Concept'
 import { FC } from 'react'
-import { Hit as HitType } from '../../types/elasticsearch'
+import { Hit as HitType } from '../types/elasticsearch'
 
 type Props = { hit: HitType }
 const Hit: FC<Props> = ({ hit }) => {
@@ -17,8 +18,17 @@ const Hit: FC<Props> = ({ hit }) => {
         <div className="text-gray-800 text-sm pt-2">
           {hit._source.standfirst}
         </div>
-        <div className=" text-sm pt-2">{concepts.join(', ')}</div>
       </a>
+      <ul className="pt-2 space-x-2">
+        {concepts.map((concept) => (
+          <li
+            key={concept}
+            className="inline-block bg-gray-200 rounded-lg px-2 py-1 text-xs text-gray-700"
+          >
+            {concept}
+          </li>
+        ))}
+      </ul>
     </>
   )
 }
