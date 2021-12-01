@@ -126,7 +126,7 @@ for variant_name in unique_variant_names:
 
 for concept_core_name, variant_name in all_variant_name_edges:
     log.debug(
-        "Adding variant name",
+        "Creating edge for variant name",
         concept_core_name=concept_core_name,
         variant_name=variant_name,
     )
@@ -177,7 +177,7 @@ for story in Story.nodes.all():
                 "concepts": concepts,
                 "contributors": contributors,
                 "full_text": full_text,
-                "id": story.id,
+                "wellcome_id": story.wellcome_id,
                 "published": story.published,
                 "standfirst": standfirst,
                 "title": story.title,

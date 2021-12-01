@@ -1,17 +1,9 @@
-export type Doc = {
-  Title: string
-  URL: string
-  'Date published': number
-  Author: string
-  'Images by': string | null
-  Type: string
-  'Part of': string | null
-  Keywords: string
-  Notes: string
-  Quarter: string
-  'Relates to': string
-  'Wikidata ID': string
-  id: string
+export type Story = {
+  title: string
+  published: Date
+  contributors: string
+  wikidata_id: string
+  wellcome_id: string
   fulltext: string
   standfirst: string
 }
@@ -19,5 +11,5 @@ export type Doc = {
 export type Hit = {
   _id: string
   _score: string
-  _source: Doc
+  _source: Story
 }

@@ -1,6 +1,6 @@
 {
     "properties": {
-        "id": {
+        "wellcome_id": {
             "type": "keyword",
             "normalizer": "lowercase_normalizer"
         },
