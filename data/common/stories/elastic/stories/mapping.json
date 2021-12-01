@@ -4,7 +4,7 @@
             "type": "keyword",
             "normalizer": "lowercase_normalizer"
         },
-        "Author": {
+        "contributors": {
             "type": "text",
             "fields": {
                 "keyword": {
@@ -13,20 +13,10 @@
                 }
             }
         },
-        "Date published": {
-            "type": "date",
-            "format": "epoch_millis"
+        "published": {
+            "type": "date"
         },
-        "Images by": {
-            "type": "text",
-            "fields": {
-                "keyword": {
-                    "type": "keyword",
-                    "normalizer": "lowercase_normalizer"
-                }
-            }
-        },
-        "concepts_expanded": {
+        "concepts": {
             "type": "text",
             "analyzer": "csv_analyzer",
             "fields": {
@@ -44,39 +34,7 @@
                 }
             }
         },
-        "Notes": {
-            "type": "text",
-            "fields": {
-                "keyword": {
-                    "type": "keyword",
-                    "normalizer": "lowercase_normalizer"
-                }
-            },
-            "index": "false"
-        },
-        "Part of": {
-            "type": "text",
-            "fields": {
-                "keyword": {
-                    "type": "keyword",
-                    "normalizer": "lowercase_normalizer"
-                }
-            }
-        },
-        "Quarter": {
-            "type": "keyword",
-            "normalizer": "lowercase_normalizer"
-        },
-        "Relates to": {
-            "type": "text",
-            "fields": {
-                "keyword": {
-                    "type": "keyword",
-                    "normalizer": "lowercase_normalizer"
-                }
-            }
-        },
-        "Title": {
+        "title": {
             "type": "text",
             "fields": {
                 "english": {
@@ -89,15 +47,7 @@
                 }
             }
         },
-        "Type": {
-            "type": "keyword",
-            "normalizer": "lowercase_normalizer"
-        },
-        "URL": {
-            "type": "keyword",
-            "normalizer": "lowercase_normalizer"
-        },
-        "Wikidata ID": {
+        "wikidata_id": {
             "type": "keyword",
             "normalizer": "lowercase_normalizer"
         },
@@ -114,7 +64,7 @@
                 }
             }
         },
-        "fulltext": {
+        "full_text": {
             "type": "text",
             "fields": {
                 "english": {
