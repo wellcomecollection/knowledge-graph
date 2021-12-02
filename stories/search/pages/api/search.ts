@@ -20,7 +20,7 @@ export default async function search(
     )
     await getClient()
       .search({
-        index: 'stories',
+        index: process.env.ELASTIC_STORIES_INDEX as string,
         body: { query, size },
       })
       .then((result: ApiResponse) => {

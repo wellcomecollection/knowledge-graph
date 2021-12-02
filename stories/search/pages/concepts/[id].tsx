@@ -7,7 +7,10 @@ import { getClient } from '../../services/elasticsearch'
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const { id } = params as { id: string }
   const client = await getClient()
-  const response = await client.get({ index: 'concepts', id })
+  const response = await client.get({
+    index: process.env.ELASTIC_CONCEPTS_INDEX as string,
+    id,
+  })
   return { props: response.body._source }
 }
 
