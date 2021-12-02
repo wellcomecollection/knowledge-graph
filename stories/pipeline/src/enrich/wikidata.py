@@ -1,7 +1,7 @@
 import httpx
 from httpx import ConnectError
 
-from .utils import clean
+from . import clean
 
 
 def get_wikidata_id(concept_name):
@@ -20,25 +20,38 @@ def get_wikidata_id(concept_name):
     return wikidata_id
 
 
-def get_variant_names(
-    concept_name, languages=["en", "en-gb", "en-ca", "en-us", "en-simple"]
+def get_wikidata(wikidata_id):
+    response = httpx.get(
+        "http://www.wikidata.org/wiki/Special:EntityData/" f"{wikidata_id}.json"
+    ).json()
+
+    data = response["entities"][wikidata_id]
+
+    return data
+
+
+def get_wikidata_preferred_name(wikidata):
+    try:
+        preferred_name = wikidata["labels"]["en"]["value"]
+
+    except (IndexError, KeyError, ConnectError):
+        preferred_name = None
+
+    return preferred_name
+
+
+def get_wikidata_variant_names(
+    wikidata, languages=["en", "en-gb", "en-ca", "en-us", "en-simple"]
 ):
     try:
-        wikidata_id = get_wikidata_id(concept_name)
-        response = httpx.get(
-            "http://www.wikidata.org/wiki/Special:EntityData/"
-            f"{wikidata_id}.json"
-        ).json()
-
-        data = response["entities"][wikidata_id]
         labels = [
             label["value"]
-            for label in data["labels"].values()
+            for label in wikidata["labels"].values()
             if label["language"] in languages
         ]
         aliases = [
             alias["value"]
-            for group in data["aliases"].values()
+            for group in wikidata["aliases"].values()
             for alias in group
             if alias["language"] in languages
         ]
@@ -50,18 +63,11 @@ def get_variant_names(
     return variant_names
 
 
-def get_description(concept_name):
+def get_wikidata_description(wikidata):
     try:
-        wikidata_id = get_wikidata_id(concept_name)
-        response = httpx.get(
-            "http://www.wikidata.org/wiki/Special:EntityData/"
-            f"{wikidata_id}.json"
-        ).json()
-
-        data = response["entities"][wikidata_id]
-        description = data["descriptions"]["en"]["value"]
+        description = wikidata["descriptions"]["en"]["value"]
 
     except (IndexError, KeyError, ConnectError):
-        description = ''
+        description = ""
 
     return description
