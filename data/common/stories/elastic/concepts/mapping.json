@@ -1,8 +1,5 @@
 {
     "properties": {
-        "id": {
-            "type": "keyword"
-        },
         "name": {
             "type": "text",
             "fields": {
@@ -51,6 +48,10 @@
                     "analyzer": "shingle_asciifolding_analyzer"
                 }
             }
+        },
+        "story_ids": {
+            "type": "text",
+            "analyzer": "csv_analyzer"
         }
     }
 }

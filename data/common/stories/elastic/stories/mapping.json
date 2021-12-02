@@ -1,9 +1,5 @@
 {
     "properties": {
-        "wellcome_id": {
-            "type": "keyword",
-            "normalizer": "lowercase_normalizer"
-        },
         "contributors": {
             "type": "text",
             "fields": {
@@ -34,7 +30,11 @@
                 }
             }
         },
-        "concepts_variants": {
+        "concept_ids": {
+            "type": "text",
+            "analyzer": "csv_analyzer"
+        },
+        "concept_variants": {
             "type": "text",
             "analyzer": "csv_analyzer",
             "fields": {

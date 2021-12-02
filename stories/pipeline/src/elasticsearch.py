@@ -17,5 +17,5 @@ def get_elasticsearch_session():
 def format_for_indexing(document):
     for key, value in document.items():
         if isinstance(value, list):
-            document[key] = ",".join(value)
+            document[key] = ",".join([str(x) for x in value])
     return document

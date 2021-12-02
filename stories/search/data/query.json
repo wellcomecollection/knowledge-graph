@@ -29,8 +29,8 @@
                     "fields": [
                         "concepts",
                         "concepts.*",
-                        "concepts_variants",
-                        "concepts_variants.*"
+                        "concept_variants",
+                        "concept_variants.*"
                     ],
                     "query": "{{query}}",
                     "_name": "concepts",
