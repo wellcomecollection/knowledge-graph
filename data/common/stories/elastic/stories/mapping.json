@@ -1,9 +1,5 @@
 {
     "properties": {
-        "id": {
-            "type": "keyword",
-            "normalizer": "lowercase_normalizer"
-        },
         "contributors": {
             "type": "text",
             "fields": {
@@ -17,6 +13,28 @@
             "type": "date"
         },
         "concepts": {
+            "type": "text",
+            "analyzer": "csv_analyzer",
+            "fields": {
+                "keyword": {
+                    "type": "keyword",
+                    "normalizer": "lowercase_normalizer"
+                },
+                "english": {
+                    "type": "text",
+                    "analyzer": "english_analyzer"
+                },
+                "shingles": {
+                    "type": "text",
+                    "analyzer": "shingle_asciifolding_analyzer"
+                }
+            }
+        },
+        "concept_ids": {
+            "type": "text",
+            "analyzer": "csv_analyzer"
+        },
+        "concept_variants": {
             "type": "text",
             "analyzer": "csv_analyzer",
             "fields": {

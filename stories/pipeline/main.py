@@ -1,13 +1,13 @@
-from pathlib import Path
 import datetime
 import json
 import os
+from pathlib import Path
 
 import pandas as pd
 from structlog import get_logger
 
 from src.elasticsearch import format_for_indexing, get_elasticsearch_session
-from src.enrich import get_variant_names
+from src.enrich import get_variant_names, get_description
 from src.graph import get_neo4j_session
 from src.graph.models import Concept, Contributor, Story, VariantName
 from src.prismic import get_fulltext, get_standfirst
@@ -72,10 +72,11 @@ unique_concepts = list(
 )
 
 concepts = {}
-for name in unique_concepts:
-    log.debug("Ingesting concept", name=name)
-    concept = Concept(name=name).save()
-    concepts[name] = concept
+for concept_name in unique_concepts:
+    log.debug("Ingesting concept", concept_name=concept_name)
+    description = get_description(concept_name)
+    concept = Concept(name=concept_name, description=description).save()
+    concepts[concept_name] = concept
 
 for _, story_data in df.iterrows():
     log.debug("Creating edges for story", title=story_data["Title"])
@@ -84,8 +85,8 @@ for _, story_data in df.iterrows():
     contributor_names = [
         name.strip()
         for name in (
-            story_data["Author"].split(
-                ",") + story_data["Images by"].split(",")
+            story_data["Author"].split(",") +
+            story_data["Images by"].split(",")
         )
         if name.strip() != ""
     ]
@@ -105,9 +106,9 @@ for _, story_data in df.iterrows():
 
 log.info("Enriching the concepts with variant names")
 variants = {}
-for concept in unique_concepts:
-    log.debug("Enriching concept", concept=concept)
-    variants[concept] = get_variant_names(concept)
+for concept_name in unique_concepts:
+    log.debug("Enriching concept", concept_name=concept_name)
+    variants[concept_name] = get_variant_names(concept_name)
 
 all_variant_name_edges = [
     (concept_core_name, variant_name)
@@ -126,7 +127,7 @@ for variant_name in unique_variant_names:
 
 for concept_core_name, variant_name in all_variant_name_edges:
     log.debug(
-        "Adding variant name",
+        "Creating edge for variant name",
         concept_core_name=concept_core_name,
         variant_name=variant_name,
     )
@@ -157,27 +158,33 @@ es.indices.create(
 log.info("Populating the stories index")
 for story in Story.nodes.all():
     log.debug("Indexing story", story=story.title)
-    concepts_on_node = [concept.name for concept in story.concepts.all()]
-    variants_on_concepts_on_node = [
+
+    story_concepts = story.concepts.all()
+    concept_names = [concept.name for concept in story_concepts]
+    concept_ids = [concept.uid for concept in story_concepts]
+    concept_variants = [
         variant.name
-        for concept in story.concepts.all()
+        for concept in story_concepts
         for variant in concept.variant_names.all()
     ]
-    concepts = list(set(concepts_on_node + variants_on_concepts_on_node))
+
     contributors = [
         contributor.name for contributor in story.contributors.all()
     ]
+
     full_text = get_fulltext(story.wellcome_id)
     standfirst = get_standfirst(story.wellcome_id)
 
     es.index(
         index=stories_index_name,
+        id=story.wellcome_id,
         document=format_for_indexing(
             {
-                "concepts": concepts,
+                "concepts": concept_names,
+                "concept_ids": concept_ids,
+                "concept_variants": concept_variants,
                 "contributors": contributors,
                 "full_text": full_text,
-                "id": story.id,
                 "published": story.published,
                 "standfirst": standfirst,
                 "title": story.title,
@@ -204,16 +211,20 @@ es.indices.create(
 log.info("Populating the concepts index")
 for concept in Concept.nodes.all():
     log.debug("Indexing concept", concept=concept.name)
-    stories = [story.title for story in concept.stories.all()]
+    concept_stories = concept.stories.all()
+    stories = [story.title for story in concept_stories]
+    story_ids = [story.wellcome_id for story in concept_stories]
     variants = [variant.name for variant in concept.variant_names.all()]
 
     es.index(
         index=concepts_index_name,
+        id=concept.uid,
         document=format_for_indexing(
             {
-                "id": concept.uid,
                 "name": concept.name,
+                "description": concept.description,
                 "stories": stories,
+                "story_ids": story_ids,
                 "variants": variants,
             }
         ),

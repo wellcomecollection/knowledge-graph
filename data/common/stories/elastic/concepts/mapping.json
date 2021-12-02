@@ -1,8 +1,5 @@
 {
     "properties": {
-        "id": {
-            "type": "keyword"
-        },
         "name": {
             "type": "text",
             "fields": {
@@ -30,6 +27,10 @@
                 }
             }
         },
+        "description": {
+            "type": "text",
+            "analyzer": "english_analyzer"
+        },
         "stories": {
             "type": "text",
             "analyzer": "csv_analyzer",
@@ -47,6 +48,10 @@
                     "analyzer": "shingle_asciifolding_analyzer"
                 }
             }
+        },
+        "story_ids": {
+            "type": "text",
+            "analyzer": "csv_analyzer"
         }
     }
 }
