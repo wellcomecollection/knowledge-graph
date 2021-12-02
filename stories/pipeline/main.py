@@ -7,7 +7,7 @@ import pandas as pd
 from structlog import get_logger
 
 from src.elasticsearch import format_for_indexing, get_elasticsearch_session
-from src.enrich import get_variant_names, get_wikidata_id, get_description
+from src.enrich import get_variant_names, get_description
 from src.graph import get_neo4j_session
 from src.graph.models import Concept, Contributor, Story, VariantName
 from src.prismic import get_fulltext, get_standfirst

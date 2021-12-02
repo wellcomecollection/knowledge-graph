@@ -22,7 +22,7 @@ const Concept: NextPage<ConceptType> = (props) => {
         <div className="pt-4">
           <h2 className="text-lg">Also known as</h2>
           <ul>
-            {variants.split(',').map((variant) => (
+            {variants.split('<BREAK>').map((variant) => (
               <li
                 className="inline-block bg-gray-200 rounded-lg px-2 py-1 text-xs text-gray-700 capitalize mr-2"
                 key={variant}
@@ -36,11 +36,11 @@ const Concept: NextPage<ConceptType> = (props) => {
       <div className="pt-4">
         <h2 className="text-lg">Stories</h2>
         <ul className="leading-7">
-          {stories.split(',').map((story, index) => (
+          {stories.split('<BREAK>').map((story, index) => (
             <li key={story} className="inline-block">
               <a
                 href={`https://wellcomecollection.org/articles/${
-                  story_ids.split(',')[index]
+                  story_ids.split('<BREAK>')[index]
                 }`}
                 className="no-underline bg-gray-200 rounded-lg px-2 py-1 text-xs text-gray-700 capitalize mr-2"
               >

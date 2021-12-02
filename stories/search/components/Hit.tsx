@@ -5,10 +5,10 @@ import Link from 'next/link'
 type Props = { hit: HitType }
 const Hit: FC<Props> = ({ hit }) => {
   const formattedDate = new Date(hit._source.published).toLocaleDateString()
-  const url = `https://wellcomecollection.org/articles/${hit._source.wellcome_id}`
-  const concepts = hit._source.concepts.split(',')
-  const concept_ids = hit._source.concept_ids.split(',')
-  const contributors = hit._source.contributors.split(',')
+  const url = `https://wellcomecollection.org/articles/${hit._id}`
+  const concepts = hit._source.concepts.split('<BREAK>')
+  const concept_ids = hit._source.concept_ids.split('<BREAK>')
+  const contributors = hit._source.contributors.split('<BREAK>')
   return (
     <>
       <a href={url} className="no-underline">
