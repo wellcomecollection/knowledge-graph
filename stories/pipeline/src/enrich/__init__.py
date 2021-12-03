@@ -1,4 +1,5 @@
-from ..utils import clean
+from ..utils import clean, http_client
+
 from .lcsh import (
     get_lcsh_data,
     get_lcsh_id,
@@ -50,6 +51,7 @@ def enrich(concept_name):
 
         response["lcsh"]["id"] = get_lcsh_id(wikidata)
         if response["lcsh"]["id"]:
+            # not doing lc-names yet
             if response["lcsh"]["id"].startswith("s"):
                 lcsh_data = get_lcsh_data(response["lcsh"]["id"])
                 response["lcsh"]["preferred_name"] = get_lcsh_preferred_name(
@@ -60,11 +62,17 @@ def enrich(concept_name):
 
         response["mesh"]["id"] = get_mesh_id(wikidata)
         if response["mesh"]["id"]:
-            mesh_data = get_mesh_data(response["mesh"]["id"])
-            response["mesh"]["preferred_name"] = get_mesh_preferred_name(
-                mesh_data
-            )
-            response["mesh"]["variants"] = get_mesh_variant_names(mesh_data)
-            response["mesh"]["description"] = get_mesh_description(mesh_data)
+            try:
+                mesh_data = get_mesh_data(response["mesh"]["id"])
+                response["mesh"]["preferred_name"] = get_mesh_preferred_name(
+                    mesh_data
+                )
+                response["mesh"]["variants"] = get_mesh_variant_names(
+                    mesh_data)
+                response["mesh"]["description"] = get_mesh_description(
+                    mesh_data
+                )
+            except ValueError:
+                pass
 
     return response

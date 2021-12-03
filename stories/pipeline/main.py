@@ -16,14 +16,11 @@ log = get_logger()
 
 
 log.info("Loading stories dataset")
-df = (
-    pd.read_excel(
-        pd.ExcelFile("/data/stories.xlsx", engine="openpyxl"),
-        sheet_name="Articles",
-        dtype={"Date published": datetime.datetime},
-    )
-    .fillna("")
-)
+df = pd.read_excel(
+    pd.ExcelFile("/data/stories.xlsx", engine="openpyxl"),
+    sheet_name="Articles",
+    dtype={"Date published": datetime.datetime},
+).fillna("")
 
 
 log.info("Connecting to neo4j")
@@ -106,8 +103,7 @@ for _, story_data in df.iterrows():
     contributor_names = [
         name.strip()
         for name in (
-            story_data["Author"].split(
-                ",") + story_data["Images by"].split(",")
+            story_data["Author"].split(",") + story_data["Images by"].split(",")
         )
         if name.strip() != ""
     ]
@@ -125,12 +121,16 @@ for _, story_data in df.iterrows():
         story.concepts.connect(concept)
 
 
-unique_variants = list(set([
-    (variant, source)
-    for _, all_enrichments in enriched_concepts.items()
-    for source, source_enrichments in all_enrichments.items()
-    for variant in source_enrichments['variants']
-]))
+unique_variants = list(
+    set(
+        [
+            (variant, source)
+            for _, all_enrichments in enriched_concepts.items()
+            for source, source_enrichments in all_enrichments.items()
+            for variant in source_enrichments["variants"]
+        ]
+    )
+)
 
 log.info("Ingesting variant name", name=name)
 variant_dict = {}
@@ -141,11 +141,11 @@ for name, source in unique_variants:
 
 for concept_name, all_enrichments in enriched_concepts.items():
     for source, source_enrichments in all_enrichments.items():
-        for variant_name in source_enrichments['variants']:
+        for variant_name in source_enrichments["variants"]:
             log.debug(
                 "Creating edge",
                 concept_name=concept_name,
-                variant_name=variant_name
+                variant_name=variant_name,
             )
             concept = concepts_dict[concept_name]
             variant = variant_dict[hash((variant_name, source))]

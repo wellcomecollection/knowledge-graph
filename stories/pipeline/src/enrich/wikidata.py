@@ -1,11 +1,10 @@
-import httpx
 from httpx import ConnectError
 
-from . import clean
+from . import clean, http_client
 
 
 def get_wikidata_id(concept_name):
-    response = httpx.get(
+    response = http_client.get(
         "https://www.wikidata.org/w/api.php",
         params={
             "action": "wbsearchentities",
@@ -24,7 +23,7 @@ def get_wikidata_id(concept_name):
 
 
 def get_wikidata(wikidata_id):
-    response = httpx.get(
+    response = http_client.get(
         "http://www.wikidata.org/wiki/Special:EntityData/" f"{wikidata_id}.json"
     ).json()
 

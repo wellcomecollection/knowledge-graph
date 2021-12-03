@@ -1,3 +1,8 @@
+import httpx
+
+http_client = httpx.Client(timeout=None)
+
+
 def clean(input_string):
     return input_string.strip().lower().replace(",", "")
 

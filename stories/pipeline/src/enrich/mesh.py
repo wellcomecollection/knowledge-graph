@@ -1,4 +1,4 @@
-import httpx
+from . import http_client
 
 
 def get_mesh_id(wikidata):
@@ -12,7 +12,7 @@ def get_mesh_id(wikidata):
 
 
 def get_mesh_data(mesh_id):
-    response = httpx.get(
+    response = http_client.get(
         url="https://meshb.nlm.nih.gov/api/search/record",
         params={
             "searchInField": "ui",

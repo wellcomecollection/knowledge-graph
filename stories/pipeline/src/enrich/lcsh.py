@@ -1,4 +1,4 @@
-import httpx
+from . import http_client
 
 
 def get_lcsh_id(wikidata):
@@ -15,7 +15,7 @@ def get_lcsh_data(lcsh_id):
     url = f"http://id.loc.gov/authorities/subjects/{lcsh_id}.json"
 
     try:
-        response = httpx.get(url)
+        response = http_client.get(url)
     except ValueError as e:
         raise e
     if response.status_code == 200:
