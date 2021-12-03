@@ -1,8 +1,8 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 
 import { ApiResponse } from '@elastic/elasticsearch'
-import conceptsQuery from '../../../data/queries/concepts.json'
-import { getClient } from '../../../services/elasticsearch'
+import conceptsQuery from '../../data/queries/concepts.json'
+import { getClient } from '../../services/elasticsearch'
 
 export default async function search(
   req: NextApiRequest,

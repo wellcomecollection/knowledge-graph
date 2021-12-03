@@ -12,8 +12,8 @@ const StoryCard: FC<Props> = ({ title, id, standfirst, imageURL }) => {
     <a className="no-underline" href={url}>
       <div className="h-full bg-gray-200 rounded">
         <div className="py-2 px-3">
-          <h3>{title}</h3>
-          <p className="text-xs">{standfirst}</p>
+          <h3 className="leading-snug">{title}</h3>
+          <p className="text-xs pt-1">{standfirst}</p>
         </div>
       </div>
     </a>

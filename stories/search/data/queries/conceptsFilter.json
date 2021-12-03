@@ -1,0 +1,11 @@
+{
+    "bool": {
+        "filter": [
+            {
+                "term": {
+                    "concept_ids": "{{query}}"
+                }
+            }
+        ]
+    }
+}

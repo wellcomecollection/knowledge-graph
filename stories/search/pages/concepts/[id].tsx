@@ -4,6 +4,7 @@ import { GetServerSideProps, NextPage } from 'next'
 import IdTable from '../../components/IdTable'
 import Layout from '../../components/Layout'
 import StoryCard from '../../components/StoryCard'
+import absoluteUrl from 'next-absolute-url'
 import { getClient } from '../../services/elasticsearch'
 
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
@@ -25,9 +26,9 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
       return res.body.docs
     })) as StoryHit[]
 
-  return { props: { ...response.body._source, fullStories } }
+  return { props: { ...response.body._source, fullStories, id } }
 }
-type Props = ConceptType & { fullStories: StoryHit[] }
+type Props = ConceptType & { fullStories: StoryHit[]; id: string }
 
 const Concept: NextPage<Props> = (props) => {
   const description = props.mesh_description || props.wikidata_description
@@ -79,7 +80,10 @@ const Concept: NextPage<Props> = (props) => {
           })}
         </div>
         <div className="pt-4">
-          <a className="no-underline px-3 py-2 rounded border-2 border-black text-sm">
+          <a
+            className="no-underline px-3 py-2 rounded border-2 border-black text-sm"
+            href={`/?concept=${props.id}`}
+          >
             See more →
           </a>
         </div>
