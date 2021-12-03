@@ -11,11 +11,18 @@ export type Story = {
 }
 
 export type Concept = {
+  lcsh_id: string
+  lcsh_preferred_name: string
+  mesh_description: string
+  mesh_id: string
+  mesh_preferred_name: string
   name: string
-  description: string
-  variants: string
   stories: string
   story_ids: string
+  variants: string
+  wikidata_description: string
+  wikidata_id: string
+  wikidata_preferred_name: string
 }
 
 export type Hit = {

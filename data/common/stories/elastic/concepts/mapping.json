@@ -13,6 +13,45 @@
                 }
             }
         },
+        "mesh_preferred_name": {
+            "type": "text",
+            "fields": {
+                "keyword": {
+                    "type": "keyword",
+                    "normalizer": "lowercase_normalizer"
+                },
+                "english": {
+                    "type": "text",
+                    "analyzer": "english_analyzer"
+                }
+            }
+        },
+        "lcsh_preferred_name": {
+            "type": "text",
+            "fields": {
+                "keyword": {
+                    "type": "keyword",
+                    "normalizer": "lowercase_normalizer"
+                },
+                "english": {
+                    "type": "text",
+                    "analyzer": "english_analyzer"
+                }
+            }
+        },
+        "wikidata_preferred_name": {
+            "type": "text",
+            "fields": {
+                "keyword": {
+                    "type": "keyword",
+                    "normalizer": "lowercase_normalizer"
+                },
+                "english": {
+                    "type": "text",
+                    "analyzer": "english_analyzer"
+                }
+            }
+        },
         "variants": {
             "type": "text",
             "analyzer": "csv_analyzer",
@@ -27,9 +66,25 @@
                 }
             }
         },
-        "description": {
+        "wikidata_description": {
             "type": "text",
             "analyzer": "english_analyzer"
+        },
+        "mesh_description": {
+            "type": "text",
+            "analyzer": "english_analyzer"
+        },
+        "wikidata_id": {
+            "type": "keyword",
+            "normalizer": "lowercase_normalizer"
+        },
+        "lcsh_id": {
+            "type": "keyword",
+            "normalizer": "lowercase_normalizer"
+        },
+        "mesh_id": {
+            "type": "keyword",
+            "normalizer": "lowercase_normalizer"
         },
         "stories": {
             "type": "text",
