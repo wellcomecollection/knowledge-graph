@@ -67,7 +67,7 @@ const Search: NextPage<Props> = ({ storyHits, query, total, conceptHits }) => {
       {storyHits.length > 0 ? (
         <div className="py-5">
           <p>
-            {total} results for "{query}"
+            {total} results for &quot;{query}&quot;
           </p>
 
           <ul className="space-y-5 divide-y divide-gray-400">
