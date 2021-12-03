@@ -1,0 +1,46 @@
+{
+    "bool": {
+        "should": [
+            {
+                "term": {
+                    "variants.keyword": "{{query}}"
+                }
+            },
+            {
+                "term": {
+                    "name.keyword": "{{query}}"
+                }
+            },
+            {
+                "term": {
+                    "mesh_preferred_name.keyword": "{{query}}"
+                }
+            },
+            {
+                "term": {
+                    "lcsh_preferred_name.keyword": "{{query}}"
+                }
+            },
+            {
+                "term": {
+                    "wikidata_preferred_name.keyword": "{{query}}"
+                }
+            },
+            {
+                "term": {
+                    "wikidata_id": "{{query}}"
+                }
+            },
+            {
+                "term": {
+                    "lcsh_id": "{{query}}"
+                }
+            },
+            {
+                "term": {
+                    "mesh_id": "{{query}}"
+                }
+            }
+        ]
+    }
+}

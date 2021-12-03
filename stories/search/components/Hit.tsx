@@ -1,5 +1,5 @@
 import { FC } from 'react'
-import { Hit as HitType } from '../types/elasticsearch'
+import { StoryHit as HitType } from '../types/elasticsearch'
 import Link from 'next/link'
 
 type Props = { hit: HitType }
