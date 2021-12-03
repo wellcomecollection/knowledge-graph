@@ -9,6 +9,7 @@ import absoluteUrl from 'next-absolute-url'
 type Props = {
   hits: HitType[]
   query?: string
+  total: number
 }
 
 export const getServerSideProps: GetServerSideProps<Props> = async ({
@@ -18,19 +19,21 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({
   const query = qs.query ? qs.query.toString() : ''
 
   let hits: HitType[] = []
+  let total = 0
   if (query) {
     const { origin } = absoluteUrl(req)
     const url = `${origin}/api/search?q=${encodeURIComponent(query)}`
     const data = await fetch(url).then((res) => res.json())
     hits = data.hits ? data.hits : []
+    total = data.total.value
   }
 
   return {
-    props: { hits, query },
+    props: { hits, query, total },
   }
 }
 
-const Search: NextPage<Props> = ({ hits, query }) => {
+const Search: NextPage<Props> = ({ hits, query, total }) => {
   return (
     <Layout
       title="Stories search"
@@ -48,13 +51,20 @@ const Search: NextPage<Props> = ({ hits, query }) => {
       <div className="py-4">
         <SearchBox query={query} />
       </div>
-      <ul className="divide-y divide-gray-500">
-        {hits.map((hit) => (
-          <li key={hit._id} className="py-4">
-            <Hit hit={hit} />
-          </li>
-        ))}
-      </ul>
+      {hits.length > 0 ? (
+        <div>
+          <p>
+            {total} results for "{query}"
+          </p>
+          <ul className="divide-y divide-gray-500">
+            {hits.map((hit) => (
+              <li key={hit._id} className="py-4">
+                <Hit hit={hit} />
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
     </Layout>
   )
 }
