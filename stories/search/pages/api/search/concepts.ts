@@ -1,8 +1,8 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 
 import { ApiResponse } from '@elastic/elasticsearch'
-import blankQuery from '../../data/query.json'
-import { getClient } from '../../services/elasticsearch'
+import conceptsQuery from '../../../data/queries/concepts.json'
+import { getClient } from '../../../services/elasticsearch'
 
 export default async function search(
   req: NextApiRequest,
@@ -16,11 +16,11 @@ export default async function search(
     }
 
     const query = JSON.parse(
-      JSON.stringify(blankQuery).replace(/{{query}}/g, q as string)
+      JSON.stringify(conceptsQuery).replace(/{{query}}/g, q as string)
     )
     await getClient()
       .search({
-        index: process.env.ELASTIC_STORIES_INDEX as string,
+        index: process.env.ELASTIC_CONCEPTS_INDEX as string,
         body: { query, size },
       })
       .then((result: ApiResponse) => {

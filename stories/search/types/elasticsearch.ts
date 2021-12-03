@@ -1,3 +1,9 @@
+export type StoryHit = {
+  _id: string
+  _score: string
+  _source: Story
+}
+
 export type Story = {
   contributors: string
   concepts: string
@@ -8,6 +14,12 @@ export type Story = {
   standfirst: string
   title: string
   wikidata_id: string
+}
+
+export type ConceptHit = {
+  _id: string
+  _score: string
+  _source: Concept
 }
 
 export type Concept = {
@@ -23,10 +35,4 @@ export type Concept = {
   wikidata_description: string
   wikidata_id: string
   wikidata_preferred_name: string
-}
-
-export type Hit = {
-  _id: string
-  _score: string
-  _source: Story
 }

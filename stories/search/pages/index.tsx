@@ -1,14 +1,17 @@
+import { ConceptHit, StoryHit } from '../types/elasticsearch'
 import { GetServerSideProps, NextPage } from 'next'
 
+import ConceptPanel from '../components/Panel'
 import Hit from '../components/Hit'
-import { Hit as HitType } from '../types/elasticsearch'
 import Layout from '../components/Layout'
 import SearchBox from '../components/SearchBox'
 import absoluteUrl from 'next-absolute-url'
 
 type Props = {
-  hits: HitType[]
-  query?: string
+  storyHits: StoryHit[]
+  query: string
+  total: number
+  conceptHits: ConceptHit[]
 }
 
 export const getServerSideProps: GetServerSideProps<Props> = async ({
@@ -17,20 +20,30 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({
 }) => {
   const query = qs.query ? qs.query.toString() : ''
 
-  let hits: HitType[] = []
+  let total = 0
+  let storyHits: StoryHit[] = []
+  let conceptHits: ConceptHit[] = []
   if (query) {
     const { origin } = absoluteUrl(req)
-    const url = `${origin}/api/search?q=${encodeURIComponent(query)}`
-    const data = await fetch(url).then((res) => res.json())
-    hits = data.hits ? data.hits : []
-  }
+    const encodedQuery = encodeURIComponent(query)
 
+    const storiesResponse = await fetch(
+      `${origin}/api/search/stories?q=${encodedQuery}`
+    ).then((res) => res.json())
+    const conceptsResponse = await fetch(
+      `${origin}/api/search/concepts?q=${encodedQuery}`
+    ).then((res) => res.json())
+
+    storyHits = storiesResponse.hits
+    total = storiesResponse.total.value
+    conceptHits = conceptsResponse.hits
+  }
   return {
-    props: { hits, query },
+    props: { query, total, storyHits, conceptHits },
   }
 }
 
-const Search: NextPage<Props> = ({ hits, query }) => {
+const Search: NextPage<Props> = ({ storyHits, query, total, conceptHits }) => {
   return (
     <Layout
       title="Stories search"
@@ -48,13 +61,24 @@ const Search: NextPage<Props> = ({ hits, query }) => {
       <div className="py-4">
         <SearchBox query={query} />
       </div>
-      <ul className="divide-y divide-gray-500">
-        {hits.map((hit) => (
-          <li key={hit._id} className="py-4">
-            <Hit hit={hit} />
-          </li>
-        ))}
-      </ul>
+      {conceptHits.length > 0 ? (
+        <ConceptPanel conceptHit={conceptHits[0]} />
+      ) : null}
+      {storyHits.length > 0 ? (
+        <div className="py-5">
+          <p>
+            {total} results for &quot;{query}&quot;
+          </p>
+
+          <ul className="space-y-5 divide-y divide-gray-400">
+            {storyHits.map((hit) => (
+              <li key={hit._id} className="pt-4">
+                <Hit hit={hit} />
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
     </Layout>
   )
 }
