@@ -1,7 +1,9 @@
+import { Concept as ConceptType, StoryHit } from '../../types/elasticsearch'
 import { GetServerSideProps, NextPage } from 'next'
 
-import { Concept as ConceptType } from '../../types/elasticsearch'
+import IdTable from '../../components/IdTable'
 import Layout from '../../components/Layout'
+import StoryCard from '../../components/StoryCard'
 import { getClient } from '../../services/elasticsearch'
 
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
@@ -11,10 +13,23 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
     index: process.env.ELASTIC_CONCEPTS_INDEX as string,
     id,
   })
-  return { props: response.body._source }
-}
 
-const Concept: NextPage<ConceptType> = (props) => {
+  const fullStories = (await client
+    .mget({
+      index: process.env.ELASTIC_STORIES_INDEX as string,
+      body: {
+        ids: response.body._source.story_ids.split('<BREAK>').slice(0, 3),
+      },
+    })
+    .then((res) => {
+      return res.body.docs
+    })) as StoryHit[]
+
+  return { props: { ...response.body._source, fullStories } }
+}
+type Props = ConceptType & { fullStories: StoryHit[] }
+
+const Concept: NextPage<Props> = (props) => {
   const description = props.mesh_description || props.wikidata_description
   const title =
     props.wikidata_preferred_name ||
@@ -26,45 +41,11 @@ const Concept: NextPage<ConceptType> = (props) => {
     <Layout title={title} description={description}>
       <h1>{title}</h1>
       <p>{description}</p>
-      <div className="mt-4 pl-1 bg-gray-200 rounded text-sm py-2 space-y-1">
-        <table className="table-auto">
-          <tbody>
-            <tr>
-              <td className="pr-4 font-semibold">Wikidata ID</td>
-              <td>
-                <a
-                  href={`https://www.wikidata.org/wiki/${props.wikidata_id}`}
-                  className="no-underline"
-                >
-                  {props.wikidata_id}
-                </a>
-              </td>
-            </tr>
-            <tr>
-              <td className="font-semibold">MeSH ID</td>
-              <td>
-                <a
-                  href={`https://meshb.nlm.nih.gov/record/ui?ui=${props.mesh_id}`}
-                  className="no-underline"
-                >
-                  {props.mesh_id}
-                </a>
-              </td>
-            </tr>
-            <tr>
-              <td className="font-semibold">LCSH ID</td>
-              <td>
-                <a
-                  href={`https://id.loc.gov/authorities/names/${props.lcsh_id}.html`}
-                  className="no-underline"
-                >
-                  {props.lcsh_id}
-                </a>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <IdTable
+        wikidata_id={props.wikidata_id}
+        mesh_id={props.mesh_id}
+        lcsh_id={props.lcsh_id}
+      />
       {props.variants ? (
         <div className="pt-4">
           <h2 className="text-lg">Also known as</h2>
@@ -81,21 +62,28 @@ const Concept: NextPage<ConceptType> = (props) => {
         </div>
       ) : null}
       <div className="pt-4">
-        <h2 className="text-lg">Stories</h2>
-        <ul className="leading-7">
-          {props.stories.split('<BREAK>').map((story, index) => (
-            <li key={story} className="inline-block">
-              <a
-                href={`https://wellcomecollection.org/articles/${
-                  props.story_ids.split('<BREAK>')[index]
-                }`}
-                className="no-underline bg-gray-200 rounded-lg px-2 py-1 text-xs text-gray-700 capitalize mr-2"
-              >
-                {story}
-              </a>
-            </li>
-          ))}
-        </ul>
+        <h2 className="text-lg">
+          <h2 className="text-lg font-bold">
+            {props.stories.split('<BREAK>').length} stories written about this
+            concept
+          </h2>
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 space-x-4 h-auto">
+          {props.fullStories.map((story) => {
+            const { _id, _source } = story
+            const { standfirst, title } = _source
+            return (
+              <li className="inline-block" key={_id}>
+                <StoryCard title={title} id={_id} standfirst={standfirst} />
+              </li>
+            )
+          })}
+        </div>
+        <div className="pt-4">
+          <a className="no-underline px-3 py-2 rounded border-2 border-black text-sm">
+            See more →
+          </a>
+        </div>
       </div>
     </Layout>
   )
