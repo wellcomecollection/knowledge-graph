@@ -16,7 +16,10 @@ def get_wikidata_id(concept_name):
     ).json()
 
     # naively select the first result
-    wikidata_id = response["search"][0]["id"]
+    try:
+        wikidata_id = response["search"][0]["id"]
+    except IndexError:
+        wikidata_id = None
     return wikidata_id
 
 

@@ -7,7 +7,7 @@ import pandas as pd
 from structlog import get_logger
 
 from src.elasticsearch import format_for_indexing, get_elasticsearch_session
-from src.enrich import get_variant_names, get_description
+from src.enrich import enrich
 from src.graph import get_neo4j_session
 from src.graph.models import Concept, Contributor, Story, VariantName
 from src.prismic import get_fulltext, get_standfirst
@@ -16,14 +16,17 @@ log = get_logger()
 
 
 log.info("Loading stories dataset")
-df = pd.read_excel(
-    pd.ExcelFile("/data/stories.xlsx", engine="openpyxl"),
-    sheet_name="Articles",
-    dtype={"Date published": datetime.datetime},
-).fillna("")
+df = (
+    pd.read_excel(
+        pd.ExcelFile("/data/stories.xlsx", engine="openpyxl"),
+        sheet_name="Articles",
+        dtype={"Date published": datetime.datetime},
+    )
+    .fillna("")
+)
 
 
-log.info("Ingesting the dataset into neo4j")
+log.info("Connecting to neo4j")
 db = get_neo4j_session()
 
 
@@ -59,7 +62,7 @@ for name in unique_contributors:
     contributors[name] = contributor
 
 
-log.info("Ingesting concepts")
+log.info("Enriching concepts")
 unique_concepts = list(
     set(
         [
@@ -71,13 +74,31 @@ unique_concepts = list(
     )
 )
 
-concepts = {}
+enriched_concepts = {}
+for concept_name in unique_concepts:
+    log.debug("Enriching concept", concept_name=concept_name)
+    enriched_concepts[concept_name] = enrich(concept_name)
+
+
+log.info("Ingesting concepts")
+concepts_dict = {}
 for concept_name in unique_concepts:
     log.debug("Ingesting concept", concept_name=concept_name)
-    description = get_description(concept_name)
-    concept = Concept(name=concept_name, description=description).save()
-    concepts[concept_name] = concept
+    enriched_concept = enriched_concepts[concept_name]
+    concept = Concept(
+        name=concept_name,
+        wikidata_preferred_name=enriched_concept["wikidata"]["preferred_name"],
+        mesh_preferred_name=enriched_concept["mesh"]["preferred_name"],
+        lcsh_preferred_name=enriched_concept["lcsh"]["preferred_name"],
+        wikidata_description=enriched_concept["wikidata"]["description"],
+        mesh_description=enriched_concept["mesh"]["description"],
+    ).save()
+    concepts_dict[concept_name] = concept
 
+
+log.info(
+    "Creating edges between stories, contributors, concepts and variant names"
+)
 for _, story_data in df.iterrows():
     log.debug("Creating edges for story", title=story_data["Title"])
     story = stories[Path(story_data["URL"]).name]
@@ -85,8 +106,8 @@ for _, story_data in df.iterrows():
     contributor_names = [
         name.strip()
         for name in (
-            story_data["Author"].split(",") +
-            story_data["Images by"].split(",")
+            story_data["Author"].split(
+                ",") + story_data["Images by"].split(",")
         )
         if name.strip() != ""
     ]
@@ -100,46 +121,41 @@ for _, story_data in df.iterrows():
         if concept.strip() != ""
     ]
     for name in concept_names:
-        concept = concepts[name]
+        concept = concepts_dict[name]
         story.concepts.connect(concept)
 
 
-log.info("Enriching the concepts with variant names")
-variants = {}
-for concept_name in unique_concepts:
-    log.debug("Enriching concept", concept_name=concept_name)
-    variants[concept_name] = get_variant_names(concept_name)
+unique_variants = list(set([
+    (variant, source)
+    for _, all_enrichments in enriched_concepts.items()
+    for source, source_enrichments in all_enrichments.items()
+    for variant in source_enrichments['variants']
+]))
 
-all_variant_name_edges = [
-    (concept_core_name, variant_name)
-    for concept_core_name, variant_names in variants.items()
-    for variant_name in variant_names
-    if variant_name != concept_core_name
-]
-
-unique_variant_names = list(set([edge[1] for edge in all_variant_name_edges]))
-
+log.info("Ingesting variant name", name=name)
 variant_dict = {}
-for variant_name in unique_variant_names:
-    log.debug("Ingesting variant name", variant_name=variant_name)
-    v = VariantName(name=variant_name).save()
-    variant_dict[variant_name] = v
+for name, source in unique_variants:
+    log.debug("Ingesting variant name", name=name)
+    v = VariantName(name=name, source=source).save()
+    variant_dict[hash((name, source))] = v
 
-for concept_core_name, variant_name in all_variant_name_edges:
-    log.debug(
-        "Creating edge for variant name",
-        concept_core_name=concept_core_name,
-        variant_name=variant_name,
-    )
-    concept = concepts[concept_core_name]
-    variant = variant_dict[variant_name]
-    concept.variant_names.connect(variant)
+for concept_name, all_enrichments in enriched_concepts.items():
+    for source, source_enrichments in all_enrichments.items():
+        for variant_name in source_enrichments['variants']:
+            log.debug(
+                "Creating edge",
+                concept_name=concept_name,
+                variant_name=variant_name
+            )
+            concept = concepts_dict[concept_name]
+            variant = variant_dict[hash((variant_name, source))]
+            concept.variant_names.connect(variant)
 
 
 log.info("Unpacking the graph into elasticsearch")
 es = get_elasticsearch_session()
-stories_index_name = os.environ["ELASTIC_STORIES_INDEX_NAME"]
-concepts_index_name = os.environ["ELASTIC_CONCEPTS_INDEX_NAME"]
+stories_index_name = os.environ["ELASTIC_STORIES_INDEX"]
+concepts_index_name = os.environ["ELASTIC_CONCEPTS_INDEX"]
 
 log.info(f"Create the stories index: {stories_index_name}")
 with open("/data/elastic/stories/mapping.json", "r") as f:
@@ -222,7 +238,14 @@ for concept in Concept.nodes.all():
         document=format_for_indexing(
             {
                 "name": concept.name,
-                "description": concept.description,
+                "wikidata_id": concept.wikidata_id,
+                "mesh_id": concept.mesh_id,
+                "lcsh_id": concept.lcsh_id,
+                "wikidata_preferred_name": concept.wikidata_preferred_name,
+                "mesh_preferred_name": concept.mesh_preferred_name,
+                "lcsh_preferred_name": concept.lcsh_preferred_name,
+                "wikidata_description": concept.wikidata_description,
+                "mesh_description": concept.mesh_description,
                 "stories": stories,
                 "story_ids": story_ids,
                 "variants": variants,

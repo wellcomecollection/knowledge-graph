@@ -22,39 +22,49 @@ from .wikidata import (
 
 
 def enrich(concept_name):
-    wikidata_id = get_wikidata_id(concept_name)
-    wikidata = get_wikidata(wikidata_id)
-    wikidata_preferred_name = get_wikidata_preferred_name(wikidata)
-    wikidata_variants = get_wikidata_variant_names(wikidata)
-    wikidata_description = get_wikidata_description(wikidata)
-
-    lcsh_id = get_lcsh_id(wikidata)
-    lcsh_data = get_lcsh_data(lcsh_id)
-    lcsh_preferred_name = get_lcsh_preferred_name(lcsh_data)
-    lcsh_variants = get_lcsh_variant_names(lcsh_data)
-
-    mesh_id = get_mesh_id(wikidata)
-    mesh_data = get_mesh_data(mesh_id)
-    mesh_preferred_name = get_mesh_preferred_name(mesh_data)
-    mesh_variants = get_mesh_variant_names(mesh_data)
-    mesh_description = get_mesh_description(mesh_data)
-
-    return {
+    response = {
         "wikidata": {
-            "id": wikidata_id,
-            "preferred_name": wikidata_preferred_name,
-            "description": wikidata_description,
-            "variants": wikidata_variants,
+            "id": None,
+            "preferred_name": None,
+            "description": None,
+            "variants": [],
         },
-        "lcsh": {
-            "id": lcsh_id,
-            "preferred_name": lcsh_preferred_name,
-            "variants": lcsh_variants,
-        },
+        "lcsh": {"id": None, "preferred_name": None, "variants": [], },
         "mesh": {
-            "id": mesh_id,
-            "preferred_name": mesh_preferred_name,
-            "description": mesh_description,
-            "variants": mesh_variants,
+            "id": None,
+            "preferred_name": None,
+            "description": None,
+            "variants": [],
         },
     }
+
+    response["wikidata"]["id"] = get_wikidata_id(concept_name)
+    if response["wikidata"]["id"]:
+        wikidata = get_wikidata(response["wikidata"]["id"])
+        response["wikidata"]["variants"] = get_wikidata_variant_names(wikidata)
+        response["wikidata"]["preferred_name"] = get_wikidata_preferred_name(
+            wikidata
+        )
+        response["wikidata"]["description"] = get_wikidata_description(
+            wikidata)
+
+        response["lcsh"]["id"] = get_lcsh_id(wikidata)
+        if response["lcsh"]["id"]:
+            if response["lcsh"]["id"].startswith("s"):
+                lcsh_data = get_lcsh_data(response["lcsh"]["id"])
+                response["lcsh"]["preferred_name"] = get_lcsh_preferred_name(
+                    lcsh_data
+                )
+                response["lcsh"]["variants"] = get_lcsh_variant_names(
+                    lcsh_data)
+
+        response["mesh"]["id"] = get_mesh_id(wikidata)
+        if response["mesh"]["id"]:
+            mesh_data = get_mesh_data(response["mesh"]["id"])
+            response["mesh"]["preferred_name"] = get_mesh_preferred_name(
+                mesh_data
+            )
+            response["mesh"]["variants"] = get_mesh_variant_names(mesh_data)
+            response["mesh"]["description"] = get_mesh_description(mesh_data)
+
+    return response
