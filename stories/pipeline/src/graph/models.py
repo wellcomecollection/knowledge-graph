@@ -10,17 +10,17 @@ from neomodel import (
 
 class Concept(StructuredNode):
     uid = UniqueIdProperty()
-    name = StringProperty(unique_index=True, required=True)
-    wikidata_preferred_name = StringProperty()
-    mesh_preferred_name = StringProperty()
-    lcsh_preferred_name = StringProperty()
-    wikidata_id = StringProperty()
-    mesh_id = StringProperty()
     lcsh_id = StringProperty()
-    wikidata_description = StringProperty()
+    lcsh_preferred_name = StringProperty()
     mesh_description = StringProperty()
+    mesh_id = StringProperty()
+    mesh_preferred_name = StringProperty()
+    name = StringProperty(unique_index=True, required=True)
     stories = RelationshipTo("Story", "HAS_CONCEPT")
     variant_names = RelationshipTo("VariantName", "AKA")
+    wikidata_description = StringProperty()
+    wikidata_id = StringProperty()
+    wikidata_preferred_name = StringProperty()
 
 
 class Contributor(StructuredNode):

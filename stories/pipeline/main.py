@@ -84,6 +84,9 @@ for concept_name in unique_concepts:
     enriched_concept = enriched_concepts[concept_name]
     concept = Concept(
         name=concept_name,
+        wikidata_id=enriched_concept["wikidata"]["id"],
+        mesh_id=enriched_concept["mesh"]["id"],
+        lcsh_id=enriched_concept["lcsh"]["id"],
         wikidata_preferred_name=enriched_concept["wikidata"]["preferred_name"],
         mesh_preferred_name=enriched_concept["mesh"]["preferred_name"],
         lcsh_preferred_name=enriched_concept["lcsh"]["preferred_name"],
