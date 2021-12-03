@@ -62,13 +62,12 @@ const Concept: NextPage<Props> = (props) => {
         </div>
       ) : null}
       <div className="pt-4">
-        <h2 className="text-lg">
-          <h2 className="text-lg font-bold">
-            {props.stories.split('<BREAK>').length} stories written about this
-            concept
-          </h2>
+        <h2 className="text-lg font-bold">
+          {`We've written ${props.stories.split('<BREAK>').length} stories about
+          this concept:`}
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 space-x-4 h-auto">
+
+        <div className="pt-2 grid grid-cols-1 md:grid-cols-3 md:space-x-4 md:space-y-0 space-x-0 space-y-4 h-auto">
           {props.fullStories.map((story) => {
             const { _id, _source } = story
             const { standfirst, title } = _source

@@ -49,16 +49,14 @@ const Search: NextPage<Props> = ({ storyHits, query, total, conceptHits }) => {
       title="Stories search"
       description="Search for stories on wellcomecollection.org/stories"
     >
-      <div className="py-2">
-        <h1>Stories search</h1>
-        <p>
-          Search for stories on{' '}
-          <a href="https://wellcomecollection.org/stories">
-            wellcomecollection.org/stories
-          </a>
-        </p>
-      </div>
-      <div className="py-4">
+      <h1>Stories search</h1>
+      <p>
+        Search for stories on{' '}
+        <a href="https://wellcomecollection.org/stories">
+          wellcomecollection.org/stories
+        </a>
+      </p>
+      <div className="pt-4">
         <SearchBox query={query} />
       </div>
       {conceptHits.length > 0 ? (
@@ -66,9 +64,7 @@ const Search: NextPage<Props> = ({ storyHits, query, total, conceptHits }) => {
       ) : null}
       {storyHits.length > 0 ? (
         <div className="py-5">
-          <p>
-            {total} results for &quot;{query}&quot;
-          </p>
+          <p>{`${total} results for "${query}"`}</p>
 
           <ul className="space-y-5 divide-y divide-gray-400">
             {storyHits.map((hit) => (
