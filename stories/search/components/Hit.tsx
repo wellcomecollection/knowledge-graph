@@ -16,7 +16,7 @@ const Hit: FC<Props> = ({ hit }) => {
         <div className="text-sm">
           {formattedDate} - {contributors.join(', ')}
         </div>
-        <div className="text-gray-800 text-sm pt-2">
+        <div className="text-gray-800 text-sm pt-1">
           {hit._source.standfirst}
         </div>
       </a>
