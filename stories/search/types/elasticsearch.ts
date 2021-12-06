@@ -1,8 +1,8 @@
 export type SourceStory = {
-  contributors: string
-  concepts: string
-  concept_ids: string
-  concept_variants: string
+  contributors: string[]
+  concepts: string[]
+  concept_ids: string[]
+  concept_variants: string[][]
   fulltext: string
   published: Date
   standfirst: string
@@ -38,9 +38,9 @@ export type SourceConcept = {
   mesh_id: string
   mesh_preferred_name: string
   name: string
-  stories: string
-  story_ids: string
-  variants: string
+  stories: string[]
+  story_ids: string[]
+  variants: string[]
   wikidata_description: string
   wikidata_id: string
   wikidata_preferred_name: string

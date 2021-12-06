@@ -21,7 +21,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
     .mget({
       index: process.env.ELASTIC_STORIES_INDEX as string,
       body: {
-        ids: response.body._source.story_ids.split('<BREAK>').slice(0, 3),
+        ids: response.body._source.story_ids.slice(0, 3),
       },
     })
     .then((res) => {
@@ -53,7 +53,7 @@ const Concept: NextPage<Props> = (props) => {
         <div className="pt-4">
           <h2 className="text-lg">Also known as</h2>
           <ul>
-            {props.variants.split('<BREAK>').map((variant) => (
+            {props.variants.map((variant) => (
               <li
                 className="inline-block bg-gray-200 rounded-lg px-2 py-1 text-xs text-gray-700 capitalize mr-2"
                 key={variant}
@@ -66,7 +66,7 @@ const Concept: NextPage<Props> = (props) => {
       ) : null}
       <div className="pt-4">
         <h2 className="text-lg font-bold">
-          {`We've written ${props.stories.split('<BREAK>').length} stories about
+          {`We've written ${props.stories.length} stories about
           this concept:`}
         </h2>
 

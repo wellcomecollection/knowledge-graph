@@ -1,3 +1,4 @@
+from ..utils import http_client, clean
 from .lcsh import (
     get_lcsh_data,
     get_lcsh_id,
@@ -28,7 +29,7 @@ def enrich(concept_name):
             "description": None,
             "variants": [],
         },
-        "lcsh": {"id": None, "preferred_name": None, "variants": [],},
+        "lcsh": {"id": None, "preferred_name": None, "variants": [], },
         "mesh": {
             "id": None,
             "preferred_name": None,
@@ -44,7 +45,8 @@ def enrich(concept_name):
         response["wikidata"]["preferred_name"] = get_wikidata_preferred_name(
             wikidata
         )
-        response["wikidata"]["description"] = get_wikidata_description(wikidata)
+        response["wikidata"]["description"] = get_wikidata_description(
+            wikidata)
 
         response["lcsh"]["id"] = get_lcsh_id(wikidata)
         if response["lcsh"]["id"]:
@@ -54,7 +56,8 @@ def enrich(concept_name):
                 response["lcsh"]["preferred_name"] = get_lcsh_preferred_name(
                     lcsh_data
                 )
-                response["lcsh"]["variants"] = get_lcsh_variant_names(lcsh_data)
+                response["lcsh"]["variants"] = get_lcsh_variant_names(
+                    lcsh_data)
 
         response["mesh"]["id"] = get_mesh_id(wikidata)
         if response["mesh"]["id"]:
@@ -63,7 +66,8 @@ def enrich(concept_name):
                 response["mesh"]["preferred_name"] = get_mesh_preferred_name(
                     mesh_data
                 )
-                response["mesh"]["variants"] = get_mesh_variant_names(mesh_data)
+                response["mesh"]["variants"] = get_mesh_variant_names(
+                    mesh_data)
                 response["mesh"]["description"] = get_mesh_description(
                     mesh_data
                 )

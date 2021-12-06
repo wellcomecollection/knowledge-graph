@@ -12,7 +12,7 @@ type Props = {
   conceptId: string
   total: number
   stories: Story[]
-  concept?: Concept
+  concept: Concept | null
 }
 
 export const getServerSideProps: GetServerSideProps<Props> = async ({
@@ -24,14 +24,15 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({
 
   let total: number = 0
   let stories: Story[] = []
-  let concept: Concept | undefined = undefined
+  let concept: Concept | null = null
   if (query || conceptId) {
-    var url = new URL(`${absoluteUrl(req).origin}/api/search`)
-    url.search = new URLSearchParams({
-      query: encodeURIComponent(query),
-      concept: conceptId ? conceptId : '',
-    }).toString()
-
+    let url = new URL(`${absoluteUrl(req).origin}/api/search`)
+    if (query) {
+      url.searchParams.append('query', query)
+    }
+    if (conceptId) {
+      url.searchParams.append('concept', conceptId)
+    }
     const response = await fetch(url.toString()).then((res) => res.json())
     total = response.stories.total
     stories = response.stories.results

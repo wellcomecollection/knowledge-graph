@@ -36,7 +36,7 @@ const IdTable: FC<Props> = ({ wikidata_id, mesh_id, lcsh_id }) => {
             <td className="font-semibold">LCSH ID</td>
             <td>
               <a
-                href={`https://id.loc.gov/authorities/names/${lcsh_id}.html`}
+                href={`https://id.loc.gov/authorities/subjects/${lcsh_id}.html`}
                 className="no-underline"
               >
                 {lcsh_id}

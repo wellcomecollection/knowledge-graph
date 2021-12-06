@@ -20,12 +20,10 @@ export function getClient(): Client {
 
 export function parseConcept(conceptHit: ConceptHit): Concept {
   const concept = conceptHit._source
-  const splitStoryTitles = concept.stories.split('<BREAK>')
-  const splitStoryIds = concept.story_ids.split('<BREAK>')
-  const stories = splitStoryTitles.map((storyTitle, index) => {
+  const stories = concept.stories.map((storyTitle, index) => {
     return {
       name: storyTitle,
-      id: splitStoryIds[index],
+      id: concept.story_ids[index],
     }
   })
   return {
@@ -37,28 +35,26 @@ export function parseConcept(conceptHit: ConceptHit): Concept {
     mesh_preferred_name: concept.mesh_preferred_name,
     name: concept.name,
     stories,
-    variants: concept.variants.split('<BREAK>'),
+    variants: concept.variants,
     wikidata_description: concept.wikidata_description,
     wikidata_id: concept.wikidata_id,
     wikidata_preferred_name: concept.wikidata_preferred_name,
   }
 }
+
 export function parseStory(storyHit: StoryHit): Story {
   const story = storyHit._source
-  const splitConcepts = story.concepts.split('<BREAK>')
-  const splitConceptIds = story.concept_ids.split('<BREAK>')
-  const splitConceptVariants = story.concept_variants.split('<BREAK>')
-  const concepts = splitConcepts.map((concept, index) => {
+  const concepts = story.concepts.map((concept, index) => {
     return {
       name: concept,
-      id: splitConceptIds[index],
-      variants: splitConceptVariants[index].split('<SEP>'),
+      id: story.concept_ids[index],
+      variants: story.concept_variants[index],
     }
   })
 
   return {
     id: storyHit._id,
-    contributors: story.contributors.split('<BREAK>'),
+    contributors: story.contributors,
     concepts: concepts,
     fulltext: story.fulltext,
     published: new Date(story.published),

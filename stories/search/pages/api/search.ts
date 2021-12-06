@@ -31,8 +31,7 @@ export default async function search(
     )
 
     try {
-      const client = getClient()
-      const { body } = await client.msearch({
+      const { body } = await getClient().msearch({
         body: [
           { index: process.env.ELASTIC_STORIES_INDEX as string },
           { query: storiesQuery, size },
@@ -40,18 +39,14 @@ export default async function search(
           { query: conceptsQuery, size: 1 },
         ],
       })
-
       const [storiesResponse, conceptsResponse] = body.responses
-
+      const total = storiesResponse.hits.total.value
       const storiesResults = storiesResponse.hits.hits.map((hit: StoryHit) =>
         parseStory(hit)
       )
-      const total = storiesResponse.hits.total.value
-
       const concept = conceptsResponse.hits.hits.map((hit: ConceptHit) =>
         parseConcept(hit)
       )
-
       res
         .status(200)
         .json({ stories: { results: storiesResults, total }, concept })
