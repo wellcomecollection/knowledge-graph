@@ -1,4 +1,4 @@
-import { Concept, ConceptHit, Story, StoryHit } from '../types/elasticsearch'
+import { Concept, Story } from '../types/elasticsearch'
 import { GetServerSideProps, NextPage } from 'next'
 
 import ConceptPanel from '../components/Panel'
@@ -10,37 +10,45 @@ import absoluteUrl from 'next-absolute-url'
 type Props = {
   query: string
   conceptId: string
+  total: number
   stories: Story[]
-  concept: Concept
+  concept?: Concept
 }
 
 export const getServerSideProps: GetServerSideProps<Props> = async ({
   query: qs,
   req,
 }) => {
-  const { origin } = absoluteUrl(req)
   const query = qs.query ? qs.query.toString() : ''
   const conceptId = qs.concept ? qs.concept.toString() : ''
 
-  let stories: StoryHit[] = []
-  let concept: ConceptHit | null = null
+  let total: number = 0
+  let stories: Story[] = []
+  let concept: Concept | undefined = undefined
   if (query || conceptId) {
-    var url = new URL(`${origin}/api/search`)
+    var url = new URL(`${absoluteUrl(req).origin}/api/search`)
     url.search = new URLSearchParams({
       query: encodeURIComponent(query),
       concept: conceptId ? conceptId : '',
     }).toString()
 
     const response = await fetch(url.toString()).then((res) => res.json())
-    stories = response.stories
+    total = response.stories.total
+    stories = response.stories.results
     concept = response.concept.length > 0 ? response.concept[0] : null
   }
   return {
-    props: { query, conceptId, stories, concept },
+    props: { query, conceptId, total, stories, concept },
   }
 }
 
-const Search: NextPage<Props> = ({ query, conceptId, stories, concept }) => {
+const Search: NextPage<Props> = ({
+  query,
+  conceptId,
+  total,
+  stories,
+  concept,
+}) => {
   return (
     <Layout
       title="Stories search"
@@ -57,24 +65,23 @@ const Search: NextPage<Props> = ({ query, conceptId, stories, concept }) => {
         <SearchBox query={query} />
       </div>
       {concept ? <ConceptPanel concept={concept} /> : null}
-      {stories.length > 0 ? (
-        <div className="py-5">
-          {query ? <p>{`${stories.length} results for "${query}"`}</p> : null}
-          {conceptId ? (
-            <p>
-              {stories.length} results tagged with concept ID{' '}
-              <a href={`/concepts/${conceptId}`}>{conceptId}</a>
-            </p>
-          ) : null}
-          <ul className="space-y-5 divide-y divide-gray-400">
-            {stories.map((story) => (
-              <li key={story.id} className="pt-4">
-                <SearchResult story={story} />
-              </li>
-            ))}
-          </ul>
-        </div>
-      ) : null}
+      <div className="pt-5">
+        {query ? (
+          `${total} results for "${query}"`
+        ) : conceptId ? (
+          <span>
+            {total} results tagged with concept ID{' '}
+            <a href={`/concepts/${conceptId}`}>{conceptId}</a>
+          </span>
+        ) : null}
+      </div>
+      <ul className="space-y-5 divide-y divide-gray-400">
+        {stories.map((story) => (
+          <li key={story.id} className="pt-4">
+            <SearchResult story={story} />
+          </li>
+        ))}
+      </ul>
     </Layout>
   )
 }

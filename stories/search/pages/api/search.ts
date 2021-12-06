@@ -43,15 +43,18 @@ export default async function search(
 
       const [storiesResponse, conceptsResponse] = body.responses
 
-      const stories = storiesResponse.hits.hits.map((hit: StoryHit) =>
+      const storiesResults = storiesResponse.hits.hits.map((hit: StoryHit) =>
         parseStory(hit)
       )
+      const total = storiesResponse.hits.total.value
 
       const concept = conceptsResponse.hits.hits.map((hit: ConceptHit) =>
         parseConcept(hit)
       )
 
-      res.status(200).json({ stories, concept })
+      res
+        .status(200)
+        .json({ stories: { results: storiesResults, total }, concept })
     } catch {
       res.status(500).json({ error: 'Unable to query' })
     }
