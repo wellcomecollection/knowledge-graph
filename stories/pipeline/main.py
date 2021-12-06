@@ -6,7 +6,7 @@ from pathlib import Path
 import pandas as pd
 from structlog import get_logger
 
-from src.elasticsearch import format_for_indexing, get_elasticsearch_session
+from src.elasticsearch import get_elasticsearch_session
 from src.enrich import enrich
 from src.graph import get_neo4j_session
 from src.graph.models import Concept, Contributor, Story, VariantName
@@ -106,7 +106,8 @@ for _, story_data in df.iterrows():
     contributor_names = [
         name.strip()
         for name in (
-            story_data["Author"].split(",") + story_data["Images by"].split(",")
+            story_data["Author"].split(
+                ",") + story_data["Images by"].split(",")
         )
         if name.strip() != ""
     ]
@@ -182,9 +183,8 @@ for story in Story.nodes.all():
     concept_names = [concept.name for concept in story_concepts]
     concept_ids = [concept.uid for concept in story_concepts]
     concept_variants = [
-        variant.name
+        [variant.name for variant in concept.variant_names.all()]
         for concept in story_concepts
-        for variant in concept.variant_names.all()
     ]
 
     contributors = [
@@ -197,19 +197,17 @@ for story in Story.nodes.all():
     es.index(
         index=stories_index_name,
         id=story.wellcome_id,
-        document=format_for_indexing(
-            {
-                "concepts": concept_names,
-                "concept_ids": concept_ids,
-                "concept_variants": concept_variants,
-                "contributors": contributors,
-                "full_text": full_text,
-                "published": story.published,
-                "standfirst": standfirst,
-                "title": story.title,
-                "wikidata_id": story.wikidata_id,
-            }
-        ),
+        document={
+            "concepts": concept_names,
+            "concept_ids": concept_ids,
+            "concept_variants": concept_variants,
+            "contributors": contributors,
+            "full_text": full_text,
+            "published": story.published,
+            "standfirst": standfirst,
+            "title": story.title,
+            "wikidata_id": story.wikidata_id,
+        }
     )
 
 
@@ -238,20 +236,18 @@ for concept in Concept.nodes.all():
     es.index(
         index=concepts_index_name,
         id=concept.uid,
-        document=format_for_indexing(
-            {
-                "name": concept.name,
-                "wikidata_id": concept.wikidata_id,
-                "mesh_id": concept.mesh_id,
-                "lcsh_id": concept.lcsh_id,
-                "wikidata_preferred_name": concept.wikidata_preferred_name,
-                "mesh_preferred_name": concept.mesh_preferred_name,
-                "lcsh_preferred_name": concept.lcsh_preferred_name,
-                "wikidata_description": concept.wikidata_description,
-                "mesh_description": concept.mesh_description,
-                "stories": stories,
-                "story_ids": story_ids,
-                "variants": variants,
-            }
-        ),
+        document={
+            "name": concept.name,
+            "wikidata_id": concept.wikidata_id,
+            "mesh_id": concept.mesh_id,
+            "lcsh_id": concept.lcsh_id,
+            "wikidata_preferred_name": concept.wikidata_preferred_name,
+            "mesh_preferred_name": concept.mesh_preferred_name,
+            "lcsh_preferred_name": concept.lcsh_preferred_name,
+            "wikidata_description": concept.wikidata_description,
+            "mesh_description": concept.mesh_description,
+            "stories": stories,
+            "story_ids": story_ids,
+            "variants": variants,
+        }
     )

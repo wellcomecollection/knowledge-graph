@@ -14,7 +14,6 @@
         },
         "concepts": {
             "type": "text",
-            "analyzer": "csv_analyzer",
             "fields": {
                 "keyword": {
                     "type": "keyword",
@@ -31,12 +30,10 @@
             }
         },
         "concept_ids": {
-            "type": "text",
-            "analyzer": "csv_analyzer"
+            "type": "keyword"
         },
         "concept_variants": {
             "type": "text",
-            "analyzer": "csv_analyzer",
             "fields": {
                 "keyword": {
                     "type": "keyword",

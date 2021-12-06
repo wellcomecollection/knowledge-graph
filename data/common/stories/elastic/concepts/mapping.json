@@ -54,7 +54,6 @@
         },
         "variants": {
             "type": "text",
-            "analyzer": "csv_analyzer",
             "fields": {
                 "keyword": {
                     "type": "keyword",
@@ -88,7 +87,6 @@
         },
         "stories": {
             "type": "text",
-            "analyzer": "csv_analyzer",
             "fields": {
                 "keyword": {
                     "type": "keyword",
@@ -105,8 +103,7 @@
             }
         },
         "story_ids": {
-            "type": "text",
-            "analyzer": "csv_analyzer"
+            "type": "keyword"
         }
     }
 }

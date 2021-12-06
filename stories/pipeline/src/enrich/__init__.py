@@ -1,5 +1,4 @@
-from ..utils import clean, http_client
-
+from ..utils import http_client, clean
 from .lcsh import (
     get_lcsh_data,
     get_lcsh_id,

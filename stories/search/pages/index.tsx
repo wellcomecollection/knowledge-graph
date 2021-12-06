@@ -1,61 +1,54 @@
-import { ConceptHit, StoryHit } from '../types/elasticsearch'
+import { Concept, Story } from '../types/elasticsearch'
 import { GetServerSideProps, NextPage } from 'next'
 
 import ConceptPanel from '../components/Panel'
-import Hit from '../components/Hit'
 import Layout from '../components/Layout'
 import SearchBox from '../components/SearchBox'
+import SearchResult from '../components/Hit'
 import absoluteUrl from 'next-absolute-url'
 
 type Props = {
-  storyHits: StoryHit[]
   query: string
-  conceptFilter: string
+  conceptId: string
   total: number
-  conceptHits: ConceptHit[]
+  stories: Story[]
+  concept: Concept | null
 }
 
 export const getServerSideProps: GetServerSideProps<Props> = async ({
   query: qs,
   req,
 }) => {
-  const { origin } = absoluteUrl(req)
   const query = qs.query ? qs.query.toString() : ''
-  const conceptFilter = qs.concept ? qs.concept.toString() : ''
+  const conceptId = qs.concept ? qs.concept.toString() : ''
 
-  let total = 0
-  let storyHits: StoryHit[] = []
-  let conceptHits: ConceptHit[] = []
-  if (query) {
-    const encodedQuery = encodeURIComponent(query)
-    const storiesResponse = await fetch(
-      `${origin}/api/stories?q=${encodedQuery}`
-    ).then((res) => res.json())
-    const conceptsResponse = await fetch(
-      `${origin}/api/concepts?q=${encodedQuery}`
-    ).then((res) => res.json())
-
-    storyHits = storiesResponse.hits
-    total = storiesResponse.total.value
-    conceptHits = conceptsResponse.hits
-  } else if (conceptFilter) {
-    const storiesResponse = await fetch(
-      `${origin}/api/stories?concept=${conceptFilter}`
-    ).then((res) => res.json())
-    storyHits = storiesResponse.hits
-    total = storiesResponse.total.value
+  let total: number = 0
+  let stories: Story[] = []
+  let concept: Concept | null = null
+  if (query || conceptId) {
+    let url = new URL(`${absoluteUrl(req).origin}/api/search`)
+    if (query) {
+      url.searchParams.append('query', query)
+    }
+    if (conceptId) {
+      url.searchParams.append('concept', conceptId)
+    }
+    const response = await fetch(url.toString()).then((res) => res.json())
+    total = response.stories.total
+    stories = response.stories.results
+    concept = response.concept.length > 0 ? response.concept[0] : null
   }
   return {
-    props: { query, total, storyHits, conceptHits, conceptFilter },
+    props: { query, conceptId, total, stories, concept },
   }
 }
 
 const Search: NextPage<Props> = ({
-  storyHits,
   query,
+  conceptId,
   total,
-  conceptHits,
-  conceptFilter,
+  stories,
+  concept,
 }) => {
   return (
     <Layout
@@ -72,26 +65,24 @@ const Search: NextPage<Props> = ({
       <div className="pt-4">
         <SearchBox query={query} />
       </div>
-      {conceptHits.length > 0 ? (
-        <ConceptPanel conceptHit={conceptHits[0]} />
-      ) : null}
-      {storyHits.length > 0 ? (
-        <div className="py-5">
-          {query ? <p>{`${total} results for "${query}"`}</p> : null}
-          {conceptFilter ? (
-            <p>
-              {total} results for concept ID {conceptFilter}
-            </p>
-          ) : null}
-          <ul className="space-y-5 divide-y divide-gray-400">
-            {storyHits.map((hit) => (
-              <li key={hit._id} className="pt-4">
-                <Hit hit={hit} />
-              </li>
-            ))}
-          </ul>
-        </div>
-      ) : null}
+      {concept ? <ConceptPanel concept={concept} /> : null}
+      <div className="pt-5">
+        {query ? (
+          `${total} results for "${query}"`
+        ) : conceptId ? (
+          <span>
+            {total} results tagged with concept ID{' '}
+            <a href={`/concepts/${conceptId}`}>{conceptId}</a>
+          </span>
+        ) : null}
+      </div>
+      <ul className="space-y-5 divide-y divide-gray-400">
+        {stories.map((story) => (
+          <li key={story.id} className="pt-4">
+            <SearchResult story={story} />
+          </li>
+        ))}
+      </ul>
     </Layout>
   )
 }

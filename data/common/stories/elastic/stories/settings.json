@@ -1,9 +1,6 @@
 {
   "analysis": {
     "analyzer": {
-      "csv_analyzer": {
-        "tokenizer": "csv_tokenizer"
-      },
       "shingle_asciifolding_analyzer": {
         "type": "custom",
         "tokenizer": "standard",
@@ -21,12 +18,6 @@
           "english_token_filter",
           "english_possessive_token_filter"
         ]
-      }
-    },
-    "tokenizer": {
-      "csv_tokenizer": {
-        "type": "pattern",
-        "pattern": "<BREAK>"
       }
     },
     "filter": {
