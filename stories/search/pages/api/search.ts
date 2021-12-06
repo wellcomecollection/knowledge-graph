@@ -14,7 +14,9 @@ export default async function search(
   res: NextApiResponse
 ) {
   if (req.method === 'GET') {
-    const { query = '', concept, size } = req.query
+    const { query = '', concept, size = '10', page = '1' } = req.query
+    const from = (parseInt(page as string) - 1) * parseInt(size as string)
+
     const storiesQuery = JSON.parse(
       JSON.stringify(blankStoriesQuery).replace(/{{query}}/g, query as string)
     )
@@ -34,7 +36,7 @@ export default async function search(
       const { body } = await getClient().msearch({
         body: [
           { index: process.env.ELASTIC_STORIES_INDEX as string },
-          { query: storiesQuery, size },
+          { query: storiesQuery, size, from },
           { index: process.env.ELASTIC_CONCEPTS_INDEX as string },
           { query: conceptsQuery, size: 1 },
         ],
