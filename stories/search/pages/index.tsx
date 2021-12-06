@@ -13,6 +13,7 @@ type Props = {
   total: number
   stories: Story[]
   concept: Concept | null
+  page: number
 }
 
 export const getServerSideProps: GetServerSideProps<Props> = async ({
@@ -20,6 +21,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({
   req,
 }) => {
   const query = qs.query ? qs.query.toString() : ''
+  const page = qs.page ? parseInt(qs.page.toString()) : 1
   const conceptId = qs.concept ? qs.concept.toString() : ''
 
   let total: number = 0
@@ -33,13 +35,16 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({
     if (conceptId) {
       url.searchParams.append('concept', conceptId)
     }
+    if (page) {
+      url.searchParams.append('page', page.toString())
+    }
     const response = await fetch(url.toString()).then((res) => res.json())
     total = response.stories.total
     stories = response.stories.results
     concept = response.concept.length > 0 ? response.concept[0] : null
   }
   return {
-    props: { query, conceptId, total, stories, concept },
+    props: { query, conceptId, total, stories, concept, page },
   }
 }
 
@@ -49,6 +54,7 @@ const Search: NextPage<Props> = ({
   total,
   stories,
   concept,
+  page,
 }) => {
   return (
     <Layout
@@ -83,6 +89,27 @@ const Search: NextPage<Props> = ({
           </li>
         ))}
       </ul>
+      {total > 10 ? (
+        <div className="pt-7 space-x-4">
+          <span>Page {page}</span>
+          {page > 1 ? (
+            <a
+              className="no-underline px-3 py-2 rounded border-2 border-black"
+              href={`/?query=${query}&page=${page - 1}`}
+            >
+              ← previous
+            </a>
+          ) : null}
+          {!(stories.length < 10) ? (
+            <a
+              className="no-underline px-3 py-2 rounded border-2 border-black "
+              href={`/?query=${query}&page=${page ? page + 1 : 2}`}
+            >
+              next →
+            </a>
+          ) : null}
+        </div>
+      ) : null}
     </Layout>
   )
 }
