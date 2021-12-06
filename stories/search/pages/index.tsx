@@ -1,17 +1,17 @@
-import { ConceptHit, StoryHit } from '../types/elasticsearch'
+import { Concept, ConceptHit, Story, StoryHit } from '../types/elasticsearch'
 import { GetServerSideProps, NextPage } from 'next'
 
 import ConceptPanel from '../components/Panel'
-import Hit from '../components/Hit'
 import Layout from '../components/Layout'
 import SearchBox from '../components/SearchBox'
+import SearchResult from '../components/Hit'
 import absoluteUrl from 'next-absolute-url'
 
 type Props = {
-  storyHits: StoryHit[]
   query: string
-  conceptFilter: string
-  conceptHits: ConceptHit[]
+  conceptId: string
+  stories: Story[]
+  concept: Concept
 }
 
 export const getServerSideProps: GetServerSideProps<Props> = async ({
@@ -20,38 +20,27 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({
 }) => {
   const { origin } = absoluteUrl(req)
   const query = qs.query ? qs.query.toString() : ''
-  const conceptFilter = qs.concept ? qs.concept.toString() : ''
+  const conceptId = qs.concept ? qs.concept.toString() : ''
 
-  let storyHits: StoryHit[] = []
-  let conceptHits: ConceptHit[] = []
-  if (query) {
-    const encodedQuery = encodeURIComponent(query)
-    const storiesResponse = await fetch(
-      `${origin}/api/stories?q=${encodedQuery}`
-    ).then((res) => res.json())
-    const conceptsResponse = await fetch(
-      `${origin}/api/concepts?q=${encodedQuery}`
-    ).then((res) => res.json())
+  let stories: StoryHit[] = []
+  let concept: ConceptHit | null = null
+  if (query || conceptId) {
+    var url = new URL(`${origin}/api/search`)
+    url.search = new URLSearchParams({
+      query: encodeURIComponent(query),
+      concept: conceptId ? conceptId : '',
+    }).toString()
 
-    storyHits = storiesResponse.hits
-    conceptHits = conceptsResponse.hits
-  } else if (conceptFilter) {
-    const storiesResponse = await fetch(
-      `${origin}/api/stories?concept=${conceptFilter}`
-    ).then((res) => res.json())
-    storyHits = storiesResponse.hits
+    const response = await fetch(url.toString()).then((res) => res.json())
+    stories = response.stories
+    concept = response.concept.length > 0 ? response.concept[0] : null
   }
   return {
-    props: { query, storyHits, conceptHits, conceptFilter },
+    props: { query, conceptId, stories, concept },
   }
 }
 
-const Search: NextPage<Props> = ({
-  storyHits,
-  query,
-  conceptHits,
-  conceptFilter,
-}) => {
+const Search: NextPage<Props> = ({ query, conceptId, stories, concept }) => {
   return (
     <Layout
       title="Stories search"
@@ -67,21 +56,20 @@ const Search: NextPage<Props> = ({
       <div className="pt-4">
         <SearchBox query={query} />
       </div>
-      {conceptHits.length > 0 ? (
-        <ConceptPanel conceptHit={conceptHits[0]} />
-      ) : null}
-      {storyHits.length > 0 ? (
+      {concept ? <ConceptPanel concept={concept} /> : null}
+      {stories.length > 0 ? (
         <div className="py-5">
-          {query ? <p>{`${storyHits.length} results for "${query}"`}</p> : null}
-          {conceptFilter ? (
+          {query ? <p>{`${stories.length} results for "${query}"`}</p> : null}
+          {conceptId ? (
             <p>
-              {storyHits.length} results for concept ID {conceptFilter}
+              {stories.length} results tagged with concept ID{' '}
+              <a href={`/concepts/${conceptId}`}>{conceptId}</a>
             </p>
           ) : null}
           <ul className="space-y-5 divide-y divide-gray-400">
-            {storyHits.map((hit) => (
-              <li key={hit._id} className="pt-4">
-                <Hit hit={hit} />
+            {stories.map((story) => (
+              <li key={story.id} className="pt-4">
+                <SearchResult story={story} />
               </li>
             ))}
           </ul>

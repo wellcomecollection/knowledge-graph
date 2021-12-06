@@ -1,9 +1,4 @@
-import {
-  Concept,
-  SourceConcept,
-  SourceStory,
-  Story,
-} from '../types/elasticsearch'
+import { Concept, ConceptHit, Story, StoryHit } from '../types/elasticsearch'
 
 import { Client } from '@elastic/elasticsearch'
 
@@ -23,7 +18,8 @@ export function getClient(): Client {
   return client
 }
 
-export function parseConcept(concept: SourceConcept): Concept {
+export function parseConcept(conceptHit: ConceptHit): Concept {
+  const concept = conceptHit._source
   const splitStoryTitles = concept.stories.split('<BREAK>')
   const splitStoryIds = concept.story_ids.split('<BREAK>')
   const stories = splitStoryTitles.map((storyTitle, index) => {
@@ -33,6 +29,7 @@ export function parseConcept(concept: SourceConcept): Concept {
     }
   })
   return {
+    id: conceptHit._id,
     lcsh_id: concept.lcsh_id,
     lcsh_preferred_name: concept.lcsh_preferred_name,
     mesh_description: concept.mesh_description,
@@ -46,7 +43,8 @@ export function parseConcept(concept: SourceConcept): Concept {
     wikidata_preferred_name: concept.wikidata_preferred_name,
   }
 }
-export function parseStory(story: SourceStory): Story {
+export function parseStory(storyHit: StoryHit): Story {
+  const story = storyHit._source
   const splitConcepts = story.concepts.split('<BREAK>')
   const splitConceptIds = story.concept_ids.split('<BREAK>')
   const splitConceptVariants = story.concept_variants.split('<BREAK>')
@@ -59,6 +57,7 @@ export function parseStory(story: SourceStory): Story {
   })
 
   return {
+    id: storyHit._id,
     contributors: story.contributors.split('<BREAK>'),
     concepts: concepts,
     fulltext: story.fulltext,

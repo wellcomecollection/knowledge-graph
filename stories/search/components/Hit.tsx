@@ -1,31 +1,27 @@
 import { FC } from 'react'
-import { StoryHit as HitType } from '../types/elasticsearch'
 import Link from 'next/link'
+import { Story } from '../types/elasticsearch'
 
-type Props = { hit: HitType }
-const Hit: FC<Props> = ({ hit }) => {
-  const formattedDate = new Date(hit._source.published).toLocaleDateString()
-  const url = `https://wellcomecollection.org/articles/${hit._id}`
-  const concepts = hit._source.concepts.split('<BREAK>')
-  const concept_ids = hit._source.concept_ids.split('<BREAK>')
-  const contributors = hit._source.contributors.split('<BREAK>')
+type Props = { story: Story }
+const SearchResult: FC<Props> = ({ story }) => {
+  const formattedDate = new Date(story.published).toLocaleDateString()
+  const url = `https://wellcomecollection.org/articles/${story.id}`
+
   return (
     <>
       <a href={url} className="no-underline">
-        <p className="text-xl font-bold">{hit._source.title}</p>
+        <p className="text-xl font-bold">{story.title}</p>
         <div className="text-sm">
-          {formattedDate} - {contributors.join(', ')}
+          {formattedDate} - {story.contributors.join(', ')}
         </div>
-        <div className="text-gray-800 text-sm pt-1">
-          {hit._source.standfirst}
-        </div>
+        <div className="text-gray-800 text-sm pt-1">{story.standfirst}</div>
       </a>
       <ul className="pt-2 space-x-2">
-        {concepts.map((concept, index) => (
-          <li key={concept} className="inline-block">
-            <Link href={`/concepts/${concept_ids[index]}`}>
+        {story.concepts.map((concept) => (
+          <li key={concept.id} className="inline-block">
+            <Link href={`/concepts/${concept.id}`}>
               <a className="no-underline bg-gray-200 rounded-lg px-2 py-1 text-xs text-gray-700">
-                {concept}
+                {concept.name}
               </a>
             </Link>
           </li>
@@ -35,4 +31,4 @@ const Hit: FC<Props> = ({ hit }) => {
   )
 }
 
-export default Hit
+export default SearchResult

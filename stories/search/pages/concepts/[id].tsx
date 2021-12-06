@@ -33,7 +33,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
 type Props = ConceptType & { fullStories: StoryHit[]; id: string }
 
 const Concept: NextPage<Props> = (props) => {
-  const description = props.mesh_description || props.wikidata_description
+  const description = props.wikidata_description || props.mesh_description
   const title =
     props.wikidata_preferred_name ||
     props.mesh_preferred_name ||

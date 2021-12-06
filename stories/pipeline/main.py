@@ -106,8 +106,7 @@ for _, story_data in df.iterrows():
     contributor_names = [
         name.strip()
         for name in (
-            story_data["Author"].split(
-                ",") + story_data["Images by"].split(",")
+            story_data["Author"].split(",") + story_data["Images by"].split(",")
         )
         if name.strip() != ""
     ]
@@ -183,9 +182,7 @@ for story in Story.nodes.all():
     concept_names = [concept.name for concept in story_concepts]
     concept_ids = [concept.uid for concept in story_concepts]
     concept_variants = [
-        "<SEP>".join(
-            [variant.name for variant in concept.variant_names.all()]
-        )
+        "<SEP>".join([variant.name for variant in concept.variant_names.all()])
         for concept in story_concepts
     ]
 

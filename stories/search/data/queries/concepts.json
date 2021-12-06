@@ -3,27 +3,27 @@
         "should": [
             {
                 "term": {
-                    "variants.keyword": "{{query}}"
+                    "variants": "{{query}}"
                 }
             },
             {
                 "term": {
-                    "name.keyword": "{{query}}"
+                    "name": "{{query}}"
                 }
             },
             {
                 "term": {
-                    "mesh_preferred_name.keyword": "{{query}}"
+                    "mesh_preferred_name": "{{query}}"
                 }
             },
             {
                 "term": {
-                    "lcsh_preferred_name.keyword": "{{query}}"
+                    "lcsh_preferred_name": "{{query}}"
                 }
             },
             {
                 "term": {
-                    "wikidata_preferred_name.keyword": "{{query}}"
+                    "wikidata_preferred_name": "{{query}}"
                 }
             },
             {

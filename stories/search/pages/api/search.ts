@@ -44,11 +44,11 @@ export default async function search(
       const [storiesResponse, conceptsResponse] = body.responses
 
       const stories = storiesResponse.hits.hits.map((hit: StoryHit) =>
-        parseStory(hit._source)
+        parseStory(hit)
       )
 
       const concept = conceptsResponse.hits.hits.map((hit: ConceptHit) =>
-        parseConcept(hit._source)
+        parseConcept(hit)
       )
 
       res.status(200).json({ stories, concept })
@@ -59,4 +59,3 @@ export default async function search(
     res.status(405).json({ error: 'Method not allowed' })
   }
 }
-
