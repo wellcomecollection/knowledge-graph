@@ -1,10 +1,10 @@
 export type StoryHit = {
   _id: string
   _score: string
-  _source: Story
+  _source: SourceStory
 }
 
-export type Story = {
+export type SourceStory = {
   contributors: string
   concepts: string
   concept_ids: string
@@ -16,13 +16,27 @@ export type Story = {
   wikidata_id: string
 }
 
+export type Story = {
+  contributors: string[]
+  concepts: {
+    name: string
+    id: string
+    variants: string[]
+  }[]
+  fulltext: string
+  published: Date
+  standfirst: string
+  title: string
+  wikidata_id: string
+}
+
 export type ConceptHit = {
   _id: string
   _score: string
-  _source: Concept
+  _source: SourceConcept
 }
 
-export type Concept = {
+export type SourceConcept = {
   lcsh_id: string
   lcsh_preferred_name: string
   mesh_description: string
@@ -32,6 +46,23 @@ export type Concept = {
   stories: string
   story_ids: string
   variants: string
+  wikidata_description: string
+  wikidata_id: string
+  wikidata_preferred_name: string
+}
+
+export type Concept = {
+  lcsh_id: string
+  lcsh_preferred_name: string
+  mesh_description: string
+  mesh_id: string
+  mesh_preferred_name: string
+  name: string
+  stories: {
+    name: string
+    id: string
+  }[]
+  variants: string[]
   wikidata_description: string
   wikidata_id: string
   wikidata_preferred_name: string

@@ -1,10 +1,12 @@
-import { Concept as ConceptType, StoryHit } from '../../types/elasticsearch'
+import {
+  SourceConcept as ConceptType,
+  StoryHit,
+} from '../../types/elasticsearch'
 import { GetServerSideProps, NextPage } from 'next'
 
 import IdTable from '../../components/IdTable'
 import Layout from '../../components/Layout'
 import StoryCard from '../../components/StoryCard'
-import absoluteUrl from 'next-absolute-url'
 import { getClient } from '../../services/elasticsearch'
 
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {

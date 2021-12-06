@@ -11,7 +11,6 @@ type Props = {
   storyHits: StoryHit[]
   query: string
   conceptFilter: string
-  total: number
   conceptHits: ConceptHit[]
 }
 
@@ -23,7 +22,6 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({
   const query = qs.query ? qs.query.toString() : ''
   const conceptFilter = qs.concept ? qs.concept.toString() : ''
 
-  let total = 0
   let storyHits: StoryHit[] = []
   let conceptHits: ConceptHit[] = []
   if (query) {
@@ -36,24 +34,21 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({
     ).then((res) => res.json())
 
     storyHits = storiesResponse.hits
-    total = storiesResponse.total.value
     conceptHits = conceptsResponse.hits
   } else if (conceptFilter) {
     const storiesResponse = await fetch(
       `${origin}/api/stories?concept=${conceptFilter}`
     ).then((res) => res.json())
     storyHits = storiesResponse.hits
-    total = storiesResponse.total.value
   }
   return {
-    props: { query, total, storyHits, conceptHits, conceptFilter },
+    props: { query, storyHits, conceptHits, conceptFilter },
   }
 }
 
 const Search: NextPage<Props> = ({
   storyHits,
   query,
-  total,
   conceptHits,
   conceptFilter,
 }) => {
@@ -77,10 +72,10 @@ const Search: NextPage<Props> = ({
       ) : null}
       {storyHits.length > 0 ? (
         <div className="py-5">
-          {query ? <p>{`${total} results for "${query}"`}</p> : null}
+          {query ? <p>{`${storyHits.length} results for "${query}"`}</p> : null}
           {conceptFilter ? (
             <p>
-              {total} results for concept ID {conceptFilter}
+              {storyHits.length} results for concept ID {conceptFilter}
             </p>
           ) : null}
           <ul className="space-y-5 divide-y divide-gray-400">

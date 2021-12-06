@@ -26,7 +26,7 @@
     "tokenizer": {
       "csv_tokenizer": {
         "type": "pattern",
-        "pattern": "<BREAK>"
+        "pattern": "<BREAK>|<SEP>"
       }
     },
     "filter": {
