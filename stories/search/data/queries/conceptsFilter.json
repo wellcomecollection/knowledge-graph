@@ -1,11 +1,5 @@
 {
-    "bool": {
-        "filter": [
-            {
-                "term": {
-                    "concept_ids": "{{query}}"
-                }
-            }
-        ]
+    "term": {
+        "concept_ids": "{{query}}"
     }
 }

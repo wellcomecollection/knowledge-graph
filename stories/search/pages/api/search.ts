@@ -10,27 +10,25 @@ export default async function search(
   res: NextApiResponse
 ) {
   if (req.method === 'GET') {
-    const { q, concept, size } = req.query
-    let query = {}
+    const { query = '', concept, size } = req.query
+    const queryBody = JSON.parse(
+      JSON.stringify(storiesQuery).replace(/{{query}}/g, query as string)
+    )
     if (concept) {
-      query = JSON.parse(
-        JSON.stringify(conceptsFilter).replace(/{{query}}/g, concept as string)
+      queryBody.bool.filter.push(
+        JSON.parse(
+          JSON.stringify(conceptsFilter).replace(
+            /{{query}}/g,
+            concept as string
+          )
+        )
       )
-    } else if (q) {
-      query = JSON.parse(
-        JSON.stringify(storiesQuery).replace(/{{query}}/g, q as string)
-      )
-    } else {
-      res
-        .status(500)
-        .json({ error: 'Must supply one of query parameters "q" or "concept"' })
-      return
     }
 
     await getClient()
       .search({
         index: process.env.ELASTIC_STORIES_INDEX as string,
-        body: { query, size },
+        body: { query: queryBody, size },
       })
       .then((result: ApiResponse) => {
         res.status(200).json(result.body.hits)
