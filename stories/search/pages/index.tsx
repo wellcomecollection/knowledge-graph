@@ -91,19 +91,23 @@ const Search: NextPage<Props> = ({
       </ul>
       {total > 10 ? (
         <div className="pt-7 space-x-4">
-          <span>Page {page}</span>
           {page > 1 ? (
             <a
               className="no-underline px-3 py-2 rounded border-2 border-black"
-              href={`/?query=${query}&page=${page - 1}`}
+              href={`/${query ? `?query=${query}` : ''}${
+                conceptId ? `?concept=${conceptId}` : ''
+              }&page=${page - 1}`}
             >
               ← previous
             </a>
           ) : null}
+          <span>Page {page}</span>
           {!(stories.length < 10) ? (
             <a
               className="no-underline px-3 py-2 rounded border-2 border-black "
-              href={`/?query=${query}&page=${page ? page + 1 : 2}`}
+              href={`/${query ? `?query=${query}` : ''}${
+                conceptId ? `?concept=${conceptId}` : ''
+              }&page=${page ? page + 1 : 2}`}
             >
               next →
             </a>
