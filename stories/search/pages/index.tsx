@@ -3,6 +3,7 @@ import { GetServerSideProps, NextPage } from 'next'
 
 import ConceptPanel from '../components/Panel'
 import Layout from '../components/Layout'
+import Paginator from '../components/Paginator'
 import SearchBox from '../components/SearchBox'
 import SearchResult from '../components/Hit'
 import absoluteUrl from 'next-absolute-url'
@@ -89,31 +90,13 @@ const Search: NextPage<Props> = ({
           </li>
         ))}
       </ul>
-      {total > 10 ? (
-        <div className="pt-7 space-x-4">
-          {page > 1 ? (
-            <a
-              className="no-underline px-3 py-2 rounded border-2 border-black"
-              href={`/${query ? `?query=${query}` : ''}${
-                conceptId ? `?concept=${conceptId}` : ''
-              }&page=${page - 1}`}
-            >
-              ← previous
-            </a>
-          ) : null}
-          <span>Page {page}</span>
-          {!(stories.length < 10) ? (
-            <a
-              className="no-underline px-3 py-2 rounded border-2 border-black "
-              href={`/${query ? `?query=${query}` : ''}${
-                conceptId ? `?concept=${conceptId}` : ''
-              }&page=${page ? page + 1 : 2}`}
-            >
-              next →
-            </a>
-          ) : null}
-        </div>
-      ) : null}
+      <Paginator
+        page={page}
+        total={total}
+        query={query}
+        conceptId={conceptId}
+        stories={stories}
+      />
     </Layout>
   )
 }
