@@ -1,5 +1,7 @@
 from neomodel import (
+    ArrayProperty,
     DateProperty,
+    Relationship,
     RelationshipFrom,
     RelationshipTo,
     StringProperty,
@@ -8,40 +10,42 @@ from neomodel import (
 )
 
 
-class Concept(StructuredNode):
+class BaseConcept(StructuredNode):
+    __abstract_node__ = True
     uid = UniqueIdProperty()
-    lcsh_id = StringProperty()
-    lcsh_preferred_name = StringProperty()
-    mesh_description = StringProperty()
-    mesh_id = StringProperty()
-    mesh_preferred_name = StringProperty()
-    name = StringProperty(unique_index=True, required=True)
+    sources = RelationshipFrom("SourceConcept", "HAS_SOURCE_CONCEPT")
+
+
+class Concept(BaseConcept):
+    name = StringProperty()
     stories = RelationshipTo("Story", "HAS_CONCEPT")
-    variant_names = RelationshipTo("VariantName", "AKA")
-    wikidata_description = StringProperty()
-    wikidata_id = StringProperty()
-    wikidata_preferred_name = StringProperty()
+    neighbours = Relationship("Concept", "IS_NEIGHBOUR_OF")
 
 
-class Contributor(StructuredNode):
+class SourceConcept(StructuredNode):
     uid = UniqueIdProperty()
-    name = StringProperty(required=True)
-    stories = RelationshipTo("Story", "CONTRIBUTED_TO")
-    variant_names = RelationshipTo("VariantName", "AKA")
+    source_id = StringProperty(unique_index=True, required=True)
+    source = StringProperty(
+        required=True,
+        choices={"wikidata": "wikidata", "lcsh": "lcsh", "mesh": "mesh"},
+    )
+    description = StringProperty()
+    preferred_name = StringProperty()
+    variant_names = ArrayProperty(StringProperty())
+    parent = RelationshipTo("Concept", "HAS_SOURCE_CONCEPT")
+
+
+class Person(BaseConcept):
+    contributed_to = RelationshipTo("Story", "CONTRIBUTED_TO")
+    is_about = RelationshipFrom("Story", "IS_ABOUT")
 
 
 class Story(StructuredNode):
     uid = UniqueIdProperty()
-    concepts = RelationshipFrom("Concept", "HAS_CONCEPT")
-    contributors = RelationshipFrom("Contributor", "CONTRIBUTED_TO")
+    wellcome_id = StringProperty(unique_index=True, required=True)
     published = DateProperty(required=True)
     title = StringProperty(required=True)
-    wellcome_id = StringProperty(unique_index=True, required=True)
     wikidata_id = StringProperty(unique_index=True)
-
-
-class VariantName(StructuredNode):
-    uid = UniqueIdProperty()
-    concepts = RelationshipFrom("Concept", "AKA")
-    name = StringProperty(required=True)
-    source = StringProperty(required=True)
+    concepts = RelationshipFrom("Concept", "HAS_CONCEPT")
+    contributors = RelationshipFrom("Person", "CONTRIBUTED_TO")
+    subjects = RelationshipTo("Person", "IS_ABOUT")

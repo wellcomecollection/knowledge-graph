@@ -73,3 +73,14 @@ def get_wikidata_description(wikidata):
         description = ""
 
     return description
+
+
+def get_contributor_wikidata_ids(wikidata):
+    try:
+        contributors = [
+            author["mainsnak"]["datavalue"]["value"]["id"]
+            for author in wikidata["claims"]["P50"]
+        ]
+    except (IndexError, KeyError, ConnectError):
+        contributors = []
+    return contributors

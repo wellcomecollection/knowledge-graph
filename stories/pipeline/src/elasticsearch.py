@@ -12,4 +12,3 @@ def get_elasticsearch_session():
         ),
     )
     return es
-
