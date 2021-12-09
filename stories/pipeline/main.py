@@ -44,7 +44,6 @@ df = (
         dtype={"Date published": datetime.datetime},
     )
     .fillna("")
-    .head(20)
 )
 
 
@@ -57,7 +56,7 @@ stories = {}
 people = {}
 concepts = {}
 for _, story_data in df.iterrows():
-    log.info("Creating story", story=story.title)
+    log.info("Creating story", story=story_data["Title"])
     story = Story(
         wellcome_id=Path(story_data["URL"]).name,
         title=story_data["Title"],
@@ -213,15 +212,19 @@ for story in Story.nodes.all():
     log.debug("Indexing story", story=story.title)
 
     story_concepts = story.concepts.all()
-    concept_names = [concept.name for concept in story_concepts]
     concept_ids = [concept.uid for concept in story_concepts]
+    concept_names = [concept.name for concept in story_concepts]
     concept_variants = [
-        [variant.name for variant in concept.variant_names.all()]
+        variant
         for concept in story_concepts
+        for source_concept in concept.sources.all()
+        for variant in source_concept.variant_names
     ]
 
     contributors = [
-        contributor.name for contributor in story.contributors.all()
+        source_concept.preferred_name
+        for contributor in story.contributors.all()
+        for source_concept in contributor.sources.all()
     ]
 
     full_text = get_fulltext(story.wellcome_id)
@@ -231,9 +234,9 @@ for story in Story.nodes.all():
         index=stories_index_name,
         id=story.wellcome_id,
         document={
-            "concepts": concept_names,
             "concept_ids": concept_ids,
             "concept_variants": concept_variants,
+            "concepts": concept_names,
             "contributors": contributors,
             "full_text": full_text,
             "published": story.published,
@@ -264,23 +267,43 @@ for concept in Concept.nodes.all():
     concept_stories = concept.stories.all()
     stories = [story.title for story in concept_stories]
     story_ids = [story.wellcome_id for story in concept_stories]
-    variants = [variant.name for variant in concept.variant_names.all()]
+    variants = [
+        variant
+        for source_concept in concept.sources.all()
+        for variant in source_concept.variant_names
+    ]
+
+    wikidata_source = concept.sources.get_or_none(source="wikidata")
+    lcsh_source = concept.sources.get_or_none(source="lcsh")
+    mesh_source = concept.sources.get_or_none(source="mesh")
 
     es.index(
         index=concepts_index_name,
         id=concept.uid,
         document={
+            "lcsh_id": lcsh_source.source_id if lcsh_source else None,
+            "lcsh_preferred_name": lcsh_source.preferred_name
+            if lcsh_source
+            else None,
+            "mesh_description": mesh_source.description
+            if mesh_source
+            else None,
+            "mesh_id": mesh_source.source_id if mesh_source else None,
+            "mesh_preferred_name": mesh_source.preferred_name
+            if mesh_source
+            else None,
             "name": concept.name,
-            "wikidata_id": concept.wikidata_id,
-            "mesh_id": concept.mesh_id,
-            "lcsh_id": concept.lcsh_id,
-            "wikidata_preferred_name": concept.wikidata_preferred_name,
-            "mesh_preferred_name": concept.mesh_preferred_name,
-            "lcsh_preferred_name": concept.lcsh_preferred_name,
-            "wikidata_description": concept.wikidata_description,
-            "mesh_description": concept.mesh_description,
             "stories": stories,
             "story_ids": story_ids,
             "variants": variants,
+            "wikidata_description": wikidata_source.description
+            if wikidata_source
+            else None,
+            "wikidata_id": wikidata_source.source_id
+            if wikidata_source
+            else None,
+            "wikidata_preferred_name": wikidata_source.preferred_name
+            if wikidata_source
+            else None,
         },
     )
