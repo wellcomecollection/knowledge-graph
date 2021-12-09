@@ -2,6 +2,7 @@ import datetime
 import json
 import os
 from pathlib import Path
+from re import S
 
 import pandas as pd
 from structlog import get_logger
@@ -71,6 +72,7 @@ for _, story_data in df.iterrows():
                 ),
                 variant_names=get_wikidata_variant_names(contributor_wikidata),
             ).save()
+            log.debug("Creating person", name=source_concept.preferred_name)
             person = Person().save()
             person.sources.connect(source_concept)
         story.contributors.connect(person)
@@ -84,8 +86,10 @@ for _, story_data in df.iterrows():
             if existing_concept_source_concept:
                 concept = existing_concept_source_concept.parent.all()[0]
             else:
+                log.debug("Creating concept", name=concept_name)
                 concept = Concept(name=concept_name).save()
                 concept.enrich(wikidata_id=concept_wikidata_id)
+                concept.get_neighbours()
         else:
             concept = Concept(name=concept_name).save()
         story.concepts.connect(concept)
@@ -111,7 +115,7 @@ es.indices.create(
 
 log.info("Populating the stories index")
 for story in Story.nodes.all():
-    log.debug("Indexing story", story=story.title)
+    log.info("Indexing story", story=story.title)
     es.index(
         index=stories_index_name,
         id=story.wellcome_id,
@@ -135,7 +139,7 @@ es.indices.create(
 
 log.info("Populating the concepts index")
 for concept in Concept.nodes.all():
-    log.debug("Indexing concept", concept=concept.name)
+    log.info("Indexing concept", concept=concept.name)
     es.index(
         index=concepts_index_name,
         id=concept.uid,
