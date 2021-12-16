@@ -6,6 +6,28 @@ from neomodel import config, db
 from neomodel.util import clear_neo4j_database
 from structlog import get_logger
 
+from ..enrich.lcsh import (
+    get_lcsh_data,
+    get_lcsh_id_from_wikidata,
+    get_lcsh_preferred_name,
+    get_lcsh_variant_names,
+    get_wikidata_id_from_lcsh_data,
+)
+from ..enrich.mesh import (
+    get_mesh_data,
+    get_mesh_description,
+    get_mesh_id_from_wikidata,
+    get_mesh_preferred_name,
+    get_mesh_preferred_concept_data,
+)
+from ..enrich.wikidata import (
+    get_wikidata,
+    get_wikidata_description,
+    get_wikidata_id,
+    get_wikidata_preferred_name,
+    get_wikidata_variant_names,
+)
+
 log = get_logger()
 
 

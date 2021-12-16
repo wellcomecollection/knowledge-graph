@@ -32,7 +32,7 @@ services:
         target: /home/jovyan/data
       - type: bind
         source: ./stories/search/data
-        target: /home/jovyan/data/stories
+        target: /home/jovyan/data/stories/search
     env_file:
       - .env
     environment:
