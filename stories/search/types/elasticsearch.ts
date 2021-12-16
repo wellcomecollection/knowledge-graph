@@ -1,5 +1,6 @@
 export type SourceStory = {
   contributors: string[]
+  contributor_ids: string[]
   concepts: string[]
   concept_ids: string[]
   concept_variants: string[][]
@@ -18,10 +19,13 @@ export type StoryHit = {
 
 export type Story = {
   id: string
-  contributors: string[]
-  concepts: {
-    name: string
+  contributors: {
     id: string
+    name: string
+  }[]
+  concepts: {
+    id: string
+    name: string
     variants: string[]
   }[]
   fulltext: string
@@ -59,6 +63,35 @@ export type Concept = {
   mesh_description: string
   mesh_id: string
   mesh_preferred_name: string
+  name: string
+  stories: {
+    name: string
+    id: string
+  }[]
+  variants: string[]
+  wikidata_description: string
+  wikidata_id: string
+  wikidata_preferred_name: string
+}
+
+export type SourcePerson = {
+  name: string
+  stories: string[]
+  story_ids: string[]
+  variants: string[]
+  wikidata_description: string
+  wikidata_id: string
+  wikidata_preferred_name: string
+}
+
+export type PersonHit = {
+  _id: string
+  _score: string
+  _source: SourcePerson
+}
+
+export type Person = {
+  id: string
   name: string
   stories: {
     name: string

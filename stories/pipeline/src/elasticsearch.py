@@ -27,10 +27,11 @@ def format_story_for_elasticsearch(story):
         for variant in source_concept.variant_names
     ]
 
+    story_contributors = story.contributors.all()
+    contributor_ids = [contributor.uid for contributor in story_contributors]
     contributors = [
-        source_concept.preferred_name
-        for contributor in story.contributors.all()
-        for source_concept in contributor.sources.all()
+        contributor.sources.get(source="wikidata").preferred_name
+        for contributor in story_contributors
     ]
     full_text = get_fulltext(story.wellcome_id)
     standfirst = get_standfirst(story.wellcome_id)
@@ -39,6 +40,7 @@ def format_story_for_elasticsearch(story):
         "concept_variants": concept_variants,
         "concepts": concept_names,
         "contributors": contributors,
+        "contributor_ids": contributor_ids,
         "full_text": full_text,
         "published": story.published,
         "standfirst": standfirst,
@@ -89,6 +91,36 @@ def format_concept_for_elasticsearch(concept):
                 "mesh_description": mesh_source.description,
                 "mesh_id": mesh_source.source_id,
                 "mesh_preferred_name": mesh_source.preferred_name,
+            }
+        )
+
+    return document
+
+
+def format_person_for_elasticsearch(person):
+    person_stories = person.contributed_to.all()
+    stories = [story.title for story in person_stories]
+    story_ids = [story.wellcome_id for story in person_stories]
+    variants = [
+        variant
+        for source_concept in person.sources.all()
+        for variant in source_concept.variant_names
+    ]
+
+    document = {
+        "name": person.name,
+        "stories": stories,
+        "story_ids": story_ids,
+        "variants": variants,
+    }
+
+    wikidata_source = person.sources.get_or_none(source="wikidata")
+    if wikidata_source:
+        document.update(
+            {
+                "wikidata_description": wikidata_source.description,
+                "wikidata_id": wikidata_source.source_id,
+                "wikidata_preferred_name": wikidata_source.preferred_name,
             }
         )
 

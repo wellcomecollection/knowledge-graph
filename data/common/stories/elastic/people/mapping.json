@@ -1,21 +1,6 @@
 {
     "properties": {
-        "contributors": {
-            "type": "text",
-            "fields": {
-                "keyword": {
-                    "type": "keyword",
-                    "normalizer": "lowercase_normalizer"
-                }
-            }
-        },
-        "contributor_ids": {
-            "type": "keyword"
-        },
-        "published": {
-            "type": "date"
-        },
-        "concepts": {
+        "name": {
             "type": "text",
             "fields": {
                 "keyword": {
@@ -25,17 +10,10 @@
                 "english": {
                     "type": "text",
                     "analyzer": "english_analyzer"
-                },
-                "shingles": {
-                    "type": "text",
-                    "analyzer": "shingle_asciifolding_analyzer"
                 }
             }
         },
-        "concept_ids": {
-            "type": "keyword"
-        },
-        "concept_variants": {
+        "preferred_name": {
             "type": "text",
             "fields": {
                 "keyword": {
@@ -45,33 +23,50 @@
                 "english": {
                     "type": "text",
                     "analyzer": "english_analyzer"
-                },
-                "shingles": {
-                    "type": "text",
-                    "analyzer": "shingle_asciifolding_analyzer"
                 }
             }
         },
-        "title": {
+        "wikidata_preferred_name": {
             "type": "text",
             "fields": {
+                "keyword": {
+                    "type": "keyword",
+                    "normalizer": "lowercase_normalizer"
+                },
                 "english": {
                     "type": "text",
                     "analyzer": "english_analyzer"
-                },
-                "shingles": {
-                    "type": "text",
-                    "analyzer": "shingle_asciifolding_analyzer"
                 }
             }
+        },
+        "variants": {
+            "type": "text",
+            "fields": {
+                "keyword": {
+                    "type": "keyword",
+                    "normalizer": "lowercase_normalizer"
+                },
+                "english": {
+                    "type": "text",
+                    "analyzer": "english_analyzer"
+                }
+            }
+        },
+        "wikidata_description": {
+            "type": "text",
+            "analyzer": "english_analyzer"
         },
         "wikidata_id": {
             "type": "keyword",
             "normalizer": "lowercase_normalizer"
         },
-        "standfirst": {
+        "stories": {
             "type": "text",
             "fields": {
+                "keyword": {
+                    "type": "keyword",
+                    "normalizer": "lowercase_normalizer"
+                },
                 "english": {
                     "type": "text",
                     "analyzer": "english_analyzer"
@@ -82,18 +77,8 @@
                 }
             }
         },
-        "full_text": {
-            "type": "text",
-            "fields": {
-                "english": {
-                    "type": "text",
-                    "analyzer": "english_analyzer"
-                },
-                "shingles": {
-                    "type": "text",
-                    "analyzer": "shingle_asciifolding_analyzer"
-                }
-            }
+        "story_ids": {
+            "type": "keyword"
         }
     }
 }
