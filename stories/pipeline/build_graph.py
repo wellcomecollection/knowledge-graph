@@ -87,7 +87,7 @@ for _, story_data in df.iterrows():
                 concept = Concept(name=clean_concept_name).save()
                 concept.collect_sources(wikidata_id=concept_wikidata_id)
         else:
-            concept = Concept.nodes.get_or_none(name=clean_concept_name)
+            concept = Concept.nodes.first_or_none(name=clean_concept_name)
             if not concept:
                 concept = Concept(name=clean_concept_name).save()
         story.concepts.connect(concept)
