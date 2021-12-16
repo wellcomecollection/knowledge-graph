@@ -17,7 +17,7 @@ def get_wikidata_id(concept_name):
     # naively select the first result
     try:
         wikidata_id = response["search"][0]["id"]
-    except IndexError:
+    except (IndexError, KeyError, ConnectError):
         wikidata_id = None
     return wikidata_id
 

@@ -23,7 +23,7 @@ df = pd.read_excel(
     pd.ExcelFile("/data/stories.xlsx", engine="openpyxl"),
     sheet_name="Articles",
     dtype={"Date published": datetime.datetime},
-).fillna("").head(10)
+).fillna("")
 
 
 log.info("Connecting to neo4j")
