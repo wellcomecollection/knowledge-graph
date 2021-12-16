@@ -6,9 +6,17 @@ type Props = {
   page: number
   query: string
   conceptId: string
+  personId: string
   stories: Story[]
 }
-const Paginator: FC<Props> = ({ total, page, query, conceptId, stories }) => {
+const Paginator: FC<Props> = ({
+  total,
+  page,
+  query,
+  conceptId,
+  personId,
+  stories,
+}) => {
   return total > 10 ? (
     <div className="pt-7 space-x-4">
       {page > 1 ? (
@@ -16,7 +24,7 @@ const Paginator: FC<Props> = ({ total, page, query, conceptId, stories }) => {
           className="no-underline px-3 py-2 rounded border-2 border-black"
           href={`/${query ? `?query=${query}` : ''}${
             conceptId ? `?concept=${conceptId}` : ''
-          }&page=${page - 1}`}
+          }${personId ? `?person=${personId}` : ''}&page=${page - 1}`}
         >
           ← previous
         </a>
@@ -27,7 +35,9 @@ const Paginator: FC<Props> = ({ total, page, query, conceptId, stories }) => {
           className="no-underline px-3 py-2 rounded border-2 border-black"
           href={`/${query ? `?query=${query}` : ''}${
             conceptId ? `?concept=${conceptId}` : ''
-          }&page=${page ? page + 1 : 2}`}
+          }${personId ? `?person=${personId}` : ''}&page=${
+            page ? page + 1 : 2
+          }`}
         >
           next →
         </a>
