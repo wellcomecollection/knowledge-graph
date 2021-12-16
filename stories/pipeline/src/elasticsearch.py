@@ -34,7 +34,7 @@ def format_story_for_elasticsearch(story):
     ]
     full_text = get_fulltext(story.wellcome_id)
     standfirst = get_standfirst(story.wellcome_id)
-    return{
+    return {
         "concept_ids": concept_ids,
         "concept_variants": concept_variants,
         "concepts": concept_names,

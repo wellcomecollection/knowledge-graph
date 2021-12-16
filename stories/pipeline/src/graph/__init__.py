@@ -8,16 +8,17 @@ from structlog import get_logger
 
 from ..enrich.lcsh import (
     get_lcsh_data,
-    get_lcsh_id,
+    get_lcsh_id_from_wikidata,
     get_lcsh_preferred_name,
     get_lcsh_variant_names,
+    get_wikidata_id_from_lcsh_data,
 )
 from ..enrich.mesh import (
     get_mesh_data,
     get_mesh_description,
-    get_mesh_id,
+    get_mesh_id_from_wikidata,
     get_mesh_preferred_name,
-    get_mesh_variant_names,
+    get_mesh_preferred_concept_data,
 )
 from ..enrich.wikidata import (
     get_wikidata,

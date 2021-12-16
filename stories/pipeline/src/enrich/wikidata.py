@@ -24,21 +24,16 @@ def get_wikidata_id(concept_name):
 
 def get_wikidata(wikidata_id):
     response = http_client.get(
-        "http://www.wikidata.org/wiki/Special:EntityData/" f"{wikidata_id}.json"
+        f"http://www.wikidata.org/wiki/Special:EntityData/{wikidata_id}.json"
     ).json()
-
-    data = response["entities"][wikidata_id]
-
-    return data
+    return response["entities"][wikidata_id]
 
 
 def get_wikidata_preferred_name(wikidata):
     try:
-        preferred_name = wikidata["labels"]["en"]["value"]
-
+        preferred_name = clean(wikidata["labels"]["en"]["value"])
     except (IndexError, KeyError, ConnectError):
-        preferred_name = None
-
+        preferred_name = ''
     return preferred_name
 
 

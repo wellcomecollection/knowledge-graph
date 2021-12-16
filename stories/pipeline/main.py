@@ -2,7 +2,6 @@ import datetime
 import json
 import os
 from pathlib import Path
-from re import S
 
 import pandas as pd
 from structlog import get_logger
@@ -22,7 +21,7 @@ from src.enrich.wikidata import (
 )
 from src.graph import get_neo4j_session
 from src.graph.models import Concept, Person, SourceConcept, Story
-from src.utils import clean_csv
+from src.utils import clean, clean_csv
 
 log = get_logger()
 
@@ -34,7 +33,6 @@ df = (
         dtype={"Date published": datetime.datetime},
     )
     .fillna("")
-    .head(20)
 )
 
 
@@ -60,6 +58,10 @@ for _, story_data in df.iterrows():
             source_id=contributor_wikidata_id
         )
         if existing_person_source_concept:
+            log.debug(
+                "Found existing person source concept",
+                wikidata_id=contributor_wikidata_id,
+            )
             person = existing_person_source_concept.parent.all()[0]
         else:
             contributor_wikidata = get_wikidata(contributor_wikidata_id)
@@ -73,27 +75,38 @@ for _, story_data in df.iterrows():
                 variant_names=get_wikidata_variant_names(contributor_wikidata),
             ).save()
             log.debug("Creating person", name=source_concept.preferred_name)
-            person = Person().save()
+            person = Person(name=source_concept.preferred_name).save()
             person.sources.connect(source_concept)
         story.contributors.connect(person)
 
     for concept_name in clean_csv(story_data["Keywords"]):
-        concept_wikidata_id = get_wikidata_id(concept_name)
+        clean_concept_name = clean(concept_name)
+        concept_wikidata_id = get_wikidata_id(clean_concept_name)
         if concept_wikidata_id:
             existing_concept_source_concept = SourceConcept.nodes.get_or_none(
                 source_id=concept_wikidata_id
             )
             if existing_concept_source_concept:
+                log.debug(
+                    "Found existing source concept",
+                    wikidata_id=concept_wikidata_id,
+                )
                 concept = existing_concept_source_concept.parent.all()[0]
             else:
-                log.debug("Creating concept", name=concept_name)
-                concept = Concept(name=concept_name).save()
-                concept.enrich(wikidata_id=concept_wikidata_id)
-                concept.get_neighbours()
+                log.debug("Creating concept", name=clean_concept_name)
+                concept = Concept(name=clean_concept_name).save()
+                concept.collect_sources(wikidata_id=concept_wikidata_id)
         else:
-            concept = Concept(name=concept_name).save()
+            concept = Concept.nodes.get_or_none(
+                name=clean_concept_name
+            )
+            if not concept:
+                concept = Concept(name=clean_concept_name).save()
         story.concepts.connect(concept)
 
+log.info("Getting second order concepts and connections")
+for concept in Concept.nodes.all():
+    concept.get_neighbours()
 
 log.info("Unpacking the graph into elasticsearch")
 es = get_elasticsearch_session()
