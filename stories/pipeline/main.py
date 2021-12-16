@@ -26,14 +26,11 @@ from src.utils import clean, clean_csv
 log = get_logger()
 
 log.info("Loading stories dataset")
-df = (
-    pd.read_excel(
-        pd.ExcelFile("/data/stories.xlsx", engine="openpyxl"),
-        sheet_name="Articles",
-        dtype={"Date published": datetime.datetime},
-    )
-    .fillna("")
-)
+df = pd.read_excel(
+    pd.ExcelFile("/data/stories.xlsx", engine="openpyxl"),
+    sheet_name="Articles",
+    dtype={"Date published": datetime.datetime},
+).fillna("")
 
 
 log.info("Connecting to neo4j")
@@ -97,9 +94,7 @@ for _, story_data in df.iterrows():
                 concept = Concept(name=clean_concept_name).save()
                 concept.collect_sources(wikidata_id=concept_wikidata_id)
         else:
-            concept = Concept.nodes.get_or_none(
-                name=clean_concept_name
-            )
+            concept = Concept.nodes.get_or_none(name=clean_concept_name)
             if not concept:
                 concept = Concept(name=clean_concept_name).save()
         story.concepts.connect(concept)

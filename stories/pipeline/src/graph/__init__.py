@@ -17,8 +17,8 @@ from ..enrich.mesh import (
     get_mesh_data,
     get_mesh_description,
     get_mesh_id_from_wikidata,
-    get_mesh_preferred_name,
     get_mesh_preferred_concept_data,
+    get_mesh_preferred_name,
 )
 from ..enrich.wikidata import (
     get_wikidata,

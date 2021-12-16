@@ -35,7 +35,7 @@ def get_mesh_preferred_name(mesh_data):
     try:
         preferred_name = clean(mesh_data["label"]["@value"])
     except KeyError:
-        preferred_name = ''
+        preferred_name = ""
     return preferred_name
 
 
@@ -43,5 +43,5 @@ def get_mesh_description(mesh_data):
     try:
         description = mesh_data["scopeNote"]["@value"]
     except KeyError:
-        description = ''
+        description = ""
     return description

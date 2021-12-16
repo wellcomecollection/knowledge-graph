@@ -22,11 +22,11 @@ from . import (
     get_mesh_id_from_wikidata,
     get_mesh_preferred_concept_data,
     get_mesh_preferred_name,
+    get_wikidata,
     get_wikidata_description,
     get_wikidata_id_from_lcsh_data,
     get_wikidata_preferred_name,
     get_wikidata_variant_names,
-    get_wikidata,
 )
 
 log = get_logger()
@@ -74,17 +74,10 @@ class Concept(BaseConcept):
     def collect_sources(self, wikidata_id=None, lcsh_id=None, mesh_id=None):
         if wikidata_id:
             self._connect_wikidata_source(
-                wikidata_id,
-                get_linked_schemes=[
-                    "lcsh",
-                    "mesh"
-                ]
+                wikidata_id, get_linked_schemes=["lcsh", "mesh"]
             )
         if lcsh_id:
-            self._connect_lcsh_source(
-                lcsh_id,
-                get_linked_schemes=["wikidata"]
-            )
+            self._connect_lcsh_source(lcsh_id, get_linked_schemes=["wikidata"])
         if mesh_id:
             self._connect_mesh_source(mesh_id)
 
@@ -225,11 +218,13 @@ class Concept(BaseConcept):
             else:
                 neighbour_concept_wikidata = get_wikidata(wikidata_id)
                 name = get_wikidata_preferred_name(neighbour_concept_wikidata)
-                log.debug("Creating neighbour concept",
-                          wikidata_id=wikidata_id, name=name)
+                log.debug(
+                    "Creating neighbour concept",
+                    wikidata_id=wikidata_id,
+                    name=name,
+                )
                 neighbour_concept = Concept(
-                    name=get_wikidata_preferred_name(
-                        neighbour_concept_wikidata)
+                    name=get_wikidata_preferred_name(neighbour_concept_wikidata)
                 ).save()
                 neighbour_concept.collect_sources(wikidata_id=wikidata_id)
             log.debug(

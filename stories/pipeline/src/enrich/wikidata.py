@@ -33,7 +33,7 @@ def get_wikidata_preferred_name(wikidata):
     try:
         preferred_name = clean(wikidata["labels"]["en"]["value"])
     except (IndexError, KeyError, ConnectError):
-        preferred_name = ''
+        preferred_name = ""
     return preferred_name
 
 
@@ -72,10 +72,21 @@ def get_wikidata_description(wikidata):
 
 def get_contributor_wikidata_ids(wikidata):
     try:
-        contributors = [
-            author["mainsnak"]["datavalue"]["value"]["id"]
-            for author in wikidata["claims"]["P50"]
-        ]
+        contributors = []
+        if "P50" in wikidata["claims"]:
+            contributors.extend(
+                [
+                    author["mainsnak"]["datavalue"]["value"]["id"]
+                    for author in wikidata["claims"]["P50"]
+                ]
+            )
+        if "P110" in wikidata["claims"]:
+            contributors.extend(
+                [
+                    illustrator["mainsnak"]["datavalue"]["value"]["id"]
+                    for illustrator in wikidata["claims"]["P110"]
+                ]
+            )
     except (IndexError, KeyError, ConnectError):
         contributors = []
     return contributors

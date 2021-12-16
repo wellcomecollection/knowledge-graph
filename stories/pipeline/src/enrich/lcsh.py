@@ -44,7 +44,7 @@ def get_lcsh_preferred_name(lcsh_data):
     if key in lcsh_data:
         preferred_name = clean(lcsh_data[key][0]["@value"])
     else:
-        preferred_name = ''
+        preferred_name = ""
     return preferred_name
 
 
