@@ -31,11 +31,11 @@ from ..enrich.wikidata import (
 log = get_logger()
 
 
-def get_neo4j_session(clean=True):
+def get_neo4j_session(clear=True):
     config.DATABASE_URL = os.environ["NEO4J_BOLT_URL"]
     db.set_connection(os.environ["NEO4J_BOLT_URL"])
     wait_until_neo4j_is_live()
-    if clean:
+    if clear:
         log.info("Clearing neo4j database")
         clear_neo4j_database(db)
     return db

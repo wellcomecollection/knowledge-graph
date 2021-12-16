@@ -93,3 +93,33 @@ def format_concept_for_elasticsearch(concept):
         )
 
     return document
+
+
+def format_person_for_elasticsearch(person):
+    person_stories = person.contributed_to.all()
+    stories = [story.title for story in person_stories]
+    story_ids = [story.wellcome_id for story in person_stories]
+    variants = [
+        variant
+        for source_concept in person.sources.all()
+        for variant in source_concept.variant_names
+    ]
+
+    document = {
+        "name": person.name,
+        "stories": stories,
+        "story_ids": story_ids,
+        "variants": variants,
+    }
+
+    wikidata_source = person.sources.get_or_none(source="wikidata")
+    if wikidata_source:
+        document.update(
+            {
+                "wikidata_description": wikidata_source.description,
+                "wikidata_id": wikidata_source.source_id,
+                "wikidata_preferred_name": wikidata_source.preferred_name,
+            }
+        )
+
+    return document

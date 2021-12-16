@@ -10,8 +10,13 @@ from src.elasticsearch import (
     get_elasticsearch_session,
 )
 from src.graph.models import Concept, Story, Person
+from src.graph import get_neo4j_session
 
 log = get_logger()
+
+log.info("Connecting to neo4j")
+db = get_neo4j_session(clear=False)
+
 log.info("Unpacking the graph into elasticsearch")
 es = get_elasticsearch_session()
 
@@ -63,3 +68,25 @@ for concept in Concept.nodes.all():
         document=format_concept_for_elasticsearch(concept),
     )
 
+people_index_name = os.environ["ELASTIC_PEOPLE_INDEX"]
+log.info(f"Creating the people index: {people_index_name}")
+with open("/data/elastic/people/mapping.json", "r") as f:
+    people_mappings = json.load(f)
+with open("/data/elastic/people/settings.json", "r") as f:
+    people_settings = json.load(f)
+
+es.indices.delete(index=people_index_name, ignore=404)
+es.indices.create(
+    index=people_index_name,
+    mappings=people_mappings,
+    settings=people_settings,
+)
+
+log.info("Populating the people index")
+for person in Person.nodes.all():
+    log.info("Indexing person", person=person.name)
+    es.index(
+        index=people_index_name,
+        id=person.uid,
+        document=format_person_for_elasticsearch(person),
+    )

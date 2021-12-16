@@ -67,3 +67,16 @@ services:
       - type: bind
         source: ./data/common/stories
         target: /data
+    command: >
+      sh -c "python build_graph.py &&
+             python build_indices.py"
+  stories_reindex:
+    build: stories/pipeline/
+    env_file: .env
+    depends_on:
+      - neo4j
+    volumes:
+      - type: bind
+        source: ./data/common/stories
+        target: /data
+    command: python build_indices.py
