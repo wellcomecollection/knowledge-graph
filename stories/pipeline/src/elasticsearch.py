@@ -27,10 +27,11 @@ def format_story_for_elasticsearch(story):
         for variant in source_concept.variant_names
     ]
 
+    story_contributors = story.contributors.all()
+    contributor_ids = [contributor.uid for contributor in story_contributors]
     contributors = [
-        source_concept.preferred_name
-        for contributor in story.contributors.all()
-        for source_concept in contributor.sources.all()
+        contributor.sources.get(source="wikidata").preferred_name
+        for contributor in story_contributors
     ]
     full_text = get_fulltext(story.wellcome_id)
     standfirst = get_standfirst(story.wellcome_id)
@@ -39,6 +40,7 @@ def format_story_for_elasticsearch(story):
         "concept_variants": concept_variants,
         "concepts": concept_names,
         "contributors": contributors,
+        "contributor_ids": contributor_ids,
         "full_text": full_text,
         "published": story.published,
         "standfirst": standfirst,

@@ -4,7 +4,6 @@ import {
 } from '../../types/elasticsearch'
 import { GetServerSideProps, NextPage } from 'next'
 
-import IdTable from '../../components/IdTable'
 import Layout from '../../components/Layout'
 import StoryCard from '../../components/StoryCard'
 import { getClient } from '../../services/elasticsearch'

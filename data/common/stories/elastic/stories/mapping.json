@@ -9,6 +9,9 @@
                 }
             }
         },
+        "contributor_ids": {
+            "type": "keyword"
+        },
         "published": {
             "type": "date"
         },

@@ -51,10 +51,16 @@ export function parseStory(storyHit: StoryHit): Story {
       variants: story.concept_variants[index],
     }
   })
+  const contributors = story.contributors.map((contributor, index) => {
+    return {
+      name: contributor,
+      id: story.contributor_ids[index],
+    }
+  })
 
   return {
     id: storyHit._id,
-    contributors: story.contributors,
+    contributors: contributors,
     concepts: concepts,
     fulltext: story.fulltext,
     published: new Date(story.published),

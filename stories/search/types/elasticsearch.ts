@@ -1,5 +1,6 @@
 export type SourceStory = {
   contributors: string[]
+  contributor_ids: string[]
   concepts: string[]
   concept_ids: string[]
   concept_variants: string[][]
@@ -18,10 +19,13 @@ export type StoryHit = {
 
 export type Story = {
   id: string
-  contributors: string[]
-  concepts: {
-    name: string
+  contributors: {
     id: string
+    name: string
+  }[]
+  concepts: {
+    id: string
+    name: string
     variants: string[]
   }[]
   fulltext: string
