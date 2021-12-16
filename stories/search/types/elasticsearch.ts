@@ -73,3 +73,32 @@ export type Concept = {
   wikidata_id: string
   wikidata_preferred_name: string
 }
+
+export type SourcePerson = {
+  name: string
+  stories: string[]
+  story_ids: string[]
+  variants: string[]
+  wikidata_description: string
+  wikidata_id: string
+  wikidata_preferred_name: string
+}
+
+export type PersonHit = {
+  _id: string
+  _score: string
+  _source: SourcePerson
+}
+
+export type Person = {
+  id: string
+  name: string
+  stories: {
+    name: string
+    id: string
+  }[]
+  variants: string[]
+  wikidata_description: string
+  wikidata_id: string
+  wikidata_preferred_name: string
+}

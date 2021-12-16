@@ -1,4 +1,11 @@
-import { Concept, ConceptHit, Story, StoryHit } from '../types/elasticsearch'
+import {
+  Concept,
+  ConceptHit,
+  Person,
+  PersonHit,
+  Story,
+  StoryHit,
+} from '../types/elasticsearch'
 
 import { Client } from '@elastic/elasticsearch'
 
@@ -33,6 +40,25 @@ export function parseConcept(conceptHit: ConceptHit): Concept {
     mesh_description: concept.mesh_description,
     mesh_id: concept.mesh_id,
     mesh_preferred_name: concept.mesh_preferred_name,
+    name: concept.name,
+    stories,
+    variants: concept.variants,
+    wikidata_description: concept.wikidata_description,
+    wikidata_id: concept.wikidata_id,
+    wikidata_preferred_name: concept.wikidata_preferred_name,
+  }
+}
+
+export function parsePerson(personHit: PersonHit): Person {
+  const concept = personHit._source
+  const stories = concept.stories.map((storyTitle, index) => {
+    return {
+      name: storyTitle,
+      id: concept.story_ids[index],
+    }
+  })
+  return {
+    id: personHit._id,
     name: concept.name,
     stories,
     variants: concept.variants,
