@@ -60,7 +60,6 @@ services:
       - NEO4J_dbms_security_procedures_unrestricted=gds.*, apoc.*
   stories_pipeline:
     build: stories/pipeline/
-    command: python main.py
     env_file: .env
     depends_on:
       - neo4j
