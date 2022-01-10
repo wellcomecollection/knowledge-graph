@@ -40,7 +40,7 @@ services:
       - NEO4J_dbms_security_procedures_whitelist=gds.*, apoc.*
       - NEO4J_dbms_security_procedures_unrestricted=gds.*, apoc.*
   pipeline:
-    build: stories/pipeline/
+    build: pipeline
     env_file: .env
     depends_on:
       - neo4j
@@ -52,7 +52,7 @@ services:
       sh -c "python build_graph.py &&
              python build_indices.py"
   graph:
-    build: stories/pipeline/
+    build: pipeline
     env_file: .env
     depends_on:
       - neo4j
@@ -62,7 +62,7 @@ services:
         target: /data
     command: python build_graph.py
   reindex:
-    build: stories/pipeline/
+    build: pipeline
     env_file: .env
     depends_on:
       - neo4j
@@ -71,3 +71,8 @@ services:
         source: ./data/common/stories
         target: /data
     command: python build_indices.py
+  search:
+    build: search
+    ports:
+      - 3000:3000
+    command: yarn dev
