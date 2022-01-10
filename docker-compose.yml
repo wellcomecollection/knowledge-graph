@@ -1,24 +1,5 @@
 version: "3.8"
 services:
-  graph_store:
-    build: graph_store/
-    volumes:
-      - ${HOME}/.aws/credentials:/root/.aws/credentials:ro
-    command: python graph_store.py populate
-    depends_on:
-      - enricher
-  enricher:
-    build: enricher/
-    ports:
-      - 80:80
-    command: uvicorn app.main:app --host 0.0.0.0 --port 80
-  graph_query_api:
-    build: graph_query_api/
-    volumes:
-      - ${HOME}/.aws/credentials:/root/.aws/credentials:ro
-    ports:
-      - 80:80
-    command: uvicorn app.main:app --host 0.0.0.0 --port 80
   notebooks:
     build: notebooks
     ports:
@@ -58,7 +39,7 @@ services:
       - NEO4JLABS_PLUGINS=["graph-data-science", "apoc"]
       - NEO4J_dbms_security_procedures_whitelist=gds.*, apoc.*
       - NEO4J_dbms_security_procedures_unrestricted=gds.*, apoc.*
-  stories_pipeline:
+  pipeline:
     build: stories/pipeline/
     env_file: .env
     depends_on:
@@ -70,7 +51,7 @@ services:
     command: >
       sh -c "python build_graph.py &&
              python build_indices.py"
-  stories_graph:
+  graph:
     build: stories/pipeline/
     env_file: .env
     depends_on:
@@ -80,7 +61,7 @@ services:
         source: ./data/common/stories
         target: /data
     command: python build_graph.py
-  stories_reindex:
+  reindex:
     build: stories/pipeline/
     env_file: .env
     depends_on:
