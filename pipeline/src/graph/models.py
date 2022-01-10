@@ -39,8 +39,8 @@ class BaseConcept(StructuredNode):
 
 
 class Person(BaseConcept):
-    contributed_to = RelationshipTo("Story", "CONTRIBUTED_TO")
-    is_about = RelationshipFrom("Story", "IS_ABOUT")
+    contributed_to_story = RelationshipTo("Story", "CONTRIBUTED_TO")
+    contributed_to_work = RelationshipTo("Work", "CONTRIBUTED_TO")
 
 
 class Story(StructuredNode):
@@ -51,7 +51,14 @@ class Story(StructuredNode):
     wikidata_id = StringProperty(unique_index=True)
     concepts = RelationshipFrom("Concept", "HAS_CONCEPT")
     contributors = RelationshipFrom("Person", "CONTRIBUTED_TO")
-    subjects = RelationshipTo("Person", "IS_ABOUT")
+
+
+class Work(StructuredNode):
+    uid = UniqueIdProperty()
+    wellcome_id = StringProperty(unique_index=True, required=True)
+    title = StringProperty(required=True)
+    concepts = RelationshipFrom("Concept", "HAS_CONCEPT")
+    contributors = RelationshipFrom("Person", "CONTRIBUTED_TO")
 
 
 class SourceConcept(StructuredNode):
@@ -224,7 +231,8 @@ class Concept(BaseConcept):
                     name=name,
                 )
                 neighbour_concept = Concept(
-                    name=get_wikidata_preferred_name(neighbour_concept_wikidata)
+                    name=get_wikidata_preferred_name(
+                        neighbour_concept_wikidata)
                 ).save()
                 neighbour_concept.collect_sources(wikidata_id=wikidata_id)
             log.debug(

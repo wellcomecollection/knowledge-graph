@@ -12,8 +12,8 @@ services:
         source: ./data/common
         target: /home/jovyan/data
       - type: bind
-        source: ./stories/search/data
-        target: /home/jovyan/data/stories/search
+        source: ./search/data
+        target: /home/jovyan/data/search
     env_file:
       - .env
     environment:
@@ -60,7 +60,17 @@ services:
       - type: bind
         source: ./data/common/stories
         target: /data
-    command: python build_graph.py
+    command: python build_stories_graph.py
+  works_graph:
+    build: pipeline
+    env_file: .env
+    depends_on:
+      - neo4j
+    volumes:
+      - type: bind
+        source: ./data/common
+        target: /data
+    command: python build_works_graph.py
   reindex:
     build: pipeline
     env_file: .env
@@ -73,6 +83,11 @@ services:
     command: python build_indices.py
   search:
     build: search
+    volumes:
+      # enable hot reloading when running locally
+      - type: bind
+        source: ./search
+        target: /usr/src/app
     ports:
       - 3000:3000
     command: yarn dev
