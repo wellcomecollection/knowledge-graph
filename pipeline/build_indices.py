@@ -14,7 +14,6 @@ from src.graph.models import Concept, Person, Story
 
 log = get_logger()
 
-log.info("Connecting to neo4j")
 db = get_neo4j_session(clear=False)
 
 log.info("Unpacking the graph into elasticsearch")

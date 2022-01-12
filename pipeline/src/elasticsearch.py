@@ -54,8 +54,9 @@ def format_concept_for_elasticsearch(concept):
     }
 
     wikidata_source = concept.sources.get_or_none(source_type="wikidata")
-    lcsh_source = concept.sources.get_or_none(source_type="lcsh")
-    mesh_source = concept.sources.get_or_none(source_type="mesh")
+    lc_subjects_source = concept.sources.get_or_none(source_type="lc-subjects")
+    lc_names_source = concept.sources.get_or_none(source_type="lc-names")
+    mesh_source = concept.sources.get_or_none(source_type="nlm-mesh")
 
     if wikidata_source:
         document.update(
@@ -65,11 +66,18 @@ def format_concept_for_elasticsearch(concept):
                 "wikidata_preferred_name": wikidata_source.preferred_name,
             }
         )
-    if lcsh_source:
+    if lc_subjects_source:
         document.update(
             {
-                "lcsh_id": lcsh_source.source_id,
-                "lcsh_preferred_name": lcsh_source.preferred_name,
+                "lc_subjects_id": lc_subjects_source.source_id,
+                "lcsh_preferred_name": lc_subjects_source.preferred_name,
+            }
+        )
+    if lc_names_source:
+        document.update(
+            {
+                "lc_names_id": lc_names_source.source_id,
+                "lcsh_preferred_name": lc_names_source.preferred_name,
             }
         )
     if mesh_source:
@@ -121,8 +129,7 @@ def yield_all_documents(index_name, host, username, password):
     # https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-scroll.html
     scroll_id = es.search(
         index=index_name,
-        scroll="1m",
-        size=1000,
+        scroll="25m",
         body={"query": {"match_all": {}}},
     )["_scroll_id"]
 
