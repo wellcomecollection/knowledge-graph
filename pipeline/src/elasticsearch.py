@@ -1,19 +1,6 @@
-import os
-
 from elasticsearch import Elasticsearch
 
 from .prismic import get_fulltext, get_standfirst
-
-
-def get_elasticsearch_session():
-    es = Elasticsearch(
-        os.environ["ELASTIC_HOST"],
-        http_auth=(
-            os.environ["ELASTIC_USERNAME"],
-            os.environ["ELASTIC_PASSWORD"],
-        ),
-    )
-    return es
 
 
 def format_story_for_elasticsearch(story):
@@ -30,7 +17,7 @@ def format_story_for_elasticsearch(story):
     story_contributors = story.contributors.all()
     contributor_ids = [contributor.uid for contributor in story_contributors]
     contributors = [
-        contributor.sources.get(source="wikidata").preferred_name
+        contributor.sources.get(source_type="wikidata").preferred_name
         for contributor in story_contributors
     ]
     full_text = get_fulltext(story.wellcome_id)
@@ -66,9 +53,9 @@ def format_concept_for_elasticsearch(concept):
         "variants": variants,
     }
 
-    wikidata_source = concept.sources.get_or_none(source="wikidata")
-    lcsh_source = concept.sources.get_or_none(source="lcsh")
-    mesh_source = concept.sources.get_or_none(source="mesh")
+    wikidata_source = concept.sources.get_or_none(source_type="wikidata")
+    lcsh_source = concept.sources.get_or_none(source_type="lcsh")
+    mesh_source = concept.sources.get_or_none(source_type="mesh")
 
     if wikidata_source:
         document.update(
@@ -114,7 +101,7 @@ def format_person_for_elasticsearch(person):
         "variants": variants,
     }
 
-    wikidata_source = person.sources.get_or_none(source="wikidata")
+    wikidata_source = person.sources.get_or_none(source_type="wikidata")
     if wikidata_source:
         document.update(
             {
@@ -125,3 +112,24 @@ def format_person_for_elasticsearch(person):
         )
 
     return document
+
+
+def yield_all_documents(index_name, host, username, password):
+    es = Elasticsearch(host, http_auth=(username, password))
+
+    # use the scroll api to get all the documents
+    # https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-scroll.html
+    scroll_id = es.search(
+        index=index_name,
+        scroll="1m",
+        size=1000,
+        body={"query": {"match_all": {}}},
+    )["_scroll_id"]
+
+    while True:
+        response = es.scroll(scroll_id=scroll_id, scroll="1m")
+        scroll_id = response["_scroll_id"]
+        if not response["hits"]["hits"]:
+            break
+        for hit in response["hits"]["hits"]:
+            yield hit

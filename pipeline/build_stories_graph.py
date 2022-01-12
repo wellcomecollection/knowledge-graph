@@ -57,7 +57,7 @@ for _, story_data in df.iterrows():
             contributor_wikidata = get_wikidata(contributor_wikidata_id)
             source_concept = SourceConcept(
                 source_id=contributor_wikidata_id,
-                source="wikidata",
+                source_type="wikidata",
                 description=get_wikidata_description(contributor_wikidata),
                 preferred_name=get_wikidata_preferred_name(
                     contributor_wikidata
@@ -85,7 +85,9 @@ for _, story_data in df.iterrows():
             else:
                 log.debug("Creating concept", name=clean_concept_name)
                 concept = Concept(name=clean_concept_name).save()
-                concept.collect_sources(wikidata_id=concept_wikidata_id)
+                concept.collect_sources(
+                    source_id=concept_wikidata_id, source_type="wikidata"
+                )
         else:
             concept = Concept.nodes.first_or_none(name=clean_concept_name)
             if not concept:

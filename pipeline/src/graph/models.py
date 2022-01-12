@@ -38,11 +38,6 @@ class BaseConcept(StructuredNode):
     sources = RelationshipTo("SourceConcept", "HAS_SOURCE_CONCEPT")
 
 
-class Person(BaseConcept):
-    contributed_to_story = RelationshipTo("Story", "CONTRIBUTED_TO")
-    contributed_to_work = RelationshipTo("Work", "CONTRIBUTED_TO")
-
-
 class Story(StructuredNode):
     uid = UniqueIdProperty()
     wellcome_id = StringProperty(unique_index=True, required=True)
@@ -64,7 +59,7 @@ class Work(StructuredNode):
 class SourceConcept(StructuredNode):
     uid = UniqueIdProperty()
     source_id = StringProperty(unique_index=True, required=True)
-    source = StringProperty(
+    source_type = StringProperty(
         required=True,
         choices={"wikidata": "wikidata", "lcsh": "lcsh", "mesh": "mesh"},
     )
@@ -78,20 +73,22 @@ class Concept(BaseConcept):
     stories = RelationshipTo("Story", "HAS_CONCEPT")
     neighbours = Relationship("Concept", "HAS_NEIGHBOUR")
 
-    def collect_sources(self, wikidata_id=None, lcsh_id=None, mesh_id=None):
-        if wikidata_id:
+    def collect_sources(self, source_id, source_type):
+        if source_type == "wikidata":
             self._connect_wikidata_source(
-                wikidata_id, get_linked_schemes=["lcsh", "mesh"]
+                source_id, get_linked_schemes=["lcsh", "mesh"]
             )
-        if lcsh_id:
-            self._connect_lcsh_source(lcsh_id, get_linked_schemes=["wikidata"])
-        if mesh_id:
-            self._connect_mesh_source(mesh_id)
+        if source_type == "lcsh":
+            self._connect_lcsh_source(
+                source_id, get_linked_schemes=["wikidata"]
+            )
+        if source_type == "mesh":
+            self._connect_mesh_source(source_id)
 
     def _connect_wikidata_source(self, wikidata_id, get_linked_schemes=[]):
         source_data = get_wikidata(wikidata_id)
         source_concept = SourceConcept.nodes.get_or_none(
-            source_id=wikidata_id, source="wikidata"
+            source_id=wikidata_id, source_type="wikidata"
         )
         if not source_concept:
             log.debug(
@@ -99,7 +96,7 @@ class Concept(BaseConcept):
             )
             source_concept = SourceConcept(
                 source_id=wikidata_id,
-                source="wikidata",
+                source_type="wikidata",
                 description=get_wikidata_description(source_data),
                 preferred_name=get_wikidata_preferred_name(source_data),
                 variant_names=get_wikidata_variant_names(source_data),
@@ -125,13 +122,13 @@ class Concept(BaseConcept):
         try:
             source_data = get_lcsh_data(lcsh_id)
             source_concept = SourceConcept.nodes.get_or_none(
-                source_id=lcsh_id, source="lcsh"
+                source_id=lcsh_id, source_type="lcsh"
             )
             if not source_concept:
                 log.debug("Creating lcsh source concept", lcsh_id=lcsh_id)
                 source_concept = SourceConcept(
                     source_id=lcsh_id,
-                    source="lcsh",
+                    source_type="lcsh",
                     preferred_name=get_lcsh_preferred_name(source_data),
                     variant_names=get_lcsh_variant_names(source_data),
                 ).save()
@@ -160,14 +157,14 @@ class Concept(BaseConcept):
     def _connect_mesh_source(self, mesh_id):
         source_data = get_mesh_data(mesh_id)
         source_concept = SourceConcept.nodes.get_or_none(
-            source_id=mesh_id, source="mesh"
+            source_id=mesh_id, source_type="mesh"
         )
         if not source_concept:
             source_data = get_mesh_preferred_concept_data(source_data)
             log.debug("Creating mesh source concept", mesh_id=mesh_id)
             source_concept = SourceConcept(
                 source_id=mesh_id,
-                source="mesh",
+                source_type="mesh",
                 description=get_mesh_description(source_data),
                 preferred_name=get_mesh_preferred_name(source_data),
                 variant_names=[],
@@ -182,13 +179,13 @@ class Concept(BaseConcept):
 
     def get_neighbours(self):
         for source_concept in self.sources.all():
-            if source_concept.source == "wikidata":
+            if source_concept.source_type == "wikidata":
                 self._get_wikidata_neighbours(
                     wikidata_id=source_concept.source_id
                 )
-            elif source_concept.source == "lcsh":
+            elif source_concept.source_type == "lcsh":
                 self._get_lcsh_neighbours(lcsh_id=source_concept.source_id)
-            elif source_concept.source == "mesh":
+            elif source_concept.source_type == "mesh":
                 self._get_mesh_neighbours(mesh_id=source_concept.source_id)
 
     def _get_wikidata_neighbours(self, wikidata_id):
@@ -214,7 +211,7 @@ class Concept(BaseConcept):
         log.debug("Found related wikidata ids", related_ids=related_ids)
         for wikidata_id in related_ids:
             neighbour_source_concept = SourceConcept.nodes.get_or_none(
-                source_id=wikidata_id, source="wikidata"
+                source_id=wikidata_id, source_type="wikidata"
             )
             if neighbour_source_concept:
                 log.debug(
@@ -231,10 +228,11 @@ class Concept(BaseConcept):
                     name=name,
                 )
                 neighbour_concept = Concept(
-                    name=get_wikidata_preferred_name(
-                        neighbour_concept_wikidata)
+                    name=get_wikidata_preferred_name(neighbour_concept_wikidata)
                 ).save()
-                neighbour_concept.collect_sources(wikidata_id=wikidata_id)
+                neighbour_concept.collect_sources(
+                    source_id=wikidata_id, source_type="wikidata"
+                )
             log.debug(
                 "Connecting neighbour",
                 concept_name=self.name,
@@ -255,7 +253,7 @@ class Concept(BaseConcept):
         log.debug("Found related lcsh ids", related_ids=related_ids)
         for lcsh_id in related_ids:
             neighbour_source_concept = SourceConcept.nodes.get_or_none(
-                source_id=lcsh_id, source="lcsh"
+                source_id=lcsh_id, source_type="lcsh"
             )
             if neighbour_source_concept:
                 log.debug(
@@ -269,7 +267,9 @@ class Concept(BaseConcept):
                 neighbour_concept = Concept(
                     name=get_lcsh_preferred_name(neighbour_concept_lcsh_data)
                 ).save()
-                neighbour_concept.collect_sources(lcsh_id=lcsh_id)
+                neighbour_concept.collect_sources(
+                    source_id=lcsh_id, source_type="lcsh"
+                )
             log.debug(
                 "Connecting neighbour",
                 concept_name=self.name,
@@ -294,7 +294,7 @@ class Concept(BaseConcept):
         log.debug("Found related mesh ids", related_ids=related_ids)
         for mesh_id in related_ids:
             neighbour_source_concept = SourceConcept.nodes.get_or_none(
-                source_id=mesh_id, source="mesh"
+                source_id=mesh_id, source_type="mesh"
             )
             if neighbour_source_concept:
                 log.debug(
@@ -308,10 +308,17 @@ class Concept(BaseConcept):
                 neighbour_concept = Concept(
                     name=get_mesh_preferred_name(neighbour_concept_mesh_data)
                 ).save()
-                neighbour_concept.collect_sources(mesh_id=mesh_id)
+                neighbour_concept.collect_sources(
+                    source_id=mesh_id, source_type="mesh"
+                )
             log.debug(
                 "Connecting neighbour",
                 concept_name=self.name,
                 neighbour_name=neighbour_concept.name,
             )
             self.neighbours.connect(neighbour_concept)
+
+
+class Person(Concept):
+    contributed_to_story = RelationshipTo("Story", "CONTRIBUTED_TO")
+    contributed_to_work = RelationshipTo("Work", "CONTRIBUTED_TO")
