@@ -1,19 +1,7 @@
-import os
-
 from elasticsearch import Elasticsearch
+from elasticsearch.helpers import scan
 
 from .prismic import get_fulltext, get_standfirst
-
-
-def get_elasticsearch_session():
-    es = Elasticsearch(
-        os.environ["ELASTIC_HOST"],
-        http_auth=(
-            os.environ["ELASTIC_USERNAME"],
-            os.environ["ELASTIC_PASSWORD"],
-        ),
-    )
-    return es
 
 
 def format_story_for_elasticsearch(story):
@@ -30,7 +18,7 @@ def format_story_for_elasticsearch(story):
     story_contributors = story.contributors.all()
     contributor_ids = [contributor.uid for contributor in story_contributors]
     contributors = [
-        contributor.sources.get(source="wikidata").preferred_name
+        contributor.sources.get(source_type="wikidata").preferred_name
         for contributor in story_contributors
     ]
     full_text = get_fulltext(story.wellcome_id)
@@ -66,9 +54,10 @@ def format_concept_for_elasticsearch(concept):
         "variants": variants,
     }
 
-    wikidata_source = concept.sources.get_or_none(source="wikidata")
-    lcsh_source = concept.sources.get_or_none(source="lcsh")
-    mesh_source = concept.sources.get_or_none(source="mesh")
+    wikidata_source = concept.sources.get_or_none(source_type="wikidata")
+    lc_subjects_source = concept.sources.get_or_none(source_type="lc-subjects")
+    lc_names_source = concept.sources.get_or_none(source_type="lc-names")
+    mesh_source = concept.sources.get_or_none(source_type="nlm-mesh")
 
     if wikidata_source:
         document.update(
@@ -78,11 +67,18 @@ def format_concept_for_elasticsearch(concept):
                 "wikidata_preferred_name": wikidata_source.preferred_name,
             }
         )
-    if lcsh_source:
+    if lc_subjects_source:
         document.update(
             {
-                "lcsh_id": lcsh_source.source_id,
-                "lcsh_preferred_name": lcsh_source.preferred_name,
+                "lc_subjects_id": lc_subjects_source.source_id,
+                "lcsh_preferred_name": lc_subjects_source.preferred_name,
+            }
+        )
+    if lc_names_source:
+        document.update(
+            {
+                "lc_names_id": lc_names_source.source_id,
+                "lcsh_preferred_name": lc_names_source.preferred_name,
             }
         )
     if mesh_source:
@@ -114,7 +110,7 @@ def format_person_for_elasticsearch(person):
         "variants": variants,
     }
 
-    wikidata_source = person.sources.get_or_none(source="wikidata")
+    wikidata_source = person.sources.get_or_none(source_type="wikidata")
     if wikidata_source:
         document.update(
             {
@@ -125,3 +121,14 @@ def format_person_for_elasticsearch(person):
         )
 
     return document
+
+
+def yield_all_documents(index_name, host, username, password):
+    return scan(
+        Elasticsearch(host, http_auth=(username, password)),
+        index=index_name,
+        query={"query": {"match_all": {}}},
+        size=10,
+        scroll="30m",
+        preserve_order=True
+    )

@@ -1,24 +1,29 @@
 import json
 import os
 
+from elasticsearch import Elasticsearch
 from structlog import get_logger
 
 from src.elasticsearch import (
     format_concept_for_elasticsearch,
-    format_story_for_elasticsearch,
     format_person_for_elasticsearch,
-    get_elasticsearch_session,
+    format_story_for_elasticsearch,
 )
-from src.graph.models import Concept, Story, Person
 from src.graph import get_neo4j_session
+from src.graph.models import Concept, Person, Story
 
 log = get_logger()
 
-log.info("Connecting to neo4j")
 db = get_neo4j_session(clear=False)
 
 log.info("Unpacking the graph into elasticsearch")
-es = get_elasticsearch_session()
+es = Elasticsearch(
+    os.environ["ELASTIC_CONCEPTS_HOST"],
+    http_auth=(
+        os.environ["ELASTIC_CONCEPTS_USERNAME"],
+        os.environ["ELASTIC_CONCEPTS_PASSWORD"],
+    ),
+)
 
 
 stories_index_name = os.environ["ELASTIC_STORIES_INDEX"]
@@ -77,9 +82,7 @@ with open("/data/elastic/people/settings.json", "r") as f:
 
 es.indices.delete(index=people_index_name, ignore=404)
 es.indices.create(
-    index=people_index_name,
-    mappings=people_mappings,
-    settings=people_settings,
+    index=people_index_name, mappings=people_mappings, settings=people_settings,
 )
 
 log.info("Populating the people index")

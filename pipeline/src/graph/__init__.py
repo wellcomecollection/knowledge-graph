@@ -6,12 +6,12 @@ from neomodel import config, db
 from neomodel.util import clear_neo4j_database
 from structlog import get_logger
 
-from ..enrich.lcsh import (
-    get_lcsh_data,
-    get_lcsh_id_from_wikidata,
-    get_lcsh_preferred_name,
-    get_lcsh_variant_names,
-    get_wikidata_id_from_lcsh_data,
+from ..enrich.loc import (
+    get_loc_data,
+    get_loc_id_from_wikidata,
+    get_loc_preferred_name,
+    get_loc_variant_names,
+    get_wikidata_id_from_loc_data,
 )
 from ..enrich.mesh import (
     get_mesh_data,
@@ -42,10 +42,11 @@ def get_neo4j_session(clear=True):
 
 
 def wait_until_neo4j_is_live():
+    log.info("Connecting to neo4j...")
     while True:
         try:
             db.cypher_query("MATCH (n) RETURN n LIMIT 1")
             break
         except ServiceUnavailable:
-            log.info("Waiting for Neo4j to start...")
+            log.info("Connecting to neo4j...")
             sleep(5)
