@@ -55,10 +55,18 @@ for document in works_generator:
                 else:
                     person = Person(name=clean_name).save()
             else:
-                existing_source_concept = SourceConcept.nodes.first_or_none(
-                    source_id=source_identifier["value"],
-                    source_type=source_identifier["identifierType"]["id"],
-                )
+                try:
+                    existing_source_concept = SourceConcept.nodes.first_or_none(
+                        source_id=source_identifier["value"],
+                        source_type=source_identifier["identifierType"]["id"],
+                    )
+                except ValueError as e:
+                    log.exception(
+                        "Error finding source concept",
+                        source_id=source_id,
+                        source_type=source_type,
+                        error=e,
+                    )
 
                 if existing_source_concept:
                     log.debug(
@@ -105,10 +113,17 @@ for document in works_generator:
             else:
                 source_id = source_identifier["value"]
                 source_type = source_identifier["identifierType"]["id"]
-
-                existing_concept_source_concept = SourceConcept.nodes.first_or_none(
-                    source_id=source_id, source_type=source_type
-                )
+                try:
+                    existing_concept_source_concept = SourceConcept.nodes.first_or_none(
+                        source_id=source_id, source_type=source_type
+                    )
+                except ValueError as e:
+                    log.exception(
+                        "Error finding source concept",
+                        source_id=source_id,
+                        source_type=source_type,
+                        error=e,
+                    )
                 if existing_concept_source_concept:
                     log.debug(
                         "Found existing source concept",
