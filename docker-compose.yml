@@ -9,7 +9,7 @@ services:
         source: ./notebooks/notebooks
         target: /home/jovyan/notebooks
       - type: bind
-        source: ./data/common
+        source: ./data
         target: /home/jovyan/data
       - type: bind
         source: ./search/data
@@ -39,55 +39,70 @@ services:
       - NEO4JLABS_PLUGINS=["graph-data-science", "apoc"]
       - NEO4J_dbms_security_procedures_whitelist=gds.*, apoc.*
       - NEO4J_dbms_security_procedures_unrestricted=gds.*, apoc.*
-  pipeline:
-    build: pipeline
-    env_file: .env
-    depends_on:
-      - neo4j
-    volumes:
-      - type: bind
-        source: ./data/common/stories
-        target: /data
-    command: >
-      sh -c "python build_graph.py &&
-             python build_indices.py"
-  graph:
-    build: pipeline
-    env_file: .env
-    depends_on:
-      - neo4j
-    volumes:
-      - type: bind
-        source: ./data/common/stories
-        target: /data
-    command: python build_stories_graph.py
-  works_graph:
-    build: pipeline
-    env_file: .env
-    depends_on:
-      - neo4j
-    volumes:
-      - type: bind
-        source: ./data/common
-        target: /data
-    command: python build_works_graph.py
-  reindex:
-    build: pipeline
-    env_file: .env
-    depends_on:
-      - neo4j
-    volumes:
-      - type: bind
-        source: ./data/common/stories
-        target: /data
-    command: python build_indices.py
+
   search:
     build: search
     volumes:
-      # enable hot reloading when running locally
       - type: bind
         source: ./search
-        target: /usr/src/app
+        target: /app
     ports:
       - 3000:3000
     command: yarn dev
+
+  stories_graph:
+    build: pipeline
+    env_file: .env
+    depends_on:
+      - neo4j
+    volumes:
+      - type: bind
+        source: ./data/stories
+        target: /data/stories
+    command: python graph.py
+  stories_reindex:
+    build: pipeline
+    working_dir: /app/stories
+    env_file: .env
+    depends_on:
+      - neo4j
+    volumes:
+      - type: bind
+        source: ./data/elastic
+        target: /data/elastic
+    command: python reindex.py
+  stories_pipeline:
+    build: pipeline
+    working_dir: /app/stories
+    env_file: .env
+    depends_on:
+      - neo4j
+    volumes:
+      - type: bind
+        source: ./data/stories
+        target: /data/stories
+      - type: bind
+        source: ./data/elastic
+        target: /data/elastic
+    command: > 
+      sh -c "python graph.py &&
+             python reindex.py"
+
+  works_graph:
+    build: pipeline
+    working_dir: /app/works
+    env_file: .env
+    depends_on:
+      - neo4j
+    command: python graph.py
+  works_reindex:
+    build: pipeline
+    working_dir: /app/works
+    env_file: .env
+    depends_on:
+      - neo4j
+    volumes:
+      - type: bind
+        source: ./data/elastic
+        target: /data/elastic
+    command: python reindex.py

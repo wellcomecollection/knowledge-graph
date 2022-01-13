@@ -12,7 +12,6 @@ log = get_logger()
 
 log.info("Loading works dataset")
 
-log.info("Connecting to neo4j")
 db = get_neo4j_session()
 
 log.info("Processing works")
