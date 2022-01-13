@@ -1,4 +1,5 @@
 from elasticsearch import Elasticsearch
+from elasticsearch.helpers import scan
 
 from .prismic import get_fulltext, get_standfirst
 
@@ -123,20 +124,11 @@ def format_person_for_elasticsearch(person):
 
 
 def yield_all_documents(index_name, host, username, password):
-    es = Elasticsearch(host, http_auth=(username, password))
-
-    # use the scroll api to get all the documents
-    # https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-scroll.html
-    scroll_id = es.search(
+    return scan(
+        Elasticsearch(host, http_auth=(username, password)),
         index=index_name,
-        scroll="25m",
-        body={"query": {"match_all": {}}},
-    )["_scroll_id"]
-
-    while True:
-        response = es.scroll(scroll_id=scroll_id, scroll="1m")
-        scroll_id = response["_scroll_id"]
-        if not response["hits"]["hits"]:
-            break
-        for hit in response["hits"]["hits"]:
-            yield hit
+        query={"query": {"match_all": {}}},
+        size=10,
+        scroll="30m",
+        preserve_order=True
+    )

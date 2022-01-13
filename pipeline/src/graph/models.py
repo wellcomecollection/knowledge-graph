@@ -45,7 +45,7 @@ class Story(StructuredNode):
     title = StringProperty(required=True)
     wikidata_id = StringProperty(unique_index=True)
     concepts = RelationshipFrom("Concept", "HAS_CONCEPT")
-    contributors = RelationshipFrom("Person", "CONTRIBUTED_TO")
+    contributors = RelationshipFrom("Person", "CONTRIBUTED_TO_STORY")
 
 
 class Work(StructuredNode):
@@ -53,7 +53,7 @@ class Work(StructuredNode):
     wellcome_id = StringProperty(unique_index=True, required=True)
     title = StringProperty(required=True)
     concepts = RelationshipFrom("Concept", "HAS_CONCEPT")
-    contributors = RelationshipFrom("Person", "CONTRIBUTED_TO")
+    contributors = RelationshipFrom("Person", "CONTRIBUTED_TO_WORK")
 
 
 class SourceConcept(StructuredNode):
@@ -90,7 +90,7 @@ class Concept(BaseConcept):
         if source_type == "nlm-mesh":
             self._connect_mesh_source(source_id)
 
-    def _connect_wikidata_source(self, wikidata_id, get_linked_schemes=None):
+    def _connect_wikidata_source(self, wikidata_id, get_linked_schemes=[]):
         source_data = get_wikidata(wikidata_id)
         source_concept = SourceConcept.nodes.get_or_none(
             source_id=wikidata_id, source_type="wikidata"
@@ -134,7 +134,7 @@ class Concept(BaseConcept):
                 self._connect_mesh_source(mesh_id)
 
     def _connect_loc_source(
-        self, source_id, source_type, get_linked_schemes=None
+        self, source_id, source_type, get_linked_schemes=[]
     ):
         try:
             loc_data = get_loc_data(source_id)
@@ -170,34 +170,42 @@ class Concept(BaseConcept):
                     )
         except (ValueError) as e:
             log.exception(
-                "Error connecting lc-subjects source concept",
+                f"Error connecting {source_type} source concept",
                 concept=self.name,
                 loc_id=source_id,
                 error=e,
             )
 
     def _connect_mesh_source(self, mesh_id):
-        source_data = get_mesh_data(mesh_id)
-        source_concept = SourceConcept.nodes.get_or_none(
-            source_id=mesh_id, source_type="nlm-mesh"
-        )
-        if not source_concept:
-            source_data = get_mesh_preferred_concept_data(source_data)
-            log.debug("Creating mesh source concept", mesh_id=mesh_id)
-            source_concept = SourceConcept(
-                source_id=mesh_id,
-                source_type="nlm-mesh",
-                description=get_mesh_description(source_data),
-                preferred_name=get_mesh_preferred_name(source_data),
-                variant_names=[],
-            ).save()
-        if not self.sources.is_connected(source_concept):
-            log.debug(
-                "Connecting mesh source concept",
-                concept=self.name,
-                mesh_id=mesh_id,
+        try:
+            source_data = get_mesh_data(mesh_id)
+            source_concept = SourceConcept.nodes.get_or_none(
+                source_id=mesh_id, source_type="nlm-mesh"
             )
-            self.sources.connect(source_concept)
+            if not source_concept:
+                source_data = get_mesh_preferred_concept_data(source_data)
+                log.debug("Creating mesh source concept", mesh_id=mesh_id)
+                source_concept = SourceConcept(
+                    source_id=mesh_id,
+                    source_type="nlm-mesh",
+                    description=get_mesh_description(source_data),
+                    preferred_name=get_mesh_preferred_name(source_data),
+                    variant_names=[],
+                ).save()
+            if not self.sources.is_connected(source_concept):
+                log.debug(
+                    "Connecting mesh source concept",
+                    concept=self.name,
+                    mesh_id=mesh_id,
+                )
+                self.sources.connect(source_concept)
+        except (ValueError) as e:
+            log.exception(
+                "Error connecting mesh source concept",
+                concept=self.name,
+                loc_id=mesh_id,
+                error=e,
+            )
 
     def get_neighbours(self):
         for source_concept in self.sources.all():
@@ -256,17 +264,26 @@ class Concept(BaseConcept):
                     name=name,
                 )
                 neighbour_concept = Concept(
-                    name=get_wikidata_preferred_name(neighbour_concept_wikidata)
+                    name=get_wikidata_preferred_name(
+                        neighbour_concept_wikidata)
                 ).save()
                 neighbour_concept.collect_sources(
                     source_id=wikidata_id, source_type="wikidata"
                 )
-            log.debug(
-                "Connecting neighbour",
-                concept_name=self.name,
-                neighbour_name=neighbour_concept.name,
-            )
-            self.neighbours.connect(neighbour_concept)
+            if neighbour_concept == self:
+                log.debug(
+                    "Skipping neighbour, concept is the same",
+                    concept_name=self.name,
+                    neighbour_name=neighbour_concept.name,
+                )
+                continue
+            else:
+                log.debug(
+                    "Connecting neighbour",
+                    concept_name=self.name,
+                    neighbour_name=neighbour_concept.name,
+                )
+                self.neighbours.connect(neighbour_concept)
 
     def _get_loc_neighbours(self, source_id, source_type):
         loc_data = get_loc_data(source_id)
@@ -299,12 +316,20 @@ class Concept(BaseConcept):
                         "lc-subjects" if loc_id.startswith("s") else "lc-names"
                     ),
                 )
-            log.debug(
-                "Connecting neighbour",
-                concept_name=self.name,
-                neighbour_name=neighbour_concept.name,
-            )
-            self.neighbours.connect(neighbour_concept)
+            if neighbour_concept == self:
+                log.debug(
+                    "Skipping neighbour, concept is the same",
+                    concept_name=self.name,
+                    neighbour_name=neighbour_concept.name,
+                )
+                continue
+            else:
+                log.debug(
+                    "Connecting neighbour",
+                    concept_name=self.name,
+                    neighbour_name=neighbour_concept.name,
+                )
+                self.neighbours.connect(neighbour_concept)
 
     def _get_mesh_neighbours(self, mesh_id):
         mesh_data = get_mesh_data(mesh_id)
@@ -340,14 +365,22 @@ class Concept(BaseConcept):
                 neighbour_concept.collect_sources(
                     source_id=mesh_id, source_type="nlm-mesh"
                 )
-            log.debug(
-                "Connecting neighbour",
-                concept_name=self.name,
-                neighbour_name=neighbour_concept.name,
-            )
-            self.neighbours.connect(neighbour_concept)
+            if neighbour_concept == self:
+                log.debug(
+                    "Skipping neighbour, concept is the same",
+                    concept_name=self.name,
+                    neighbour_name=neighbour_concept.name,
+                )
+                continue
+            else:
+                log.debug(
+                    "Connecting neighbour",
+                    concept_name=self.name,
+                    neighbour_name=neighbour_concept.name,
+                )
+                self.neighbours.connect(neighbour_concept)
 
 
 class Person(Concept):
-    contributed_to_story = RelationshipTo("Story", "CONTRIBUTED_TO")
-    contributed_to_work = RelationshipTo("Work", "CONTRIBUTED_TO")
+    contributed_to_story = RelationshipTo("Story", "CONTRIBUTED_TO_STORY")
+    contributed_to_work = RelationshipTo("Work", "CONTRIBUTED_TO_WORK")

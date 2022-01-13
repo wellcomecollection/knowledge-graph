@@ -25,7 +25,13 @@ works_generator = yield_all_documents(
 )
 
 for document in works_generator:
-    if document["_source"]["type"] == "Visible":
+    if document["_source"]["type"] != "Visible":
+        log.info(
+            "Skipping work",
+            work_id=document["_id"],
+            work_type=document["_source"]["type"],
+        )
+    else:
         work_data = document["_source"]["data"]
         log.info("Processing work", work_id=document["_id"])
         work = Work(
@@ -40,26 +46,26 @@ for document in works_generator:
             except KeyError:
                 clean_name = clean(contributor["agent"]["label"])
                 log.debug(
-                    "contributor has no source identifier",
+                    "Contributor has no source identifier",
                     contributor=clean_name,
                 )
-                existing_person = Person.nodes.get_or_none(name=clean_name)
+                existing_person = Person.nodes.first_or_none(name=clean_name)
                 if existing_person:
                     person = existing_person
                 else:
                     person = Person(name=clean_name).save()
             else:
-                existing_person_source_concept = SourceConcept.nodes.get_or_none(
+                existing_source_concept = SourceConcept.nodes.first_or_none(
                     source_id=source_identifier["value"],
                     source_type=source_identifier["identifierType"]["id"],
                 )
 
-                if existing_person_source_concept:
+                if existing_source_concept:
                     log.debug(
                         "Found existing person source concept",
-                        source_id=existing_person_source_concept.source_id,
+                        source_id=existing_source_concept.source_id,
                     )
-                    person = existing_person_source_concept.parent.all()[0]
+                    person = existing_source_concept.parent.all()[0]
                 else:
                     log.debug(
                         "Creating new person",
@@ -73,15 +79,23 @@ for document in works_generator:
                         source_id=source_identifier["value"],
                         source_type=source_identifier["identifierType"]["id"],
                     )
-            work.contributors.connect(person)
+            try:
+                work.contributors.connect(person)
+            except Exception as e:
+                log.exception(
+                    "Error connecting contributor to work",
+                    contributor=person.name,
+                    work=work.title,
+                    error=e,
+                )
 
-        for concept in work_data["subjects"]:# + work_data["genres"]:
+        for concept in work_data["subjects"]:  # + work_data["genres"]:
             try:
                 source_identifier = concept["id"]["sourceIdentifier"]
             except KeyError:
                 clean_name = clean(concept["label"])
                 log.debug(
-                    "concept has no source identifier", concept=clean_name
+                    "Concept has no source identifier", concept=clean_name
                 )
                 existing_concept = Concept.nodes.first_or_none(name=clean_name)
                 if existing_concept:
@@ -92,7 +106,7 @@ for document in works_generator:
                 source_id = source_identifier["value"]
                 source_type = source_identifier["identifierType"]["id"]
 
-                existing_concept_source_concept = SourceConcept.nodes.get_or_none(
+                existing_concept_source_concept = SourceConcept.nodes.first_or_none(
                     source_id=source_id, source_type=source_type
                 )
                 if existing_concept_source_concept:
@@ -108,14 +122,17 @@ for document in works_generator:
                     concept.collect_sources(
                         source_id=source_id, source_type=source_type
                     )
-            work.concepts.connect(concept)
-    else:
-        log.info(
-            "Skipping work",
-            work_id=document["_id"],
-            work_type=document["_source"]["type"],
-        )
+            try:
+                work.concepts.connect(concept)
+            except Exception as e:
+                log.exception(
+                    "Error connecting concept to work",
+                    concept=concept.name,
+                    work=work.title,
+                    error=e,
+                )
 
-# log.info("Getting second order concepts and connections")
-# for concept in Concept.nodes.all():
-#     concept.get_neighbours()
+
+log.info("Getting second order concepts and connections")
+for concept in Concept.nodes.all():
+    concept.get_neighbours()
