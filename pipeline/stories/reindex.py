@@ -16,7 +16,6 @@ log = get_logger()
 
 db = get_neo4j_session(clear=False)
 
-log.info("Unpacking the graph into elasticsearch")
 es = Elasticsearch(
     os.environ["ELASTIC_CONCEPTS_HOST"],
     http_auth=(
@@ -27,7 +26,7 @@ es = Elasticsearch(
 
 
 stories_index_name = os.environ["ELASTIC_STORIES_INDEX"]
-log.info(f"Create the stories index: {stories_index_name}")
+log.info(f"Creating the stories index: {stories_index_name}")
 with open("/data/elastic/stories/mapping.json", "r") as f:
     stories_mappings = json.load(f)
 with open("/data/elastic/stories/settings.json", "r") as f:

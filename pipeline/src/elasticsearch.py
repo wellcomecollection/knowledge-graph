@@ -94,7 +94,7 @@ def format_concept_for_elasticsearch(concept):
 
 
 def format_person_for_elasticsearch(person):
-    person_stories = person.contributed_to.all()
+    person_stories = person.contributed_to_work.all() + person.contributed_to_story.all()
     stories = [story.title for story in person_stories]
     story_ids = [story.wellcome_id for story in person_stories]
     variants = [
@@ -121,6 +121,31 @@ def format_person_for_elasticsearch(person):
         )
 
     return document
+
+
+def format_work_for_elasticsearch(work):
+    work_concepts = work.concepts.all()
+    concept_ids = [concept.uid for concept in work_concepts]
+    concept_names = [concept.name for concept in work_concepts]
+    concept_variants = [
+        variant
+        for concept in work_concepts
+        for source_concept in concept.sources.all()
+        for variant in source_concept.variant_names
+    ]
+
+    work_contributors = work.contributors.all()
+    contributor_ids = [contributor.uid for contributor in work_contributors]
+    contributors = [contributor.name for contributor in work_contributors]
+
+    return {
+        "concept_ids": concept_ids,
+        "concept_variants": concept_variants,
+        "concepts": concept_names,
+        "contributors": contributors,
+        "contributor_ids": contributor_ids,
+        "title": work.title,
+    }
 
 
 def yield_all_documents(index_name, host, username, password):
