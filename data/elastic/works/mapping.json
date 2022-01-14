@@ -1,0 +1,66 @@
+{
+    "properties": {
+        "contributors": {
+            "type": "text",
+            "fields": {
+                "keyword": {
+                    "type": "keyword",
+                    "normalizer": "lowercase_normalizer"
+                }
+            }
+        },
+        "contributor_ids": {
+            "type": "keyword"
+        },
+        "concepts": {
+            "type": "text",
+            "fields": {
+                "keyword": {
+                    "type": "keyword",
+                    "normalizer": "lowercase_normalizer"
+                },
+                "english": {
+                    "type": "text",
+                    "analyzer": "english_analyzer"
+                },
+                "shingles": {
+                    "type": "text",
+                    "analyzer": "shingle_asciifolding_analyzer"
+                }
+            }
+        },
+        "concept_ids": {
+            "type": "keyword"
+        },
+        "concept_variants": {
+            "type": "text",
+            "fields": {
+                "keyword": {
+                    "type": "keyword",
+                    "normalizer": "lowercase_normalizer"
+                },
+                "english": {
+                    "type": "text",
+                    "analyzer": "english_analyzer"
+                },
+                "shingles": {
+                    "type": "text",
+                    "analyzer": "shingle_asciifolding_analyzer"
+                }
+            }
+        },
+        "title": {
+            "type": "text",
+            "fields": {
+                "english": {
+                    "type": "text",
+                    "analyzer": "english_analyzer"
+                },
+                "shingles": {
+                    "type": "text",
+                    "analyzer": "shingle_asciifolding_analyzer"
+                }
+            }
+        }
+    }
+}

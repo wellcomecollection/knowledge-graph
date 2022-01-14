@@ -1,6 +1,8 @@
 # Concepts
 
-We're enriching concepts with data from external sources and constructing a knowledge graph to improve the experience of searching, exploring and discovering new stuff on [wellcomecollection.org](https://wellcomecollection.org).
+We want to improve the experience of searching, exploring and discovering new material on [wellcomecollection.org](https://wellcomecollection.org). To do that, we're enriching our catalogue with data from external sources and constructing a knowledge graph for the collection.
+
+This repo contains a set of prototype pipelines and search services which allow us to test how this approach might affect the experience of exploring the collection.
 
 ## What's a concept?
 

@@ -26,7 +26,6 @@ df = pd.read_excel(
 ).fillna("")
 
 
-log.info("Connecting to neo4j")
 db = get_neo4j_session()
 
 

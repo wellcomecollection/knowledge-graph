@@ -7,16 +7,15 @@ from structlog import get_logger
 from src.elasticsearch import (
     format_concept_for_elasticsearch,
     format_person_for_elasticsearch,
-    format_story_for_elasticsearch,
+    format_work_for_elasticsearch,
 )
 from src.graph import get_neo4j_session
-from src.graph.models import Concept, Person, Story
+from src.graph.models import Concept, Person, Work
 
 log = get_logger()
 
 db = get_neo4j_session(clear=False)
 
-log.info("Unpacking the graph into elasticsearch")
 es = Elasticsearch(
     os.environ["ELASTIC_CONCEPTS_HOST"],
     http_auth=(
@@ -26,27 +25,27 @@ es = Elasticsearch(
 )
 
 
-stories_index_name = os.environ["ELASTIC_STORIES_INDEX"]
-log.info(f"Create the stories index: {stories_index_name}")
-with open("/data/elastic/stories/mapping.json", "r") as f:
-    stories_mappings = json.load(f)
-with open("/data/elastic/stories/settings.json", "r") as f:
-    stories_settings = json.load(f)
+works_index_name = os.environ["ELASTIC_WORKS_INDEX"]
+log.info(f"Creating the works index: {works_index_name}")
+with open("/data/elastic/works/mapping.json", "r") as f:
+    works_mappings = json.load(f)
+with open("/data/elastic/works/settings.json", "r") as f:
+    works_settings = json.load(f)
 
-es.indices.delete(index=stories_index_name, ignore=404)
+es.indices.delete(index=works_index_name, ignore=404)
 es.indices.create(
-    index=stories_index_name,
-    mappings=stories_mappings,
-    settings=stories_settings,
+    index=works_index_name,
+    mappings=works_mappings,
+    settings=works_settings,
 )
 
-log.info("Populating the stories index")
-for story in Story.nodes.all():
-    log.info("Indexing story", story=story.title)
+log.info("Populating the works index")
+for work in Work.nodes.all():
+    log.info("Indexing work", work=work.wellcome_id)
     es.index(
-        index=stories_index_name,
-        id=story.wellcome_id,
-        document=format_story_for_elasticsearch(story),
+        index=works_index_name,
+        id=work.wellcome_id,
+        document=format_work_for_elasticsearch(work),
     )
 
 
