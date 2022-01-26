@@ -1,10 +1,10 @@
-from .utils import http_client
+from .utils import fetch_json
 
 
 def get_prismic_master_ref():
-    response = http_client.get(
+    response = fetch_json(
         "https://wellcomecollection.cdn.prismic.io/api",
-    ).json()
+    )
     return response["refs"][0]["ref"]
 
 
@@ -12,10 +12,10 @@ master_ref = get_prismic_master_ref()
 
 
 def get_slices(id, ref=master_ref):
-    response = http_client.get(
+    response = fetch_json(
         "https://wellcomecollection.cdn.prismic.io/api/v2/documents/search",
         params={"ref": ref, "q": f'[[at(document.id, "{id}")]]'},
-    ).json()
+    )
     slices = response["results"][0]["data"]["body"]
     return slices
 

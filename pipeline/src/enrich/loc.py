@@ -1,12 +1,12 @@
 from pathlib import Path
 
-from . import clean, http_client
+from . import clean, fetch_json
 
 
 def get_loc_id_from_wikidata(wikidata):
     try:
         loc_id = wikidata["claims"]["P244"][0]["mainsnak"]["datavalue"]["value"]
-    except (KeyError, IndexError):
+    except (KeyError, IndexError, TypeError):
         loc_id = None
     return loc_id
 
@@ -14,13 +14,14 @@ def get_loc_id_from_wikidata(wikidata):
 def get_loc_data(source_id):
     source_type = "subjects" if source_id.startswith("s") else "names"
     url = f"http://id.loc.gov/authorities/{source_type}/{source_id}.json"
-    response = http_client.get(url)
-    if response.status_code != 200:
+    try:
+        response = fetch_json(url)
+        key = url.replace(".json", "")
+        for element in response:
+            if element["@id"] == key:
+                return element
+    except (KeyError, IndexError, ValueError, TypeError):
         raise ValueError(f"'{url}' is not a valid library of congress URL")
-    key = url.replace(".json", "")
-    for element in response.json():
-        if element["@id"] == key:
-            return element
 
 
 def get_loc_variant_names(loc_data):

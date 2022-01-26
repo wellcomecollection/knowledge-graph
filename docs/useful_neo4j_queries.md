@@ -9,7 +9,7 @@ MATCH p=()-->() WITH p, rand() AS r ORDER BY r RETURN p LIMIT 1000
 ## Count the stories
 
 ```
-MATCH (n:Story) RETURN count(n) as count
+MATCH (n:Work) RETURN count(n) as count
 ```
 
 ## Get subset of relationship types
