@@ -1,12 +1,13 @@
 import json
 import os
 
-from elasticsearch import Elasticsearch
 from structlog import get_logger
 
+from elasticsearch import Elasticsearch
 from src.elasticsearch import (
     format_concept_for_elasticsearch,
     format_person_for_elasticsearch,
+    format_story_for_elasticsearch,
     format_work_for_elasticsearch,
 )
 from src.graph import get_neo4j_session
@@ -49,6 +50,30 @@ for work in Work.nodes.all():
     )
 
 
+stories_index_name = os.environ["ELASTIC_STORIES_INDEX"]
+log.info(f"Creating the stories index: {stories_index_name}")
+with open("/data/elastic/stories/mapping.json", "r") as f:
+    stories_mappings = json.load(f)
+with open("/data/elastic/stories/settings.json", "r") as f:
+    stories_settings = json.load(f)
+
+es.indices.delete(index=stories_index_name, ignore=404)
+es.indices.create(
+    index=stories_index_name,
+    mappings=stories_mappings,
+    settings=stories_settings,
+)
+
+log.info("Populating the stories index")
+for story in Work.nodes.filter(type="story"):
+    log.info("Indexing story", story=story.title)
+    es.index(
+        index=stories_index_name,
+        id=story.wellcome_id,
+        document=format_story_for_elasticsearch(story),
+    )
+
+
 concepts_index_name = os.environ["ELASTIC_CONCEPTS_INDEX"]
 log.info(f"Creating the concepts index: {concepts_index_name}")
 with open("/data/elastic/concepts/mapping.json", "r") as f:
@@ -81,7 +106,9 @@ with open("/data/elastic/people/settings.json", "r") as f:
 
 es.indices.delete(index=people_index_name, ignore=404)
 es.indices.create(
-    index=people_index_name, mappings=people_mappings, settings=people_settings,
+    index=people_index_name,
+    mappings=people_mappings,
+    settings=people_settings,
 )
 
 log.info("Populating the people index")

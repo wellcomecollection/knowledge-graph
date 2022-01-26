@@ -38,22 +38,18 @@ class BaseConcept(StructuredNode):
     sources = RelationshipTo("SourceConcept", "HAS_SOURCE_CONCEPT")
 
 
-class Story(StructuredNode):
-    uid = UniqueIdProperty()
-    wellcome_id = StringProperty(unique_index=True, required=True)
-    published = DateProperty(required=True)
-    title = StringProperty(required=True)
-    wikidata_id = StringProperty(unique_index=True)
-    concepts = RelationshipFrom("Concept", "HAS_CONCEPT")
-    contributors = RelationshipFrom("Person", "CONTRIBUTED_TO_STORY")
-
-
 class Work(StructuredNode):
     uid = UniqueIdProperty()
     wellcome_id = StringProperty(unique_index=True, required=True)
     title = StringProperty(required=True)
     concepts = RelationshipFrom("Concept", "HAS_CONCEPT")
-    contributors = RelationshipFrom("Person", "CONTRIBUTED_TO_WORK")
+    contributors = RelationshipFrom("Person", "CONTRIBUTED_TO")
+    published = DateProperty()
+    wikidata_id = StringProperty(unique_index=True)
+    type = StringProperty(
+        required=True,
+        choices={c: c for c in ["story", "work"]},
+    )
 
 
 class SourceConcept(StructuredNode):
@@ -72,7 +68,7 @@ class SourceConcept(StructuredNode):
 
 
 class Concept(BaseConcept):
-    stories = RelationshipTo("Story", "HAS_CONCEPT")
+    works = RelationshipTo("Work", "HAS_CONCEPT")
     neighbours = Relationship("Concept", "HAS_NEIGHBOUR")
 
     def collect_sources(self, source_id, source_type):
@@ -208,6 +204,7 @@ class Concept(BaseConcept):
             )
 
     def get_neighbours(self):
+        log.info("Getting neighbours for concept", concept=self.name)
         for source_concept in self.sources.all():
             if source_concept.source_type == "wikidata":
                 self._get_wikidata_neighbours(
@@ -237,15 +234,20 @@ class Concept(BaseConcept):
         ]
         related_ids = []
         for claim_id in claims:
-            if claim_id in wikidata["claims"]:
-                related_ids.extend(
-                    [
-                        related_claim["mainsnak"]["datavalue"]["value"]["id"]
-                        for related_claim in wikidata["claims"][claim_id]
-                    ]
-                )
-        log.debug("Found related wikidata ids", related_ids=related_ids)
+            try:
+                if claim_id in wikidata["claims"]:
+                    related_ids.extend(
+                        [
+                            related_claim["mainsnak"]["datavalue"]["value"][
+                                "id"
+                            ]
+                            for related_claim in wikidata["claims"][claim_id]
+                        ]
+                    )
+            except (KeyError, TypeError):
+                continue
         for wikidata_id in related_ids:
+            log.debug("Found related wikidata id", wikidata_id=wikidata_id)
             neighbour_source_concept = SourceConcept.nodes.get_or_none(
                 source_id=wikidata_id, source_type="wikidata"
             )
@@ -264,8 +266,7 @@ class Concept(BaseConcept):
                     name=name,
                 )
                 neighbour_concept = Concept(
-                    name=get_wikidata_preferred_name(
-                        neighbour_concept_wikidata)
+                    name=get_wikidata_preferred_name(neighbour_concept_wikidata)
                 ).save()
                 neighbour_concept.collect_sources(
                     source_id=wikidata_id, source_type="wikidata"
@@ -294,14 +295,15 @@ class Concept(BaseConcept):
             ]
         else:
             related_ids = []
-        log.debug("Found related loc ids", related_ids=related_ids)
         for loc_id in related_ids:
+            log.debug("Found related loc id", loc_id=loc_id)
             neighbour_source_concept = SourceConcept.nodes.get_or_none(
                 source_id=source_id, source_type=source_type
             )
             if neighbour_source_concept:
                 log.debug(
-                    "Found existing neighbour source concept", loc_id=loc_id,
+                    "Found existing neighbour source concept",
+                    loc_id=loc_id,
                 )
                 neighbour_concept = neighbour_source_concept.parent.all()[0]
             else:
@@ -333,7 +335,7 @@ class Concept(BaseConcept):
 
     def _get_mesh_neighbours(self, mesh_id):
         mesh_data = get_mesh_data(mesh_id)
-        if "seeAlso" in mesh_data:
+        try:
             if isinstance(mesh_data["seeAlso"], list):
                 related_ids = [
                     Path(related).name for related in mesh_data["seeAlso"]
@@ -342,11 +344,11 @@ class Concept(BaseConcept):
                 related_ids = [Path(mesh_data["seeAlso"]).name]
             else:
                 related_ids = []
-        else:
+        except (KeyError, TypeError):
             related_ids = []
 
-        log.debug("Found related mesh ids", related_ids=related_ids)
         for mesh_id in related_ids:
+            log.debug("Found related mesh id", mesh_id=mesh_id)
             neighbour_source_concept = SourceConcept.nodes.get_or_none(
                 source_id=mesh_id, source_type="nlm-mesh"
             )
@@ -382,5 +384,4 @@ class Concept(BaseConcept):
 
 
 class Person(Concept):
-    contributed_to_story = RelationshipTo("Story", "CONTRIBUTED_TO_STORY")
-    contributed_to_work = RelationshipTo("Work", "CONTRIBUTED_TO_WORK")
+    contributed_to_work = RelationshipTo("Work", "CONTRIBUTED_TO")

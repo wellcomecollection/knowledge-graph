@@ -94,7 +94,9 @@ def format_concept_for_elasticsearch(concept):
 
 
 def format_person_for_elasticsearch(person):
-    person_stories = person.contributed_to_work.all() + person.contributed_to_story.all()
+    person_stories = (
+        person.contributed_to_work.all() + person.contributed_to_story.all()
+    )
     stories = [story.title for story in person_stories]
     story_ids = [story.wellcome_id for story in person_stories]
     variants = [
@@ -150,10 +152,26 @@ def format_work_for_elasticsearch(work):
 
 def yield_all_documents(index_name, host, username, password):
     return scan(
-        Elasticsearch(host, http_auth=(username, password)),
+        Elasticsearch(
+            host,
+            http_auth=(username, password),
+            timeout=30,
+            retry_on_timeout=True,
+            max_retries=10,
+        ),
         index=index_name,
-        query={"query": {"match_all": {}}},
+        query={
+            "query": {
+                "bool": {
+                    "should": [
+                        {"exists": {"field": "data.contributors"}},
+                        {"exists": {"field": "data.subjects"}},
+                    ],
+                    "filter": {"term": {"type": "Visible"}},
+                }
+            }
+        },
         size=10,
         scroll="30m",
-        preserve_order=True
+        preserve_order=True,
     )

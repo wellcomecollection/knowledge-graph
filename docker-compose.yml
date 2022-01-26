@@ -50,19 +50,20 @@ services:
       - 3000:3000
     command: yarn dev
 
-  stories_graph:
+  graph:
     build: pipeline
+    working_dir: /app
     env_file: .env
     depends_on:
       - neo4j
     volumes:
       - type: bind
         source: ./data/stories
-        target: /data/stories
+        target: /data/
     command: python graph.py
-  stories_reindex:
+  reindex:
     build: pipeline
-    working_dir: /app/stories
+    working_dir: /app
     env_file: .env
     depends_on:
       - neo4j
@@ -71,38 +72,24 @@ services:
         source: ./data/elastic
         target: /data/elastic
     command: python reindex.py
-  stories_pipeline:
+  neighbours:
     build: pipeline
-    working_dir: /app/stories
+    working_dir: /app
+    env_file: .env
+    depends_on:
+      - neo4j
+    command: python neighbours.py
+  pipeline:
+    build: pipeline
+    working_dir: /app
     env_file: .env
     depends_on:
       - neo4j
     volumes:
       - type: bind
-        source: ./data/stories
-        target: /data/stories
-      - type: bind
-        source: ./data/elastic
-        target: /data/elastic
+        source: ./data/
+        target: /data/
     command: > 
       sh -c "python graph.py &&
-             python reindex.py"
-
-  works_graph:
-    build: pipeline
-    working_dir: /app/works
-    env_file: .env
-    depends_on:
-      - neo4j
-    command: python graph.py
-  works_reindex:
-    build: pipeline
-    working_dir: /app/works
-    env_file: .env
-    depends_on:
-      - neo4j
-    volumes:
-      - type: bind
-        source: ./data/elastic
-        target: /data/elastic
-    command: python reindex.py
+             python reindex.py &&
+             python neighbours.py"

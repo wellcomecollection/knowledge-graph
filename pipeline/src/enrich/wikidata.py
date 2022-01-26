@@ -1,10 +1,10 @@
-from httpx import ConnectError
+from httpx import ConnectError, RemoteProtocolError
 
-from . import clean, http_client
+from . import clean, fetch_json
 
 
 def get_wikidata_id(concept_name):
-    response = http_client.get(
+    response = fetch_json(
         "https://www.wikidata.org/w/api.php",
         params={
             "action": "wbsearchentities",
@@ -12,27 +12,30 @@ def get_wikidata_id(concept_name):
             "format": "json",
             "search": concept_name,
         },
-    ).json()
+    )
 
     # naively select the first result
     try:
         wikidata_id = response["search"][0]["id"]
-    except (IndexError, KeyError, ConnectError):
+    except (IndexError, KeyError, TypeError):
         wikidata_id = None
     return wikidata_id
 
 
 def get_wikidata(wikidata_id):
-    response = http_client.get(
-        f"http://www.wikidata.org/wiki/Special:EntityData/{wikidata_id}.json"
-    ).json()
-    return response["entities"][wikidata_id]
+    try:
+        response = fetch_json(
+            f"http://www.wikidata.org/wiki/Special:EntityData/{wikidata_id}.json"
+        )
+        return response["entities"][wikidata_id]
+    except (KeyError, IndexError, ConnectError, RemoteProtocolError):
+        return None
 
 
 def get_wikidata_preferred_name(wikidata):
     try:
         preferred_name = clean(wikidata["labels"]["en"]["value"])
-    except (IndexError, KeyError, ConnectError):
+    except (IndexError, KeyError, TypeError):
         preferred_name = ""
     return preferred_name
 
@@ -54,7 +57,7 @@ def get_wikidata_variant_names(
         ]
         variant_names = list(set([clean(name) for name in labels + aliases]))
 
-    except (IndexError, KeyError, ConnectError):
+    except (IndexError, KeyError, TypeError):
         variant_names = []
 
     return variant_names
@@ -64,7 +67,7 @@ def get_wikidata_description(wikidata):
     try:
         description = wikidata["descriptions"]["en"]["value"]
 
-    except (IndexError, KeyError, ConnectError):
+    except (IndexError, KeyError, TypeError):
         description = ""
 
     return description
@@ -87,6 +90,6 @@ def get_contributor_wikidata_ids(wikidata):
                     for illustrator in wikidata["claims"]["P110"]
                 ]
             )
-    except (IndexError, KeyError, ConnectError):
+    except (IndexError, KeyError, TypeError):
         contributors = []
     return contributors
