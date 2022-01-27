@@ -6,7 +6,7 @@
 MATCH p=()-->() WITH p, rand() AS r ORDER BY r RETURN p LIMIT 1000
 ```
 
-## Count the stories
+## Count the works
 
 ```
 MATCH (n:Work) RETURN count(n) as count

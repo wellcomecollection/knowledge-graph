@@ -24,7 +24,7 @@ db = get_neo4j_session()
 
 log.info("Loading stories dataset")
 df = pd.read_excel(
-    pd.ExcelFile("/data/stories.xlsx", engine="openpyxl"),
+    pd.ExcelFile("/data/stories/stories.xlsx", engine="openpyxl"),
     sheet_name="Articles",
     dtype={"Date published": datetime.datetime},
 ).fillna("")
