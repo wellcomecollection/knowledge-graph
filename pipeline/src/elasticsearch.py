@@ -1,3 +1,5 @@
+import os
+
 from elasticsearch import Elasticsearch
 from elasticsearch.helpers import scan
 
@@ -150,7 +152,42 @@ def format_work_for_elasticsearch(work):
     }
 
 
-def yield_all_documents(index_name, host, username, password):
+def get_popular_work_ids(size):
+    es = Elasticsearch(
+        os.environ["ELASTIC_REPORTING_HOST"],
+        http_auth=(
+            os.environ["ELASTIC_REPORTING_USERNAME"],
+            os.environ["ELASTIC_REPORTING_PASSWORD"],
+        ),
+        timeout=30,
+        retry_on_timeout=True,
+        max_retries=10,
+    )
+    query = {
+        "size": 0,
+        "query": {
+            "bool": {
+                "must": [
+                    {"term": {"page.name": {"value": "work"}}},
+                    {"range": {"@timestamp": {"gte": "2021-09-01"}}},
+                ]
+            }
+        },
+        "aggs": {
+            "popular_works": {"terms": {"field": "page.query.id", "size": size}}
+        },
+    }
+
+    response = es.search(index="metrics-conversion-prod", body=query)
+    popular_work_ids = [
+        bucket["key"]
+        for bucket in response["aggregations"]["popular_works"]["buckets"]
+    ]
+    return popular_work_ids
+
+
+def yield_popular_works(index_name, host, username, password, size=10_000):
+    popular_work_ids = get_popular_work_ids(size)
     return scan(
         Elasticsearch(
             host,
@@ -168,6 +205,7 @@ def yield_all_documents(index_name, host, username, password):
                         {"exists": {"field": "data.subjects"}},
                     ],
                     "filter": {"term": {"type": "Visible"}},
+                    "filter": {"terms": {"_id": popular_work_ids}},
                 }
             }
         },

@@ -5,7 +5,7 @@ from pathlib import Path
 import pandas as pd
 from structlog import get_logger
 
-from src.elasticsearch import yield_all_documents
+from src.elasticsearch import yield_popular_works
 from src.enrich.wikidata import (
     get_contributor_wikidata_ids,
     get_wikidata,
@@ -24,7 +24,7 @@ db = get_neo4j_session()
 
 log.info("Loading stories dataset")
 df = pd.read_excel(
-    pd.ExcelFile("/data/stories.xlsx", engine="openpyxl"),
+    pd.ExcelFile("/data/stories/stories.xlsx", engine="openpyxl"),
     sheet_name="Articles",
     dtype={"Date published": datetime.datetime},
 ).fillna("")
@@ -97,7 +97,8 @@ for _, story_data in df.iterrows():
 
 log.info("Processing works")
 
-works_generator = yield_all_documents(
+works_generator = yield_popular_works(
+    size=100,
     index_name=os.environ["ELASTIC_PIPELINE_WORKS_INDEX"],
     host=os.environ["ELASTIC_PIPELINE_HOST"],
     username=os.environ["ELASTIC_PIPELINE_USERNAME"],
