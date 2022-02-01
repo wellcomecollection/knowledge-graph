@@ -3,7 +3,7 @@ import os
 from pathlib import Path
 
 import pandas as pd
-from structlog import get_logger
+from src.utils import get_logger
 
 from src.elasticsearch import yield_popular_works
 from src.enrich.wikidata import (
@@ -18,7 +18,7 @@ from src.graph import get_neo4j_session
 from src.graph.models import Concept, Person, SourceConcept, Work
 from src.utils import clean, clean_csv
 
-log = get_logger()
+log = get_logger(__name__)
 
 db = get_neo4j_session()
 
@@ -98,7 +98,7 @@ for _, story_data in df.iterrows():
 log.info("Processing works")
 
 works_generator = yield_popular_works(
-    size=100,
+    size=10000,
     index_name=os.environ["ELASTIC_PIPELINE_WORKS_INDEX"],
     host=os.environ["ELASTIC_PIPELINE_HOST"],
     username=os.environ["ELASTIC_PIPELINE_USERNAME"],

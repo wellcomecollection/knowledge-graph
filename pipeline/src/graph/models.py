@@ -10,9 +10,9 @@ from neomodel import (
     StructuredNode,
     UniqueIdProperty,
 )
-from structlog import get_logger
 
 from . import (
+    get_logger,
     get_loc_data,
     get_loc_id_from_wikidata,
     get_loc_preferred_name,
@@ -29,7 +29,7 @@ from . import (
     get_wikidata_variant_names,
 )
 
-log = get_logger()
+log = get_logger(__name__)
 
 
 class BaseConcept(StructuredNode):
@@ -266,7 +266,8 @@ class Concept(BaseConcept):
                     name=name,
                 )
                 neighbour_concept = Concept(
-                    name=get_wikidata_preferred_name(neighbour_concept_wikidata)
+                    name=get_wikidata_preferred_name(
+                        neighbour_concept_wikidata)
                 ).save()
                 neighbour_concept.collect_sources(
                     source_id=wikidata_id, source_type="wikidata"

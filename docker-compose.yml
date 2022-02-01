@@ -20,6 +20,7 @@ services:
       - JUPYTER_ENABLE_LAB=yes
     depends_on:
       - neo4j
+
   neo4j:
     image: neo4j:latest
     volumes:
@@ -39,6 +40,7 @@ services:
       - NEO4JLABS_PLUGINS=["graph-data-science", "apoc"]
       - NEO4J_dbms_security_procedures_whitelist=gds.*, apoc.*
       - NEO4J_dbms_security_procedures_unrestricted=gds.*, apoc.*
+
   search:
     build: search
     volumes:
@@ -48,6 +50,7 @@ services:
     ports:
       - 3000:3000
     command: yarn dev
+
   graph:
     build: pipeline
     working_dir: /app
@@ -59,6 +62,19 @@ services:
         source: ./data
         target: /data
     command: python graph.py
+
+  neighbours:
+    build: pipeline
+    working_dir: /app
+    env_file: .env
+    depends_on:
+      - neo4j
+    volumes:
+      - type: bind
+        source: ./data
+        target: /data
+    command: python neighbours.py
+
   reindex:
     build: pipeline
     working_dir: /app
@@ -70,13 +86,7 @@ services:
         source: ./data/elastic
         target: /data/elastic
     command: python reindex.py
-  neighbours:
-    build: pipeline
-    working_dir: /app
-    env_file: .env
-    depends_on:
-      - neo4j
-    command: python neighbours.py
+
   pipeline:
     build: pipeline
     working_dir: /app
@@ -89,5 +99,5 @@ services:
         target: /data
     command: > 
       sh -c "python graph.py &&
-             python reindex.py &&
-             python neighbours.py"
+             python neighbours.py &&
+             python reindex.py"

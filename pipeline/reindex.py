@@ -1,7 +1,7 @@
 import json
 import os
 
-from structlog import get_logger
+from src.utils import get_logger
 
 from elasticsearch import Elasticsearch
 from src.elasticsearch import (
@@ -13,7 +13,7 @@ from src.elasticsearch import (
 from src.graph import get_neo4j_session
 from src.graph.models import Concept, Person, Work
 
-log = get_logger()
+log = get_logger(__name__)
 
 db = get_neo4j_session(clear=False)
 

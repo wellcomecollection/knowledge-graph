@@ -1,9 +1,9 @@
-from structlog import get_logger
+from src.utils import get_logger
 
 from src.graph import get_neo4j_session
 from src.graph.models import Concept
 
-log = get_logger()
+log = get_logger(__name__)
 db = get_neo4j_session(clear=False)
 
 log.info("Getting second order concepts and connections")

@@ -4,7 +4,7 @@ from time import sleep
 from neo4j.exceptions import ServiceUnavailable
 from neomodel import config, db
 from neomodel.util import clear_neo4j_database
-from structlog import get_logger
+from ..utils import get_logger
 
 from ..enrich.loc import (
     get_loc_data,
@@ -28,7 +28,7 @@ from ..enrich.wikidata import (
     get_wikidata_variant_names,
 )
 
-log = get_logger()
+log = get_logger(__name__)
 
 
 def get_neo4j_session(clear=True):
