@@ -5,5 +5,5 @@ COPY requirements.in requirements.in
 RUN pip-compile
 RUN pip install -r requirements.txt
 
-COPY *.py /app/
-COPY src /app/src/
+COPY *.py /
+COPY src /src

@@ -13,10 +13,10 @@ def get_loc_id_from_wikidata(wikidata):
 
 def get_loc_data(source_id):
     source_type = "subjects" if source_id.startswith("s") else "names"
-    url = f"http://id.loc.gov/authorities/{source_type}/{source_id}.json"
+    url = f"http://id.loc.gov/authorities/{source_type}/{source_id}.skos.json"
     try:
         response = fetch_json(url)
-        key = url.replace(".json", "")
+        key = url.replace(".skos.json", "")
         for element in response:
             if element["@id"] == key:
                 return element
@@ -47,7 +47,6 @@ def get_wikidata_id_from_loc_data(loc_data):
     keys = [
         "http://www.w3.org/2004/02/skos/core#exactMatch",
         "http://www.w3.org/2004/02/skos/core#closeMatch",
-        "http://www.loc.gov/mads/rdf/v1#hasCloseExternalAuthority",
     ]
     for key in keys:
         if key in loc_data:

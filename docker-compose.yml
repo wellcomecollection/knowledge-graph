@@ -53,7 +53,6 @@ services:
 
   graph:
     build: pipeline
-    working_dir: /app
     env_file: .env
     depends_on:
       - neo4j
@@ -65,7 +64,6 @@ services:
 
   neighbours:
     build: pipeline
-    working_dir: /app
     env_file: .env
     depends_on:
       - neo4j
@@ -77,7 +75,6 @@ services:
 
   reindex:
     build: pipeline
-    working_dir: /app
     env_file: .env
     depends_on:
       - neo4j
@@ -89,7 +86,6 @@ services:
 
   pipeline:
     build: pipeline
-    working_dir: /app
     env_file: .env
     depends_on:
       - neo4j

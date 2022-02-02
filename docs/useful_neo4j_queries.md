@@ -17,3 +17,17 @@ MATCH (n:Work) RETURN count(n) as count
 ```
 MATCH p=()-[r:CONTRIBUTED_TO|HAS_CONCEPT]->() WITH p, rand() AS r ORDER BY r RETURN p LIMIT 1000
 ```
+
+## Get nodes within a certain distance of a node
+
+```
+MATCH (n {name: 'rome (italy)'})
+CALL apoc.path.subgraphNodes(
+    n, 
+    {
+        maxLevel: 3, 
+        relationshipFilter: "HAS_NEIGHBOUR|HAS_CONCEPT|CONTRIBUTED_TO"
+    }
+) YIELD node
+RETURN node
+```

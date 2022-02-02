@@ -48,5 +48,5 @@ def wait_until_neo4j_is_live():
             db.cypher_query("MATCH (n) RETURN n LIMIT 1")
             break
         except ServiceUnavailable:
-            log.info("Connecting to neo4j...")
             sleep(5)
+            log.info("Connecting to neo4j...")

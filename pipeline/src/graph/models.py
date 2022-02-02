@@ -260,7 +260,7 @@ class Concept(BaseConcept):
             else:
                 neighbour_concept_wikidata = get_wikidata(wikidata_id)
                 name = get_wikidata_preferred_name(neighbour_concept_wikidata)
-                log.debug(
+                log.info(
                     "Creating neighbour concept",
                     wikidata_id=wikidata_id,
                     name=name,
@@ -289,7 +289,7 @@ class Concept(BaseConcept):
 
     def _get_loc_neighbours(self, source_id, source_type):
         loc_data = get_loc_data(source_id)
-        key = "http://www.loc.gov/mads/rdf/v1#hasBroaderAuthority"
+        key = "http://www.w3.org/2004/02/skos/core#broader"
         if key in loc_data:
             related_ids = [
                 Path(authority["@id"]).name for authority in loc_data[key]
@@ -309,7 +309,7 @@ class Concept(BaseConcept):
                 neighbour_concept = neighbour_source_concept.parent.all()[0]
             else:
                 neighbour_concept_loc_data = get_loc_data(loc_id)
-                log.debug("Creating neighbour concept", loc_id=loc_id)
+                log.info("Creating neighbour concept", loc_id=loc_id)
                 neighbour_concept = Concept(
                     name=get_loc_preferred_name(neighbour_concept_loc_data)
                 ).save()
@@ -361,7 +361,7 @@ class Concept(BaseConcept):
                 neighbour_concept = neighbour_source_concept.parent.all()[0]
             else:
                 neighbour_concept_mesh_data = get_mesh_data(mesh_id)
-                log.debug("Creating neighbour concept", mesh_id=mesh_id)
+                log.info("Creating neighbour concept", mesh_id=mesh_id)
                 neighbour_concept = Concept(
                     name=get_mesh_preferred_name(neighbour_concept_mesh_data)
                 ).save()
