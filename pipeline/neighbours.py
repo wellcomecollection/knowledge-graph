@@ -1,7 +1,6 @@
-from src.utils import get_logger
-
 from src.graph import get_neo4j_session
 from src.graph.models import Concept
+from src.utils import get_logger
 
 log = get_logger(__name__)
 db = get_neo4j_session(clear=False)

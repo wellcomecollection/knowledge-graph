@@ -12,11 +12,11 @@ from neomodel import (
 )
 
 from . import (
-    get_logger,
     get_loc_data,
     get_loc_id_from_wikidata,
     get_loc_preferred_name,
     get_loc_variant_names,
+    get_logger,
     get_mesh_data,
     get_mesh_description,
     get_mesh_id_from_wikidata,
@@ -266,8 +266,7 @@ class Concept(BaseConcept):
                     name=name,
                 )
                 neighbour_concept = Concept(
-                    name=get_wikidata_preferred_name(
-                        neighbour_concept_wikidata)
+                    name=get_wikidata_preferred_name(neighbour_concept_wikidata)
                 ).save()
                 neighbour_concept.collect_sources(
                     source_id=wikidata_id, source_type="wikidata"
@@ -289,13 +288,26 @@ class Concept(BaseConcept):
 
     def _get_loc_neighbours(self, source_id, source_type):
         loc_data = get_loc_data(source_id)
-        key = "http://www.w3.org/2004/02/skos/core#broader"
-        if key in loc_data:
-            related_ids = [
-                Path(authority["@id"]).name for authority in loc_data[key]
-            ]
-        else:
-            related_ids = []
+        related_ids = []
+        keys = [
+            "http://www.w3.org/2004/02/skos/core#broader",
+            "http://www.w3.org/2004/02/skos/core#narrower",
+        ]
+        for key in keys:
+            if key in loc_data:
+                related_ids.extend(
+                    [Path(authority["@id"]).name for authority in loc_data[key]]
+                )
+        if "http://www.loc.gov/mads/rdf/v1#componentList" in loc_data:
+            related_ids.extend(
+                [
+                    Path(component["@id"]).name
+                    for component in loc_data[
+                        "http://www.loc.gov/mads/rdf/v1#componentList"
+                    ][0]["@list"]
+                ]
+            )
+
         for loc_id in related_ids:
             log.debug("Found related loc id", loc_id=loc_id)
             neighbour_source_concept = SourceConcept.nodes.get_or_none(
@@ -335,53 +347,67 @@ class Concept(BaseConcept):
                 self.neighbours.connect(neighbour_concept)
 
     def _get_mesh_neighbours(self, mesh_id):
-        mesh_data = get_mesh_data(mesh_id)
         try:
-            if isinstance(mesh_data["seeAlso"], list):
-                related_ids = [
-                    Path(related).name for related in mesh_data["seeAlso"]
-                ]
-            elif isinstance(mesh_data["seeAlso"], str):
-                related_ids = [Path(mesh_data["seeAlso"]).name]
-            else:
-                related_ids = []
-        except (KeyError, TypeError):
+            mesh_data = get_mesh_data(mesh_id)
             related_ids = []
+            keys = [
+                "seeAlso",
+                "hasDescriptor",
+                "hasQualifier",
+                "broaderDescriptor",
+                "broaderQualifier",
+            ]
+            for key in keys:
+                if key in mesh_data:
+                    if isinstance(mesh_data[key], list):
+                        related_ids.extend(
+                            [Path(related).name for related in mesh_data[key]]
+                        )
+                    elif isinstance(mesh_data[key], str):
+                        related_ids.append(Path(mesh_data[key]).name)
 
-        for mesh_id in related_ids:
-            log.debug("Found related mesh id", mesh_id=mesh_id)
-            neighbour_source_concept = SourceConcept.nodes.get_or_none(
-                source_id=mesh_id, source_type="nlm-mesh"
-            )
-            if neighbour_source_concept:
-                log.debug(
-                    "Found existing mesh neighbour source concept",
-                    mesh_id=mesh_id,
-                )
-                neighbour_concept = neighbour_source_concept.parent.all()[0]
-            else:
-                neighbour_concept_mesh_data = get_mesh_data(mesh_id)
-                log.info("Creating neighbour concept", mesh_id=mesh_id)
-                neighbour_concept = Concept(
-                    name=get_mesh_preferred_name(neighbour_concept_mesh_data)
-                ).save()
-                neighbour_concept.collect_sources(
+            for mesh_id in related_ids:
+                log.debug("Found related mesh id", mesh_id=mesh_id)
+                neighbour_source_concept = SourceConcept.nodes.get_or_none(
                     source_id=mesh_id, source_type="nlm-mesh"
                 )
-            if neighbour_concept == self:
-                log.debug(
-                    "Skipping neighbour, concept is the same",
-                    concept_name=self.name,
-                    neighbour_name=neighbour_concept.name,
-                )
-                continue
-            else:
-                log.debug(
-                    "Connecting neighbour",
-                    concept_name=self.name,
-                    neighbour_name=neighbour_concept.name,
-                )
-                self.neighbours.connect(neighbour_concept)
+                if neighbour_source_concept:
+                    log.debug(
+                        "Found existing mesh neighbour source concept",
+                        mesh_id=mesh_id,
+                    )
+                    neighbour_concept = neighbour_source_concept.parent.all()[0]
+                else:
+                    neighbour_concept_mesh_data = get_mesh_data(mesh_id)
+                    log.info("Creating neighbour concept", mesh_id=mesh_id)
+                    neighbour_concept = Concept(
+                        name=get_mesh_preferred_name(
+                            neighbour_concept_mesh_data
+                        )
+                    ).save()
+                    neighbour_concept.collect_sources(
+                        source_id=mesh_id, source_type="nlm-mesh"
+                    )
+                if neighbour_concept == self:
+                    log.debug(
+                        "Skipping neighbour, concept is the same",
+                        concept_name=self.name,
+                        neighbour_name=neighbour_concept.name,
+                    )
+                    continue
+                else:
+                    log.debug(
+                        "Connecting neighbour",
+                        concept_name=self.name,
+                        neighbour_name=neighbour_concept.name,
+                    )
+                    self.neighbours.connect(neighbour_concept)
+        except TypeError as e:
+            log.error(
+                "Error getting mesh neighbours",
+                mesh_id=mesh_id,
+                error=e,
+            )
 
 
 class Person(Concept):

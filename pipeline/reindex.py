@@ -1,8 +1,6 @@
 import json
 import os
 
-from src.utils import get_logger
-
 from elasticsearch import Elasticsearch
 from src.elasticsearch import (
     format_concept_for_elasticsearch,
@@ -12,6 +10,7 @@ from src.elasticsearch import (
 )
 from src.graph import get_neo4j_session
 from src.graph.models import Concept, Person, Work
+from src.utils import get_logger
 
 log = get_logger(__name__)
 

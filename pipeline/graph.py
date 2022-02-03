@@ -3,7 +3,6 @@ import os
 from pathlib import Path
 
 import pandas as pd
-from src.utils import get_logger
 
 from src.elasticsearch import yield_popular_works
 from src.enrich.wikidata import (
@@ -16,7 +15,7 @@ from src.enrich.wikidata import (
 )
 from src.graph import get_neo4j_session
 from src.graph.models import Concept, Person, SourceConcept, Work
-from src.utils import clean, clean_csv
+from src.utils import clean, clean_csv, get_logger
 
 log = get_logger(__name__)
 
@@ -106,7 +105,11 @@ works_generator = yield_popular_works(
 )
 
 for document in works_generator:
-    work_data = document["_source"]["data"]
+    try:
+        work_data = document["_source"]["data"]
+    except KeyError as e:
+        log.error("No data found in document", error=e)
+        continue
     log.info("Processing work", work_id=document["_id"])
     work = Work(
         wellcome_id=document["_id"], title=work_data["title"], type="work"

@@ -12,6 +12,9 @@
         "contributor_ids": {
             "type": "keyword"
         },
+        "published": {
+            "type": "date"
+        },
         "concepts": {
             "type": "text",
             "fields": {
@@ -50,6 +53,36 @@
             }
         },
         "title": {
+            "type": "text",
+            "fields": {
+                "english": {
+                    "type": "text",
+                    "analyzer": "english_analyzer"
+                },
+                "shingles": {
+                    "type": "text",
+                    "analyzer": "shingle_asciifolding_analyzer"
+                }
+            }
+        },
+        "wikidata_id": {
+            "type": "keyword",
+            "normalizer": "lowercase_normalizer"
+        },
+        "standfirst": {
+            "type": "text",
+            "fields": {
+                "english": {
+                    "type": "text",
+                    "analyzer": "english_analyzer"
+                },
+                "shingles": {
+                    "type": "text",
+                    "analyzer": "shingle_asciifolding_analyzer"
+                }
+            }
+        },
+        "full_text": {
             "type": "text",
             "fields": {
                 "english": {

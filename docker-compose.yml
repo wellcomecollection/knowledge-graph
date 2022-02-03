@@ -94,6 +94,4 @@ services:
         source: ./data
         target: /data
     command: > 
-      sh -c "python graph.py &&
-             python neighbours.py &&
-             python reindex.py"
+      sh -c "python graph.py && python neighbours.py"

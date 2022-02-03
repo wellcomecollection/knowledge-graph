@@ -1,18 +1,19 @@
-import os
 import json
+import os
 from pathlib import Path
 from time import sleep
 
-from httpx import Client, Request, TimeoutException
 import structlog
+from httpx import Client, Request, TimeoutException
 
 http_client = Client(timeout=30)
 
 base_cache_dir = Path("/data/cache")
 base_cache_dir.mkdir(exist_ok=True)
 
-log_level = structlog.stdlib._NAME_TO_LEVEL[os.environ.get(
-    "LOG_LEVEL", "INFO").lower()]
+log_level = structlog.stdlib._NAME_TO_LEVEL[
+    os.environ.get("LOG_LEVEL", "INFO").lower()
+]
 structlog.configure(
     wrapper_class=structlog.make_filtering_bound_logger(log_level),
 )
