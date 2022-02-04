@@ -169,8 +169,8 @@ terraform.rc
 .vscode
 
 data/**/*
+**/cache/**/*
 !data/**/
 !**/.gitkeep
 !**/README.md
-!data/elastic/**/*.json
 

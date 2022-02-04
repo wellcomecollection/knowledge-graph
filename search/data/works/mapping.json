@@ -94,6 +94,9 @@
                     "analyzer": "shingle_asciifolding_analyzer"
                 }
             }
+        },
+        "type": {
+            "type": "keyword"
         }
     }
 }

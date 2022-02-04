@@ -32,18 +32,12 @@ from . import (
 log = get_logger(__name__)
 
 
-class BaseConcept(StructuredNode):
-    name = StringProperty(required=True)
-    uid = UniqueIdProperty()
-    sources = RelationshipTo("SourceConcept", "HAS_SOURCE_CONCEPT")
-
-
 class Work(StructuredNode):
     uid = UniqueIdProperty()
     wellcome_id = StringProperty(unique_index=True, required=True)
     title = StringProperty(required=True)
     concepts = RelationshipFrom("Concept", "HAS_CONCEPT")
-    contributors = RelationshipFrom("Person", "CONTRIBUTED_TO")
+    contributors = RelationshipFrom("Concept", "CONTRIBUTED_TO")
     published = DateProperty()
     wikidata_id = StringProperty(unique_index=True)
     type = StringProperty(
@@ -64,12 +58,22 @@ class SourceConcept(StructuredNode):
     description = StringProperty()
     preferred_name = StringProperty()
     variant_names = ArrayProperty(StringProperty())
-    parent = RelationshipFrom("BaseConcept", "HAS_SOURCE_CONCEPT")
+    parent = RelationshipFrom("Concept", "HAS_SOURCE_CONCEPT")
 
 
-class Concept(BaseConcept):
+class Concept(StructuredNode):
+    name = StringProperty(required=True)
+    uid = UniqueIdProperty()
+    sources = RelationshipTo("SourceConcept", "HAS_SOURCE_CONCEPT")
     works = RelationshipTo("Work", "HAS_CONCEPT")
     neighbours = Relationship("Concept", "HAS_NEIGHBOUR")
+    contributed_to_work = RelationshipTo("Work", "CONTRIBUTED_TO")
+    type = StringProperty(
+        default="concept",
+        choices={
+            c: c for c in ["concept", "person"]
+        },
+    )
 
     def collect_sources(self, source_id, source_type):
         if source_type == "wikidata":
@@ -266,7 +270,8 @@ class Concept(BaseConcept):
                     name=name,
                 )
                 neighbour_concept = Concept(
-                    name=get_wikidata_preferred_name(neighbour_concept_wikidata)
+                    name=get_wikidata_preferred_name(
+                        neighbour_concept_wikidata)
                 ).save()
                 neighbour_concept.collect_sources(
                     source_id=wikidata_id, source_type="wikidata"
@@ -376,7 +381,8 @@ class Concept(BaseConcept):
                         "Found existing mesh neighbour source concept",
                         mesh_id=mesh_id,
                     )
-                    neighbour_concept = neighbour_source_concept.parent.all()[0]
+                    neighbour_concept = neighbour_source_concept.parent.all()[
+                        0]
                 else:
                     neighbour_concept_mesh_data = get_mesh_data(mesh_id)
                     log.info("Creating neighbour concept", mesh_id=mesh_id)
@@ -408,7 +414,3 @@ class Concept(BaseConcept):
                 mesh_id=mesh_id,
                 error=e,
             )
-
-
-class Person(Concept):
-    contributed_to_work = RelationshipTo("Work", "CONTRIBUTED_TO")

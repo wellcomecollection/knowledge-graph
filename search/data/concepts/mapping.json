@@ -13,7 +13,20 @@
                 }
             }
         },
-        "preferred_name": {
+        "mesh_preferred_name": {
+            "type": "text",
+            "fields": {
+                "keyword": {
+                    "type": "keyword",
+                    "normalizer": "lowercase_normalizer"
+                },
+                "english": {
+                    "type": "text",
+                    "analyzer": "english_analyzer"
+                }
+            }
+        },
+        "lcsh_preferred_name": {
             "type": "text",
             "fields": {
                 "keyword": {
@@ -56,7 +69,19 @@
             "type": "text",
             "analyzer": "english_analyzer"
         },
+        "mesh_description": {
+            "type": "text",
+            "analyzer": "english_analyzer"
+        },
         "wikidata_id": {
+            "type": "keyword",
+            "normalizer": "lowercase_normalizer"
+        },
+        "lcsh_id": {
+            "type": "keyword",
+            "normalizer": "lowercase_normalizer"
+        },
+        "mesh_id": {
             "type": "keyword",
             "normalizer": "lowercase_normalizer"
         },
@@ -78,6 +103,9 @@
             }
         },
         "story_ids": {
+            "type": "keyword"
+        },
+        "type": {
             "type": "keyword"
         }
     }

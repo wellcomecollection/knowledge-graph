@@ -46,3 +46,29 @@ match (n:Concept)-[k:HAS_SOURCE_CONCEPT]->(f)
 where ((n.name contains ' - ') AND (f.source_type = 'nlm-mesh'))
 return n, f
 ```
+
+## Create a GDS graph of concepts
+
+```
+CALL gds.graph.create.cypher(
+  'concepts',
+  'MATCH (n:Concept) RETURN id(n) AS id',
+  'MATCH (n:Concept)-[r:HAS_NEIGHBOUR]->(m:Concept) RETURN id(n) AS source, id(m) AS target')
+YIELD
+  graphName AS graph, nodeQuery, nodeCount AS nodes, relationshipQuery, relationshipCount AS rels
+```
+
+## Measure the centrality of nodes in a graph
+
+```
+CALL gds.pageRank.stream(
+  'concepts', 
+  {
+    maxIterations: 20,
+    dampingFactor: 0.85
+  }
+)
+YIELD nodeId, score
+RETURN gds.util.asNode(nodeId).name AS name, score
+ORDER BY score DESC, name ASC
+```
