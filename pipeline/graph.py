@@ -1,5 +1,4 @@
 import datetime
-import os
 from pathlib import Path
 
 import pandas as pd
@@ -14,7 +13,7 @@ from src.enrich.wikidata import (
     get_wikidata_variant_names,
 )
 from src.graph import get_neo4j_session
-from src.graph.models import Concept, Person, SourceConcept, Work
+from src.graph.models import Concept, SourceConcept, Work
 from src.utils import clean, clean_csv, get_logger
 
 log = get_logger(__name__)
@@ -29,6 +28,7 @@ df = pd.read_excel(
 ).fillna("")
 
 
+# stories
 log.info("Processing stories")
 for _, story_data in df.iterrows():
     story_id = Path(story_data["URL"]).name
@@ -65,7 +65,9 @@ for _, story_data in df.iterrows():
                 variant_names=get_wikidata_variant_names(contributor_wikidata),
             ).save()
             log.debug("Creating person", name=source_concept.preferred_name)
-            person = Person(name=source_concept.preferred_name).save()
+            person = Concept(
+                name=source_concept.preferred_name, type="person"
+            ).save()
             person.sources.connect(source_concept)
         story.contributors.connect(person)
 
@@ -94,17 +96,10 @@ for _, story_data in df.iterrows():
                 concept = Concept(name=clean_concept_name).save()
         story.concepts.connect(concept)
 
+
+# works
 log.info("Processing works")
-
-works_generator = yield_popular_works(
-    size=10000,
-    index_name=os.environ["ELASTIC_PIPELINE_WORKS_INDEX"],
-    host=os.environ["ELASTIC_PIPELINE_HOST"],
-    username=os.environ["ELASTIC_PIPELINE_USERNAME"],
-    password=os.environ["ELASTIC_PIPELINE_PASSWORD"],
-)
-
-for document in works_generator:
+for document in yield_popular_works(size=1000):
     try:
         work_data = document["_source"]["data"]
     except KeyError as e:
@@ -124,11 +119,13 @@ for document in works_generator:
                 "Contributor has no source identifier",
                 contributor=clean_name,
             )
-            existing_person = Person.nodes.first_or_none(name=clean_name)
+            existing_person = Concept.nodes.first_or_none(
+                name=clean_name, type="person"
+            )
             if existing_person:
                 person = existing_person
             else:
-                person = Person(name=clean_name).save()
+                person = Concept(name=clean_name, type="person").save()
         else:
             source_id = source_identifier["value"]
             source_type = source_identifier["identifierType"]["id"]
@@ -157,8 +154,8 @@ for document in works_generator:
                     name=contributor["agent"]["label"],
                     source_id=source_id,
                 )
-                person = Person(
-                    name=clean(contributor["agent"]["label"])
+                person = Concept(
+                    name=clean(contributor["agent"]["label"]), type="person"
                 ).save()
                 person.collect_sources(
                     source_id=source_id,

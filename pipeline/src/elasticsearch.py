@@ -6,25 +6,27 @@ from elasticsearch.helpers import scan
 from .prismic import get_fulltext, get_standfirst
 
 
-def format_story_for_elasticsearch(story):
-    story_concepts = story.concepts.all()
-    concept_ids = [concept.uid for concept in story_concepts]
-    concept_names = [concept.name for concept in story_concepts]
+def format_work_for_elasticsearch(work):
+    work_concepts = work.concepts.all()
+    concept_ids = [concept.uid for concept in work_concepts]
+    concept_names = [concept.name for concept in work_concepts]
     concept_variants = [
         variant
-        for concept in story_concepts
+        for concept in work_concepts
         for source_concept in concept.sources.all()
         for variant in source_concept.variant_names
     ]
 
-    story_contributors = story.contributors.all()
-    contributor_ids = [contributor.uid for contributor in story_contributors]
+    work_contributors = work.contributors.all()
+    contributor_ids = [contributor.uid for contributor in work_contributors]
     contributors = [
-        contributor.sources.get(source_type="wikidata").preferred_name
-        for contributor in story_contributors
+        source_concept.preferred_name
+        for contributor in work_contributors
+        for source_concept in contributor.sources.all()
     ]
-    full_text = get_fulltext(story.wellcome_id)
-    standfirst = get_standfirst(story.wellcome_id)
+
+    full_text = get_fulltext(work.wellcome_id)
+    standfirst = get_standfirst(work.wellcome_id)
     return {
         "concept_ids": concept_ids,
         "concept_variants": concept_variants,
@@ -32,17 +34,18 @@ def format_story_for_elasticsearch(story):
         "contributors": contributors,
         "contributor_ids": contributor_ids,
         "full_text": full_text,
-        "published": story.published,
+        "published": work.published,
         "standfirst": standfirst,
-        "title": story.title,
-        "wikidata_id": story.wikidata_id,
+        "title": work.title,
+        "type": work.type,
+        "wikidata_id": work.wikidata_id,
     }
 
 
 def format_concept_for_elasticsearch(concept):
-    concept_stories = concept.stories.all()
-    stories = [story.title for story in concept_stories]
-    story_ids = [story.wellcome_id for story in concept_stories]
+    concept_works = concept.works.all()
+    works = [story.title for story in concept_works]
+    work_ids = [story.wellcome_id for story in concept_works]
     variants = [
         variant
         for source_concept in concept.sources.all()
@@ -51,8 +54,8 @@ def format_concept_for_elasticsearch(concept):
 
     document = {
         "name": concept.name,
-        "stories": stories,
-        "story_ids": story_ids,
+        "works": works,
+        "work_ids": work_ids,
         "variants": variants,
     }
 
@@ -95,65 +98,8 @@ def format_concept_for_elasticsearch(concept):
     return document
 
 
-def format_person_for_elasticsearch(person):
-    person_stories = (
-        person.contributed_to_work.all() + person.contributed_to_story.all()
-    )
-    stories = [story.title for story in person_stories]
-    story_ids = [story.wellcome_id for story in person_stories]
-    variants = [
-        variant
-        for source_concept in person.sources.all()
-        for variant in source_concept.variant_names
-    ]
-
-    document = {
-        "name": person.name,
-        "stories": stories,
-        "story_ids": story_ids,
-        "variants": variants,
-    }
-
-    wikidata_source = person.sources.get_or_none(source_type="wikidata")
-    if wikidata_source:
-        document.update(
-            {
-                "wikidata_description": wikidata_source.description,
-                "wikidata_id": wikidata_source.source_id,
-                "wikidata_preferred_name": wikidata_source.preferred_name,
-            }
-        )
-
-    return document
-
-
-def format_work_for_elasticsearch(work):
-    work_concepts = work.concepts.all()
-    concept_ids = [concept.uid for concept in work_concepts]
-    concept_names = [concept.name for concept in work_concepts]
-    concept_variants = [
-        variant
-        for concept in work_concepts
-        for source_concept in concept.sources.all()
-        for variant in source_concept.variant_names
-    ]
-
-    work_contributors = work.contributors.all()
-    contributor_ids = [contributor.uid for contributor in work_contributors]
-    contributors = [contributor.name for contributor in work_contributors]
-
-    return {
-        "concept_ids": concept_ids,
-        "concept_variants": concept_variants,
-        "concepts": concept_names,
-        "contributors": contributors,
-        "contributor_ids": contributor_ids,
-        "title": work.title,
-    }
-
-
-def get_popular_work_ids(size):
-    es = Elasticsearch(
+def yield_popular_works(size=10_000):
+    reporting_es = Elasticsearch(
         os.environ["ELASTIC_REPORTING_HOST"],
         http_auth=(
             os.environ["ELASTIC_REPORTING_USERNAME"],
@@ -163,40 +109,42 @@ def get_popular_work_ids(size):
         retry_on_timeout=True,
         max_retries=10,
     )
-    query = {
-        "size": 0,
-        "query": {
-            "bool": {
-                "must": [
-                    {"term": {"page.name": {"value": "work"}}},
-                    {"range": {"@timestamp": {"gte": "2021-09-01"}}},
-                ]
-            }
-        },
-        "aggs": {
-            "popular_works": {"terms": {"field": "page.query.id", "size": size}}
-        },
-    }
 
-    response = es.search(index="metrics-conversion-prod", body=query)
+    response = reporting_es.search(
+        index="metrics-conversion-prod",
+        body={
+            "size": 0,
+            "query": {
+                "bool": {
+                    "must": [
+                        {"term": {"page.name": {"value": "work"}}},
+                        {"range": {"@timestamp": {"gte": "2021-09-01"}}},
+                    ]
+                }
+            },
+            "aggs": {
+                "popular_works": {"terms": {"field": "page.query.id", "size": size}}
+            },
+        }
+    )
     popular_work_ids = [
         bucket["key"]
         for bucket in response["aggregations"]["popular_works"]["buckets"]
     ]
-    return popular_work_ids
 
-
-def yield_popular_works(index_name, host, username, password, size=10_000):
-    popular_work_ids = get_popular_work_ids(size)
-    return scan(
-        Elasticsearch(
-            host,
-            http_auth=(username, password),
-            timeout=30,
-            retry_on_timeout=True,
-            max_retries=10,
+    pipeline_es = Elasticsearch(
+        os.environ["ELASTIC_PIPELINE_HOST"],
+        http_auth=(
+            os.environ["ELASTIC_PIPELINE_USERNAME"],
+            os.environ["ELASTIC_PIPELINE_PASSWORD"]
         ),
-        index=index_name,
+        timeout=30,
+        retry_on_timeout=True,
+        max_retries=10,
+    )
+    works_generator = scan(
+        pipeline_es,
+        index=os.environ["ELASTIC_PIPELINE_WORKS_INDEX"],
         query={
             "query": {
                 "bool": {
@@ -213,3 +161,4 @@ def yield_popular_works(index_name, host, username, password, size=10_000):
         scroll="30m",
         preserve_order=True,
     )
+    return works_generator
