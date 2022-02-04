@@ -3,6 +3,7 @@ import os
 from pathlib import Path
 
 from elasticsearch import Elasticsearch
+from elasticsearch.helpers import bulk
 from src.elasticsearch import (
     format_concept_for_elasticsearch,
     format_work_for_elasticsearch,
@@ -40,13 +41,20 @@ es.indices.create(
 )
 
 log.info("Populating the works index")
-for work in Work.nodes.all():
-    log.info("Indexing work", work=work.wellcome_id)
-    es.index(
-        index=works_index_name,
-        id=work.wellcome_id,
-        document=format_work_for_elasticsearch(work),
-    )
+works_generator = (
+    {
+        "_index": works_index_name,
+        "_id": work.wellcome_id,
+        **format_work_for_elasticsearch(work)
+    }
+    for work in Work.nodes.all()
+)
+bulk(
+    es,
+    works_generator,
+    chunk_size=100,
+    request_timeout=60
+)
 
 
 # concepts
@@ -66,10 +74,17 @@ es.indices.create(
 )
 
 log.info("Populating the concepts index")
-for concept in Concept.nodes.all():
-    log.info("Indexing concept", concept=concept.name)
-    es.index(
-        index=concepts_index_name,
-        id=concept.uid,
-        document=format_concept_for_elasticsearch(concept),
-    )
+concepts_generator = (
+    {
+        "_index": concepts_index_name,
+        "_id": concept.uid,
+        **format_concept_for_elasticsearch(concept)
+    }
+    for concept in Concept.nodes.all()
+)
+bulk(
+    es,
+    concepts_generator,
+    chunk_size=100,
+    request_timeout=60
+)
