@@ -1,64 +1,31 @@
 # Graph Structure
 
-As I see it, the best way of representing a concept in the graph store is as follows:
+![Graph structure](./structure.png)
 
-![concept graph](./concept_graph.png)
+The graph is composed of nodes and relationships, as illustrated in the figure above.
 
-the incoming json might look like:
+The types are more precisely defined in `neomodel` in the [pipeline](/pipeline/) directory, but a basic overview is provided here.
 
-```json
-{
-  "label": "charles darwin",
-  "type": "name",
-  "children": [
-    {
-      "label": "Q1035",
-      "type": "wikidata_id",
-      "children": [
-        {
-          "label": "Charles Robert Darwin",
-          "type": "name",
-          "children": []
-        },
-        {
-          "label": "Darwin",
-          "type": "name",
-          "children": []
-        },
-        {
-          "label": "Darwin, Charles",
-          "type": "name",
-          "children": []
-        },
-        {
-          "label": "n78095637",
-          "type": "congress_id",
-          "children": [
-            {
-              "label": "Daerwen, 1809-1882",
-              "type": "name",
-              "children": []
-            },
-            {
-              "label": "Darvin, Charl'z, 1809-1882",
-              "type": "name",
-              "children": []
-            },
-            {
-              "label": "Darvin, Čarls, 1809-1882",
-              "type": "name",
-              "children": []
-            }
-          ]
-        }
-      ]
-    }
-  ]
-}
-```
+## Nodes
 
-Here, each node represents a single piece of information, and the structure of the edges between them represents how they're connected. In this way, each disconnected subgraph in the database represents a single `concept`, being comprised of all of its variant names, identifiers and other metadata which might be added in the future.
+Three major types of node exist:
 
-When an enricher/other pipeline service sends a query for a known term to the graph store, we ask for all the `name` nodes from the graph that contains the queried node. For example, asking the concepts store for `charles darwin` will return the full list of connected `name`s in the graph above, including `charles darwin`.
+- **Work**, with two variants
+  - `type=work` from the collection <https://wellcomecollection.org/collections>
+  - `type=story` from the published editorial pieces <https://wellcomecollection.org/stories>
+- **Concept**, with two variants
+  - `type=person` for contributors to works
+  - `type=concept` for anything else
+- **SourceConcept**, the data about the concept from one of four sources
+  - `source_type=wikidata` for concepts from Wikidata
+  - `source_type=nlm-mesh` for concepts from MeSH (Medical Subject Headings)
+  - `source_type=lc-subjects` for concepts from LCSH (Library of Congress Subject Headings)
+  - `source_type=lc-names` for concepts from LC Names (Library of Congress Name Authority File)
 
-This structure should maximise the concepts' versatility, minimise duplication of data, and give us the most freedom to express different relationships _between_ and _within_ concepts.
+## Relationships
+
+- **HAS_CONCEPT**, from a work to a concept
+- **HAS_SOURCE_CONCEPT**, from a concept to a source concept
+- **CONTRIBUTED_TO**, from a person-type concept to a work
+- **HAS_NEIGHBOUR**, from a concept to another concept
+
