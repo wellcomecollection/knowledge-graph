@@ -1,4 +1,4 @@
-import { Concept, Person, Story } from '../types/elasticsearch'
+import { Concept, Work } from '../types/elasticsearch'
 import { GetServerSideProps, NextPage } from 'next'
 
 import ConceptPanel from '../components/ConceptPanel'
@@ -14,9 +14,9 @@ type Props = {
   conceptId: string
   personId: string
   total: number
-  stories: Story[]
+  works: Work[]
   concept: Concept | null
-  person: Person | null
+  person: Concept | null
   page: number
 }
 
@@ -30,9 +30,9 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({
   const personId = qs.person ? qs.person.toString() : ''
 
   let total: number = 0
-  let stories: Story[] = []
+  let works: Work[] = []
   let concept: Concept | null = null
-  let person: Person | null = null
+  let person: Concept | null = null
   if (query || conceptId) {
     let url = new URL(`${absoluteUrl(req).origin}/api/search`)
     if (query) {
@@ -48,8 +48,8 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({
       url.searchParams.append('page', page.toString())
     }
     const response = await fetch(url.toString()).then((res) => res.json())
-    total = response.stories.total
-    stories = response.stories.results
+    total = response.works.total
+    works = response.works.results
     concept = response.concept.length > 0 ? response.concept[0] : null
     person = response.person.length > 0 ? response.person[0] : null
   }
@@ -60,7 +60,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({
       personId,
       person,
       total,
-      stories,
+      works,
       concept,
       page,
     },
@@ -72,7 +72,7 @@ const Search: NextPage<Props> = ({
   conceptId,
   personId,
   total,
-  stories,
+  works,
   concept,
   person,
   page,
@@ -82,12 +82,10 @@ const Search: NextPage<Props> = ({
       title="Stories search"
       description="Search for stories on wellcomecollection.org/stories"
     >
-      <h1>Stories search</h1>
+      <h1>Knowledge-graph search</h1>
       <p>
-        Search for stories on{' '}
-        <a href="https://wellcomecollection.org/stories">
-          wellcomecollection.org/stories
-        </a>
+        Search for works and concepts from{' '}
+        <a href="https://wellcomecollection.org/">Wellcome Collection</a>.
       </p>
       <div className="pt-4">
         <SearchBox query={query} />
@@ -110,9 +108,9 @@ const Search: NextPage<Props> = ({
         ) : null}
       </div>
       <ul className="space-y-5 divide-y divide-gray-400">
-        {stories.map((story) => (
-          <li key={story.id} className="pt-4">
-            <SearchResult story={story} />
+        {works.map((work) => (
+          <li key={work.id} className="pt-4">
+            <SearchResult work={work} />
           </li>
         ))}
       </ul>
@@ -122,7 +120,7 @@ const Search: NextPage<Props> = ({
         query={query}
         conceptId={conceptId}
         personId={personId}
-        stories={stories}
+        works={works}
       />
     </Layout>
   )

@@ -5,7 +5,6 @@
                 "query": "{{query}}",
                 "fields": [
                     "variants",
-                    "variants.*",
                     "name",
                     "name.*",
                     "wikidata_preferred_name",

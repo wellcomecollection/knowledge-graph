@@ -1,11 +1,4 @@
-import {
-  Concept,
-  ConceptHit,
-  Person,
-  PersonHit,
-  Story,
-  StoryHit,
-} from '../types/elasticsearch'
+import { Concept, ConceptHit, Work, WorkHit } from '../types/elasticsearch'
 
 import { Client } from '@elastic/elasticsearch'
 
@@ -27,13 +20,14 @@ export function getClient(): Client {
 
 export function parseConcept(conceptHit: ConceptHit): Concept {
   const concept = conceptHit._source
-  const stories = concept.stories.map((storyTitle, index) => {
+  const works = concept.works.map((workTitle, index) => {
     return {
-      name: storyTitle,
-      id: concept.story_ids[index],
+      name: workTitle,
+      id: concept.work_ids[index],
     }
   })
   return {
+    type: concept.type,
     id: conceptHit._id,
     lcsh_id: concept.lcsh_id,
     lcsh_preferred_name: concept.lcsh_preferred_name,
@@ -41,7 +35,7 @@ export function parseConcept(conceptHit: ConceptHit): Concept {
     mesh_id: concept.mesh_id,
     mesh_preferred_name: concept.mesh_preferred_name,
     name: concept.name,
-    stories,
+    works,
     variants: concept.variants,
     wikidata_description: concept.wikidata_description,
     wikidata_id: concept.wikidata_id,
@@ -49,49 +43,31 @@ export function parseConcept(conceptHit: ConceptHit): Concept {
   }
 }
 
-export function parsePerson(personHit: PersonHit): Person {
-  const concept = personHit._source
-  const stories = concept.stories.map((storyTitle, index) => {
-    return {
-      name: storyTitle,
-      id: concept.story_ids[index],
-    }
-  })
-  return {
-    id: personHit._id,
-    name: concept.name,
-    stories,
-    variants: concept.variants,
-    wikidata_description: concept.wikidata_description,
-    wikidata_id: concept.wikidata_id,
-    wikidata_preferred_name: concept.wikidata_preferred_name,
-  }
-}
-
-export function parseStory(storyHit: StoryHit): Story {
-  const story = storyHit._source
-  const concepts = story.concepts.map((concept, index) => {
+export function parseWork(workHit: WorkHit): Work {
+  const work = workHit._source
+  const concepts = work.concepts.map((concept, index) => {
     return {
       name: concept,
-      id: story.concept_ids[index],
-      variants: story.concept_variants[index],
+      id: work.concept_ids[index],
+      variants: work.concept_variants[index],
     }
   })
-  const contributors = story.contributors.map((contributor, index) => {
+  const contributors = work.contributors.map((contributor, index) => {
     return {
       name: contributor,
-      id: story.contributor_ids[index],
+      id: work.contributor_ids[index],
     }
   })
 
   return {
-    id: storyHit._id,
+    type: work.type,
+    id: workHit._id,
     contributors: contributors,
     concepts: concepts,
-    fulltext: story.fulltext,
-    published: new Date(story.published),
-    standfirst: story.standfirst,
-    title: story.title,
-    wikidata_id: story.wikidata_id,
+    fulltext: work.fulltext,
+    published: new Date(work.published),
+    standfirst: work.standfirst,
+    title: work.title,
+    wikidata_id: work.wikidata_id,
   }
 }

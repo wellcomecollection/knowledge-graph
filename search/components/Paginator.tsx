@@ -1,5 +1,5 @@
 import { FC } from 'react'
-import { Story } from '../types/elasticsearch'
+import { Work } from '../types/elasticsearch'
 
 type Props = {
   total: number
@@ -7,7 +7,7 @@ type Props = {
   query: string
   conceptId: string
   personId: string
-  stories: Story[]
+  works: Work[]
 }
 const Paginator: FC<Props> = ({
   total,
@@ -15,7 +15,7 @@ const Paginator: FC<Props> = ({
   query,
   conceptId,
   personId,
-  stories,
+  works,
 }) => {
   return total > 10 ? (
     <div className="pt-7 space-x-4">
@@ -30,7 +30,7 @@ const Paginator: FC<Props> = ({
         </a>
       ) : null}
       <span>Page {page}</span>
-      {!(stories.length < 10) ? (
+      {!(works.length < 10) ? (
         <a
           className="no-underline px-3 py-2 rounded border-2 border-black"
           href={`/${query ? `?query=${query}` : ''}${

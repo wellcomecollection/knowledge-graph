@@ -1,4 +1,4 @@
-export type SourceStory = {
+export type WorkSource = {
   contributors: string[]
   contributor_ids: string[]
   concepts: string[]
@@ -9,16 +9,18 @@ export type SourceStory = {
   standfirst: string
   title: string
   wikidata_id: string
+  type: string
 }
 
-export type StoryHit = {
+export type WorkHit = {
   _id: string
   _score: string
-  _source: SourceStory
+  _source: WorkSource
 }
 
-export type Story = {
+export type Work = {
   id: string
+  type: string
   contributors: {
     id: string
     name: string
@@ -35,65 +37,38 @@ export type Story = {
   wikidata_id: string
 }
 
-export type SourceConcept = {
+export type ConceptSource = {
   lcsh_id: string
   lcsh_preferred_name: string
   mesh_description: string
   mesh_id: string
   mesh_preferred_name: string
   name: string
-  stories: string[]
-  story_ids: string[]
+  works: string[]
+  work_ids: string[]
   variants: string[]
   wikidata_description: string
   wikidata_id: string
   wikidata_preferred_name: string
+  type: string
 }
 
 export type ConceptHit = {
   _id: string
   _score: string
-  _source: SourceConcept
+  _source: ConceptSource
 }
 
 export type Concept = {
   id: string
+  type: string
   lcsh_id: string
   lcsh_preferred_name: string
   mesh_description: string
   mesh_id: string
   mesh_preferred_name: string
   name: string
-  stories: {
-    name: string
-    id: string
-  }[]
-  variants: string[]
-  wikidata_description: string
-  wikidata_id: string
-  wikidata_preferred_name: string
-}
-
-export type SourcePerson = {
-  name: string
-  stories: string[]
-  story_ids: string[]
-  variants: string[]
-  wikidata_description: string
-  wikidata_id: string
-  wikidata_preferred_name: string
-}
-
-export type PersonHit = {
-  _id: string
-  _score: string
-  _source: SourcePerson
-}
-
-export type Person = {
-  id: string
-  name: string
-  stories: {
+  works: {
     name: string
     id: string
   }[]
