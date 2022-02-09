@@ -1,0 +1,28 @@
+{
+    "bool": {
+        "must": {
+            "multi_match": {
+                "query": "{{query}}",
+                "fields": [
+                    "variants",
+                    "name",
+                    "name.*",
+                    "wikidata_preferred_name",
+                    "wikidata_preferred_name.*",
+                    "wikidata_id",
+                    "lcsh_preferred_name",
+                    "lcsh_preferred_name.*",
+                    "lcsh_id",
+                    "mesh_preferred_name",
+                    "mesh_preferred_name.*",
+                    "mesh_id"
+                ]
+            }
+        },
+        "filter": {
+            "term": {
+                "type": "person"
+            }
+        }
+    }
+}

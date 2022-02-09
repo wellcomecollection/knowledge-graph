@@ -22,7 +22,7 @@ services:
       - neo4j
 
   neo4j:
-    image: neo4j:latest
+    image: neo4j:4.4.3
     volumes:
       - type: bind
         source: ./data/neo4j/data
@@ -30,6 +30,9 @@ services:
       - type: bind
         source: ./data/neo4j/logs
         target: /logs
+      - type: bind
+        source: ./data/neo4j/dump
+        target: /dump
     ports:
       - 7474:7474
       - 7473:7473
@@ -81,7 +84,7 @@ services:
     volumes:
       - type: bind
         source: ./search/data
-        target: /data/
+        target: /data
       - type: bind
         source: ./data/cache
         target: /data/cache
@@ -96,5 +99,5 @@ services:
       - type: bind
         source: ./data
         target: /data
-    command: > 
+    command: >
       sh -c "python graph.py && python neighbours.py && python reindex.py"

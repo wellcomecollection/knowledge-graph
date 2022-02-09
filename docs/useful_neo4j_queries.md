@@ -17,7 +17,7 @@ MATCH p=()-->() WITH p, rand() AS r ORDER BY r RETURN p LIMIT 1000
 ## Count the works
 
 ```
-MATCH (n:Work) RETURN count(n) as count
+MATCH (n:Work {type: "work"}) RETURN count(n) as count
 ```
 
 ## Get subset of relationship types

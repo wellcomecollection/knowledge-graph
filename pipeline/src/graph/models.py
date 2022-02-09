@@ -235,6 +235,8 @@ class Concept(StructuredNode):
             "P361",  # part of
             "P527",  # has part
             "P1542",  # has effect
+            "P460",  # said to be the same as
+            "P2579",  # studied by
         ]
         related_ids = []
         for claim_id in claims:
@@ -336,6 +338,7 @@ class Concept(StructuredNode):
                         "lc-subjects" if loc_id.startswith("s") else "lc-names"
                     ),
                 )
+
             if neighbour_concept == self:
                 log.debug(
                     "Skipping neighbour, concept is the same",
