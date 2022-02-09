@@ -73,10 +73,15 @@ const Concept: NextPage<Props> = (props) => {
         <div className="pt-2 grid grid-cols-1 md:grid-cols-3 md:space-x-4 md:space-y-0 space-x-0 space-y-4 h-auto">
           {props.fullWorks.map((work) => {
             const { _id, _source } = work
-            const { standfirst, title } = _source
+            const { standfirst, title, type } = _source
             return (
               <li className="inline-block" key={_id}>
-                <WorkCard title={title} id={_id} standfirst={standfirst} />
+                <WorkCard
+                  title={title}
+                  id={_id}
+                  standfirst={standfirst}
+                  type={type}
+                />
               </li>
             )
           })}

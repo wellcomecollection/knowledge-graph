@@ -4,7 +4,6 @@ import { GetServerSideProps, NextPage } from 'next'
 import ConceptPanel from '../components/ConceptPanel'
 import Layout from '../components/Layout'
 import Paginator from '../components/Paginator'
-import PersonPanel from '../components/PersonPanel'
 import SearchBox from '../components/SearchBox'
 import SearchResult from '../components/Hit'
 import absoluteUrl from 'next-absolute-url'
@@ -90,8 +89,8 @@ const Search: NextPage<Props> = ({
       <div className="pt-4">
         <SearchBox query={query} />
       </div>
-      {concept ? <ConceptPanel concept={concept} /> : null}
-      {person ? <PersonPanel person={person} /> : null}
+      {concept ? <ConceptPanel concept={concept} color={'green'} /> : null}
+      {person ? <ConceptPanel concept={person} color={'blue'} /> : null}
       <div className="pt-5">
         {query ? (
           `${total} results for "${query}"`
