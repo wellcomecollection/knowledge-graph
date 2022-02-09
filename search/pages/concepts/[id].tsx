@@ -1,12 +1,12 @@
 import {
-  SourceConcept as ConceptType,
-  StoryHit,
+  ConceptSource as ConceptType,
+  WorkHit,
 } from '../../types/elasticsearch'
 import { GetServerSideProps, NextPage } from 'next'
 
 import IdTable from '../../components/IdTable'
 import Layout from '../../components/Layout'
-import StoryCard from '../../components/StoryCard'
+import WorkCard from '../../components/WorkCard'
 import { getClient } from '../../services/elasticsearch'
 
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
@@ -17,20 +17,20 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
     id,
   })
 
-  const fullStories = (await client
+  const fullWorks = (await client
     .mget({
-      index: process.env.ELASTIC_STORIES_INDEX as string,
+      index: process.env.ELASTIC_WORKS_INDEX as string,
       body: {
-        ids: response.body._source.story_ids.slice(0, 3),
+        ids: response.body._source.work_ids.slice(0, 3),
       },
     })
     .then((res) => {
       return res.body.docs
-    })) as StoryHit[]
+    })) as WorkHit[]
 
-  return { props: { ...response.body._source, fullStories, id } }
+  return { props: { ...response.body._source, fullWorks, id } }
 }
-type Props = ConceptType & { fullStories: StoryHit[]; id: string }
+type Props = ConceptType & { fullWorks: WorkHit[]; id: string }
 
 const Concept: NextPage<Props> = (props) => {
   const description = props.wikidata_description || props.mesh_description
@@ -66,17 +66,17 @@ const Concept: NextPage<Props> = (props) => {
       ) : null}
       <div className="pt-4">
         <h2 className="text-lg font-bold">
-          {`We've written ${props.stories.length} stories about
+          {`We've got ${props.works.length} works about
           this concept:`}
         </h2>
 
         <div className="pt-2 grid grid-cols-1 md:grid-cols-3 md:space-x-4 md:space-y-0 space-x-0 space-y-4 h-auto">
-          {props.fullStories.map((story) => {
-            const { _id, _source } = story
+          {props.fullWorks.map((work) => {
+            const { _id, _source } = work
             const { standfirst, title } = _source
             return (
               <li className="inline-block" key={_id}>
-                <StoryCard title={title} id={_id} standfirst={standfirst} />
+                <WorkCard title={title} id={_id} standfirst={standfirst} />
               </li>
             )
           })}

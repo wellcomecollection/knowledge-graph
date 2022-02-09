@@ -5,7 +5,7 @@ import {
 import { GetServerSideProps, NextPage } from 'next'
 
 import Layout from '../../components/Layout'
-import StoryCard from '../../components/StoryCard'
+import StoryCard from '../../components/WorkCard'
 import { getClient } from '../../services/elasticsearch'
 
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
