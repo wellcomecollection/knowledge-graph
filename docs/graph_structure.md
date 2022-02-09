@@ -4,7 +4,7 @@
 
 The graph is composed of nodes and relationships, as illustrated in the figure above.
 
-The types are more precisely defined in `neomodel` in the [pipeline](/pipeline/) directory, but a basic overview is provided here.
+The types are more precisely defined in `neomodel` in the [pipeline directory](/pipeline/), but a basic overview is provided here.
 
 ## Nodes
 
@@ -28,4 +28,3 @@ Three major types of node exist:
 - **HAS_SOURCE_CONCEPT**, from a concept to a source concept
 - **CONTRIBUTED_TO**, from a person-type concept to a work
 - **HAS_NEIGHBOUR**, from a concept to another concept
-

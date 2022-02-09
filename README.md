@@ -16,3 +16,7 @@ By incorporating these sources, we can demonstrate a deeper understanding of eac
 ## What's a knowledge graph?
 
 A map of all the connections between concepts and works.
+
+## Further info
+
+See the [docs folder](/docs) for more information about the project architecture, running the pipeline/UI/graph store locally, etc.
