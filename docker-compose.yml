@@ -30,6 +30,9 @@ services:
       - type: bind
         source: ./data/neo4j/logs
         target: /logs
+      - type: bind
+        source: ./data/neo4j/dump
+        target: /dump
     ports:
       - 7474:7474
       - 7473:7473
