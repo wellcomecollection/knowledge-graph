@@ -99,7 +99,7 @@ for _, story_data in df.iterrows():
 
 # works
 log.info("Processing works")
-for document in yield_popular_works(size=1000):
+for document in yield_popular_works(size=10_000):
     try:
         work_data = document["_source"]["data"]
     except KeyError as e:

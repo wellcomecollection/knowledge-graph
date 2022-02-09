@@ -25,21 +25,26 @@ def format_work_for_elasticsearch(work):
         for source_concept in contributor.sources.all()
     ]
 
-    full_text = get_fulltext(work.wellcome_id)
-    standfirst = get_standfirst(work.wellcome_id)
-    return {
+    document = {
         "concept_ids": concept_ids,
         "concept_variants": concept_variants,
         "concepts": concept_names,
         "contributors": contributors,
         "contributor_ids": contributor_ids,
-        "full_text": full_text,
+        "contributors": contributors,
         "published": work.published,
-        "standfirst": standfirst,
         "title": work.title,
         "type": work.type,
-        "wikidata_id": work.wikidata_id,
+        "wikidata_id": work.wikidata_id
     }
+
+    if work.type == "story":
+        document.update({
+            "full_text": get_fulltext(work.wellcome_id),
+            "standfirst": get_standfirst(work.wellcome_id)
+        })
+
+    return document
 
 
 def format_concept_for_elasticsearch(concept):
@@ -54,6 +59,7 @@ def format_concept_for_elasticsearch(concept):
 
     document = {
         "name": concept.name,
+        "type": concept.type,
         "works": works,
         "work_ids": work_ids,
         "variants": variants,
