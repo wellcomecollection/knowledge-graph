@@ -70,9 +70,7 @@ class Concept(StructuredNode):
     contributed_to_work = RelationshipTo("Work", "CONTRIBUTED_TO")
     type = StringProperty(
         default="concept",
-        choices={
-            c: c for c in ["concept", "person"]
-        },
+        choices={c: c for c in ["concept", "person"]},
     )
 
     def collect_sources(self, source_id, source_type):
@@ -272,8 +270,7 @@ class Concept(StructuredNode):
                     name=name,
                 )
                 neighbour_concept = Concept(
-                    name=get_wikidata_preferred_name(
-                        neighbour_concept_wikidata)
+                    name=get_wikidata_preferred_name(neighbour_concept_wikidata)
                 ).save()
                 neighbour_concept.collect_sources(
                     source_id=wikidata_id, source_type="wikidata"
@@ -384,8 +381,7 @@ class Concept(StructuredNode):
                         "Found existing mesh neighbour source concept",
                         mesh_id=mesh_id,
                     )
-                    neighbour_concept = neighbour_source_concept.parent.all()[
-                        0]
+                    neighbour_concept = neighbour_source_concept.parent.all()[0]
                 else:
                     neighbour_concept_mesh_data = get_mesh_data(mesh_id)
                     log.info("Creating neighbour concept", mesh_id=mesh_id)

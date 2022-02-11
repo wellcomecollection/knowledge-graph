@@ -23,20 +23,20 @@ def get_slices(id, ref=master_ref):
     return slices
 
 
-def get_fulltext(id):
+def get_fulltext(slices):
     paragraphs = [
         paragraph["text"]
-        for slice in get_slices(id)
+        for slice in slices
         if slice["slice_type"] == "text"
         for paragraph in slice["primary"]["text"]
     ]
     return "\n".join(paragraphs)
 
 
-def get_standfirst(id):
+def get_standfirst(slices):
     paragraphs = [
         paragraph["text"]
-        for slice in get_slices(id)
+        for slice in slices
         if slice["slice_type"] == "standfirst"
         for paragraph in slice["primary"]["text"]
     ]

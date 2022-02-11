@@ -50,14 +50,33 @@
                 }
             },
             {
+                "match": {
+                    "standfirst": {
+                        "query": "{{query}}",
+                        "_name": "standfirst",
+                        "operator": "OR",
+                        "boost": 10
+                    }
+                }
+            },
+            {
                 "multi_match": {
                     "fields": [
-                        "description",
-                        "description.*",
-                        "notes",
-                        "notes.*",
-                        "title",
-                        "title.*"
+                        "full_text",
+                        "full_text.*"
+                    ],
+                    "query": "{{query}}",
+                    "_name": "full_text",
+                    "operator": "OR",
+                    "boost": 5
+                }
+            },
+            {
+                "multi_match": {
+                    "fields": [
+                        "standfirst",
+                        "full_text",
+                        "title"
                     ],
                     "query": "{{query}}",
                     "_name": "fuzz",

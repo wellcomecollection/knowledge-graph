@@ -12,6 +12,9 @@
         "contributor_ids": {
             "type": "keyword"
         },
+        "published": {
+            "type": "date"
+        },
         "concepts": {
             "type": "text",
             "fields": {
@@ -62,7 +65,11 @@
                 }
             }
         },
-        "description": {
+        "wikidata_id": {
+            "type": "keyword",
+            "normalizer": "lowercase_normalizer"
+        },
+        "standfirst": {
             "type": "text",
             "fields": {
                 "english": {
@@ -75,7 +82,7 @@
                 }
             }
         },
-        "notes": {
+        "full_text": {
             "type": "text",
             "fields": {
                 "english": {

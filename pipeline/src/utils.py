@@ -75,7 +75,7 @@ def http_fetch_json(url, params=None, cache=True):
             log.exception(
                 f"Timed out when calling {url} with params {params}", error=e
             )
-            sleep(2 ** i)
+            sleep(2**i)
         except Exception as e:
             log.exception(
                 f"Error when calling {url} with params {params}", error=e
