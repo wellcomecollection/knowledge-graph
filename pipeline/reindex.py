@@ -4,7 +4,6 @@ import os
 from pathlib import Path
 
 from elasticsearch import Elasticsearch
-from elasticsearch.helpers import streaming_bulk
 from src.elasticsearch import (
     format_concept_for_elasticsearch,
     format_work_for_elasticsearch,
@@ -28,12 +27,6 @@ es = Elasticsearch(
     ),
 )
 
-# neomodel reformulates a __len__ call as a count() cypher query, see:
-# https://neo4j-examples.github.io/paradise-papers-django/tutorial/part04.html#length-of-a-nodeset
-n_works = len(Work.nodes.all())
-n_concepts = len(Concept.nodes.all())
-
-
 # works
 works_index_name = os.environ["ELASTIC_WORKS_INDEX"]
 log.info(f"Creating the works index: {works_index_name}")
@@ -50,28 +43,18 @@ es.indices.create(
 )
 
 log.info("Populating the works index")
-works_generator = (
-    {
-        "_index": works_index_name,
-        "_id": work.wellcome_id,
-        **format_work_for_elasticsearch(work)
-    }
-    for work in Work.nodes.all()
-)
-
-works_progress = tqdm(unit="works", total=n_works)
-successes = 0
-for successful, action in streaming_bulk(
-    client=es,
-    actions=works_generator,
-    chunk_size=10,
-    request_timeout=60
+for work in tqdm(
+    Work.nodes.all(), 
+    # neomodel reformulates a __len__ call as a count() cypher query
+    total=len(Work.nodes.all()), 
+    unit="works"
 ):
-    works_progress.update(1)
-    if not successful:
-        log.error(f"Failed to index work: {action['_id']}")
-    else:
-        successes += 1
+    es.index(
+        index=works_index_name,
+        id=work.uid,
+        body=format_work_for_elasticsearch(work)
+    )
+
 
 
 
@@ -91,25 +74,14 @@ es.indices.create(
 )
 
 log.info("Populating the concepts index")
-concepts_generator = (
-    {
-        "_index": concepts_index_name,
-        "_id": concept.uid,
-        **format_concept_for_elasticsearch(concept)
-    }
-    for concept in Concept.nodes.all()
-)
-
-concepts_progress = tqdm(unit="concepts", total=n_concepts)
-successes = 0
-for successful, action in streaming_bulk(
-    client=es,
-    actions=concepts_generator,
-    chunk_size=10,
-    request_timeout=60
+for concept in tqdm(
+    Concept.nodes.all(),
+    # neomodel reformulates a __len__ call as a count() cypher query
+    total=len(Concept.nodes.all()),
+    unit="concepts"
 ):
-    concepts_progress.update(1)
-    if not successful:
-        log.error(f"Failed to index concept: {action['_id']}")
-    else:
-        successes += 1
+    es.index(
+        index=concepts_index_name,
+        id=concept.uid,
+        body=format_concept_for_elasticsearch(concept)
+    )
