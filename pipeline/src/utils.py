@@ -8,7 +8,7 @@ from httpx import Client, Request, TimeoutException
 
 http_client = Client(timeout=30)
 
-base_cache_dir = Path("/data/cache")
+base_cache_dir = Path(os.environ["CACHE_DIRECTORY"])
 base_cache_dir.mkdir(exist_ok=True)
 
 log_level = structlog.stdlib._NAME_TO_LEVEL[

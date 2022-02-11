@@ -5,3 +5,4 @@ httpx==0.19.0
 openpyxl==3.0.9
 elasticsearch==7.15.2
 neomodel==4.0.7
+structlog==21.4.0
