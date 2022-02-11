@@ -14,12 +14,14 @@ services:
       - type: bind
         source: ./search/data
         target: /home/jovyan/data/search
+      - type: bind
+        source: ./pipeline/src
+        target: /home/jovyan/src
     env_file:
       - .env
     environment:
       - JUPYTER_ENABLE_LAB=yes
-    depends_on:
-      - neo4j
+      - CACHE_DIRECTORY=/home/jovyan/data/cache
 
   neo4j:
     image: neo4j:4.4.3
@@ -57,8 +59,6 @@ services:
   graph:
     build: pipeline
     env_file: .env
-    depends_on:
-      - neo4j
     volumes:
       - type: bind
         source: ./data
@@ -68,8 +68,6 @@ services:
   neighbours:
     build: pipeline
     env_file: .env
-    depends_on:
-      - neo4j
     volumes:
       - type: bind
         source: ./data
@@ -79,8 +77,6 @@ services:
   reindex:
     build: pipeline
     env_file: .env
-    depends_on:
-      - neo4j
     volumes:
       - type: bind
         source: ./search/data
@@ -93,8 +89,6 @@ services:
   pipeline:
     build: pipeline
     env_file: .env
-    depends_on:
-      - neo4j
     volumes:
       - type: bind
         source: ./data
