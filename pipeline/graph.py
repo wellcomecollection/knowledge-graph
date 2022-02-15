@@ -18,7 +18,7 @@ from src.utils import clean, clean_csv, get_logger
 
 log = get_logger(__name__)
 
-db = get_neo4j_session()
+db = get_neo4j_session(clear=True)
 
 log.info("Loading stories dataset")
 df = pd.read_excel(
