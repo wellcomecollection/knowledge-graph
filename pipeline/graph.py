@@ -18,7 +18,7 @@ from src.utils import clean, clean_csv, get_logger
 
 log = get_logger(__name__)
 
-db = get_neo4j_session()
+db = get_neo4j_session(clear=True)
 
 log.info("Loading stories dataset")
 df = pd.read_excel(
@@ -30,7 +30,7 @@ df = pd.read_excel(
 
 # stories
 log.info("Processing stories")
-for _, story_data in df.iterrows():
+for _, story_data in df.head(20).iterrows():
     story_id = Path(story_data["URL"]).name
     log.info("Processing story", story_id=story_id)
     story = Work(
@@ -99,7 +99,7 @@ for _, story_data in df.iterrows():
 
 # works
 log.info("Processing works")
-for document in yield_popular_works(size=10_000):
+for document in yield_popular_works(size=20):
     try:
         work_data = document["_source"]["data"]
     except KeyError as e:

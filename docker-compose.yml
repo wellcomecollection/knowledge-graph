@@ -63,6 +63,9 @@ services:
       - type: bind
         source: ./data
         target: /data
+      - type: bind
+        source: ./data/cache
+        target: /data/cache
     command: python graph.py
 
   neighbours:
@@ -72,6 +75,9 @@ services:
       - type: bind
         source: ./data
         target: /data
+      - type: bind
+        source: ./data/cache
+        target: /data/cache
     command: python neighbours.py
 
   reindex:

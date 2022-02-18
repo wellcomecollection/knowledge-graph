@@ -20,7 +20,7 @@ data_path = Path("/data")
 mappings_path = data_path / "mappings"
 settings_path = data_path / "settings"
 
-db = get_neo4j_session(clear=False)
+db = get_neo4j_session()
 es = Elasticsearch(
     os.environ["ELASTIC_CONCEPTS_HOST"],
     http_auth=(
@@ -53,7 +53,7 @@ for story in tqdm(
 ):
     es.index(
         index=stories_index_name,
-        id=story.uid,
+        id=story.wellcome_id,
         document=format_story_for_elasticsearch(story),
     )
 
@@ -81,7 +81,7 @@ for work in tqdm(
 ):
     es.index(
         index=works_index_name,
-        id=work.uid,
+        id=work.wellcome_id,
         document=format_work_for_elasticsearch(work),
     )
 

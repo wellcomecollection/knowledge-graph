@@ -1,42 +1,3 @@
-export type WorkSource = {
-  contributors: string[]
-  contributor_ids: string[]
-  concepts: string[]
-  concept_ids: string[]
-  concept_variants: string[][]
-  fulltext: string
-  published: Date
-  standfirst: string
-  title: string
-  wikidata_id: string
-  type: string
-}
-
-export type WorkHit = {
-  _id: string
-  _score: string
-  _source: WorkSource
-}
-
-export type Work = {
-  id: string
-  type: string
-  contributors: {
-    id: string
-    name: string
-  }[]
-  concepts: {
-    id: string
-    name: string
-    variants: string[]
-  }[]
-  fulltext: string
-  published: Date
-  standfirst: string
-  title: string
-  wikidata_id: string
-}
-
 export type ConceptSource = {
   lcsh_id: string
   lcsh_preferred_name: string
@@ -46,6 +7,8 @@ export type ConceptSource = {
   name: string
   works: string[]
   work_ids: string[]
+  stories: string[]
+  story_ids: string[]
   variants: string[]
   wikidata_description: string
   wikidata_id: string
@@ -69,6 +32,10 @@ export type Concept = {
   mesh_preferred_name: string
   name: string
   works: {
+    name: string
+    id: string
+  }[]
+  stories: {
     name: string
     id: string
   }[]

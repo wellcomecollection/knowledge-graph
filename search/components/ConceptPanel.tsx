@@ -1,8 +1,8 @@
-import { Concept } from '../types/elasticsearch'
+import { Concept } from '../types/concept'
 import { FC } from 'react'
 import Link from 'next/link'
 
-type Props = { concept: Concept , color: string}
+type Props = { concept: Concept; color: string }
 const ConceptPanel: FC<Props> = ({ concept, color }) => {
   const title =
     concept.wikidata_preferred_name ||

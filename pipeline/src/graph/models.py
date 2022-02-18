@@ -218,7 +218,6 @@ class Concept(StructuredNode):
             ):
                 self._get_loc_neighbours(
                     source_id=source_concept.source_id,
-                    source_type=source_concept.source_type,
                 )
             elif source_concept.source_type == "nlm-mesh":
                 self._get_mesh_neighbours(mesh_id=source_concept.source_id)
@@ -250,31 +249,44 @@ class Concept(StructuredNode):
                     )
             except (KeyError, TypeError):
                 continue
-        for wikidata_id in related_ids:
-            log.debug("Found related wikidata id", wikidata_id=wikidata_id)
+        for neighbour_wikidata_id in related_ids:
+            log.debug(
+                "Found related wikidata id", wikidata_id=neighbour_wikidata_id
+            )
             neighbour_source_concept = SourceConcept.nodes.get_or_none(
-                source_id=wikidata_id, source_type="wikidata"
+                source_id=neighbour_wikidata_id, source_type="wikidata"
             )
             if neighbour_source_concept:
                 log.debug(
                     "Found existing wikidata neighbour source concept",
-                    wikidata_id=wikidata_id,
+                    wikidata_id=neighbour_wikidata_id,
                 )
                 neighbour_concept = neighbour_source_concept.parent.all()[0]
             else:
-                neighbour_concept_wikidata = get_wikidata(wikidata_id)
-                name = get_wikidata_preferred_name(neighbour_concept_wikidata)
-                log.info(
-                    "Creating neighbour concept",
-                    wikidata_id=wikidata_id,
-                    name=name,
-                )
-                neighbour_concept = Concept(
-                    name=get_wikidata_preferred_name(neighbour_concept_wikidata)
-                ).save()
-                neighbour_concept.collect_sources(
-                    source_id=wikidata_id, source_type="wikidata"
-                )
+                try:
+                    neighbour_concept_wikidata = get_wikidata(
+                        neighbour_wikidata_id
+                    )
+                    name = get_wikidata_preferred_name(
+                        neighbour_concept_wikidata
+                    )
+                    log.info(
+                        "Creating neighbour concept",
+                        wikidata_id=neighbour_wikidata_id,
+                        name=name,
+                    )
+                    neighbour_concept = Concept(name=name).save()
+                    neighbour_concept.collect_sources(
+                        source_id=neighbour_wikidata_id, source_type="wikidata"
+                    )
+                except (ValueError) as e:
+                    log.exception(
+                        "Skipping neighbour, no data found",
+                        wikidata_id=neighbour_wikidata_id,
+                        message=e,
+                    )
+                    continue
+
             if neighbour_concept == self:
                 log.debug(
                     "Skipping neighbour, concept is the same",
@@ -290,7 +302,7 @@ class Concept(StructuredNode):
                 )
                 self.neighbours.connect(neighbour_concept)
 
-    def _get_loc_neighbours(self, source_id, source_type):
+    def _get_loc_neighbours(self, source_id):
         loc_data = get_loc_data(source_id)
         related_ids = []
         keys = [
@@ -312,29 +324,42 @@ class Concept(StructuredNode):
                 ]
             )
 
-        for loc_id in related_ids:
-            log.debug("Found related loc id", loc_id=loc_id)
+        for neighbour_loc_id in related_ids:
+            log.debug("Found related loc id", loc_id=neighbour_loc_id)
             neighbour_source_concept = SourceConcept.nodes.get_or_none(
-                source_id=source_id, source_type=source_type
+                source_id=neighbour_loc_id
             )
             if neighbour_source_concept:
                 log.debug(
                     "Found existing neighbour source concept",
-                    loc_id=loc_id,
+                    loc_id=neighbour_loc_id,
                 )
                 neighbour_concept = neighbour_source_concept.parent.all()[0]
             else:
-                neighbour_concept_loc_data = get_loc_data(loc_id)
-                log.info("Creating neighbour concept", loc_id=loc_id)
-                neighbour_concept = Concept(
-                    name=get_loc_preferred_name(neighbour_concept_loc_data)
-                ).save()
-                neighbour_concept.collect_sources(
-                    source_id=loc_id,
-                    source_type=(
-                        "lc-subjects" if loc_id.startswith("s") else "lc-names"
-                    ),
-                )
+                try:
+                    neighbour_concept_loc_data = get_loc_data(neighbour_loc_id)
+                    name = get_loc_preferred_name(neighbour_concept_loc_data)
+                    log.info(
+                        "Creating neighbour concept",
+                        loc_id=neighbour_loc_id,
+                        name=name,
+                    )
+                    neighbour_concept = Concept(name=name).save()
+                    neighbour_concept.collect_sources(
+                        source_id=neighbour_loc_id,
+                        source_type=(
+                            "lc-subjects"
+                            if neighbour_loc_id.startswith("s")
+                            else "lc-names"
+                        ),
+                    )
+                except (ValueError) as e:
+                    log.exception(
+                        "Skipping neighbour, no data found",
+                        neighbour_loc_id=neighbour_loc_id,
+                        message=e,
+                    )
+                    continue
 
             if neighbour_concept == self:
                 log.debug(
@@ -371,28 +396,42 @@ class Concept(StructuredNode):
                     elif isinstance(mesh_data[key], str):
                         related_ids.append(Path(mesh_data[key]).name)
 
-            for mesh_id in related_ids:
-                log.debug("Found related mesh id", mesh_id=mesh_id)
+            for neighbour_mesh_id in related_ids:
+                log.debug("Found related mesh id", mesh_id=neighbour_mesh_id)
                 neighbour_source_concept = SourceConcept.nodes.get_or_none(
-                    source_id=mesh_id, source_type="nlm-mesh"
+                    source_id=neighbour_mesh_id, source_type="nlm-mesh"
                 )
                 if neighbour_source_concept:
                     log.debug(
                         "Found existing mesh neighbour source concept",
-                        mesh_id=mesh_id,
+                        mesh_id=neighbour_mesh_id,
                     )
                     neighbour_concept = neighbour_source_concept.parent.all()[0]
                 else:
-                    neighbour_concept_mesh_data = get_mesh_data(mesh_id)
-                    log.info("Creating neighbour concept", mesh_id=mesh_id)
-                    neighbour_concept = Concept(
-                        name=get_mesh_preferred_name(
+                    try:
+                        neighbour_concept_mesh_data = get_mesh_data(
+                            neighbour_mesh_id
+                        )
+                        name = get_mesh_preferred_name(
                             neighbour_concept_mesh_data
                         )
-                    ).save()
-                    neighbour_concept.collect_sources(
-                        source_id=mesh_id, source_type="nlm-mesh"
-                    )
+                        log.info(
+                            "Creating neighbour concept",
+                            mesh_id=neighbour_mesh_id,
+                            name=name,
+                        )
+                        neighbour_concept = Concept(name=name).save()
+                        neighbour_concept.collect_sources(
+                            source_id=neighbour_mesh_id, source_type="nlm-mesh"
+                        )
+                    except (ValueError) as e:
+                        log.exception(
+                            "Skipping neighbour, no data found",
+                            neighbour_mesh_id=neighbour_mesh_id,
+                            message=e,
+                        )
+                        continue
+
                 if neighbour_concept == self:
                     log.debug(
                         "Skipping neighbour, concept is the same",

@@ -1,36 +1,66 @@
-import {
-  ConceptSource as ConceptType,
-  WorkHit,
-} from '../../types/elasticsearch'
 import { GetServerSideProps, NextPage } from 'next'
+import { Story, StoryHit } from '../../types/story'
+import { Work, WorkHit } from '../../types/work'
+import { getClient, parseStory, parseWork } from '../../services/elasticsearch'
 
+import Card from '../../components/Card'
+import { ConceptSource } from '../../types/concept'
 import IdTable from '../../components/IdTable'
 import Layout from '../../components/Layout'
-import WorkCard from '../../components/WorkCard'
-import { getClient } from '../../services/elasticsearch'
+
+type Props = ConceptSource & {
+  fullWorks: Work[]
+  fullStories: Story[]
+  id: string
+}
 
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const { id } = params as { id: string }
   const client = await getClient()
-  const response = await client.get({
+  const conceptsResponse = await client.get({
     index: process.env.ELASTIC_CONCEPTS_INDEX as string,
     id,
   })
 
-  const fullWorks = (await client
-    .mget({
-      index: process.env.ELASTIC_WORKS_INDEX as string,
-      body: {
-        ids: response.body._source.work_ids.slice(0, 3),
-      },
-    })
-    .then((res) => {
-      return res.body.docs
-    })) as WorkHit[]
+  const workIDs = conceptsResponse.body._source.work_ids
+  const storyIDs = conceptsResponse.body._source.story_ids
 
-  return { props: { ...response.body._source, fullWorks, id } }
+  const fullWorks = (
+    workIDs.length > 0
+      ? await client
+          .mget({
+            index: process.env.ELASTIC_WORKS_INDEX as string,
+            body: { ids: workIDs },
+          })
+          .then((res) => {
+            return res.body.docs
+          })
+          .then((docs) => {
+            docs.map((doc: WorkHit) => parseWork(doc))
+          })
+      : []
+  ) as Work[]
+
+  const fullStories = (
+    storyIDs.length > 0
+      ? await client
+          .mget({
+            index: process.env.ELASTIC_STORIES_INDEX as string,
+            body: { ids: storyIDs },
+          })
+          .then((res) => {
+            return res.body.docs
+          })
+          .then((docs) => {
+            docs.map((doc: StoryHit) => parseStory(doc))
+          })
+      : []
+  ) as Story[]
+
+  return {
+    props: { ...conceptsResponse.body._source, fullWorks, fullStories, id },
+  }
 }
-type Props = ConceptType & { fullWorks: WorkHit[]; id: string }
 
 const Concept: NextPage<Props> = (props) => {
   const description = props.wikidata_description || props.mesh_description
@@ -66,20 +96,50 @@ const Concept: NextPage<Props> = (props) => {
       ) : null}
       <div className="pt-4">
         <h2 className="text-lg font-bold">
-          {`We've got ${props.works.length} works about
+          {`We've got ${props.fullStories.length} stories about
           this concept:`}
         </h2>
 
         <div className="pt-2 grid grid-cols-1 md:grid-cols-3 md:space-x-4 md:space-y-0 space-x-0 space-y-4 h-auto">
-          {props.fullWorks.map((work) => {
-            const { _id, _source } = work
-            const { standfirst, title, type } = _source
+          {props.fullStories.map((story: Story) => {
+            const { id, standfirst, type, title } = story
             return (
-              <li className="inline-block" key={_id}>
-                <WorkCard
+              <li className="inline-block" key={id}>
+                <Card
+                  id={id}
+                  description={standfirst}
+                  type={type}
                   title={title}
-                  id={_id}
-                  standfirst={standfirst}
+                />
+              </li>
+            )
+          })}
+        </div>
+        <div className="pt-4">
+          <a
+            className="no-underline px-3 py-2 rounded border-2 border-black text-sm"
+            href={`/?concept=${props.id}`}
+          >
+            See more →
+          </a>
+        </div>
+      </div>
+
+      <div className="pt-4">
+        <h2 className="text-lg font-bold">
+          {`We've got ${props.fullWorks.length} works about
+          this concept:`}
+        </h2>
+
+        <div className="pt-2 grid grid-cols-1 md:grid-cols-3 md:space-x-4 md:space-y-0 space-x-0 space-y-4 h-auto">
+          {props.fullWorks.map((work: Work) => {
+            const { id, description, type, title } = work
+            return (
+              <li className="inline-block" key={id}>
+                <Card
+                  title={title}
+                  id={id}
+                  description={description}
                   type={type}
                 />
               </li>

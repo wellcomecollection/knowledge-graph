@@ -1,5 +1,5 @@
 import { FC } from 'react'
-import { Work } from '../types/elasticsearch'
+import { Work } from '../types/work'
 
 type Props = {
   total: number

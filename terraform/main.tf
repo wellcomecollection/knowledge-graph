@@ -8,8 +8,8 @@ data "ec_stack" "latest" {
 }
 
 
-resource "ec_deployment" "concepts" {
-  name                   = "concepts"
+resource "ec_deployment" "knowledge-graph" {
+  name                   = "knowledge-graph"
   region                 = "eu-west-1"
   version                = data.ec_stack.latest.version
   deployment_template_id = "aws-io-optimized-v2"
