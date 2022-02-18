@@ -18,7 +18,7 @@ const Layout: FC<Props> = ({ children, title, description, debug = false }) => {
         <meta name="description" content={description} />
       </Head>
       <div
-        className={`antialiased p-4 mb-4 font-sans max-w-screen-md mx-auto ${
+        className={`mx-auto mb-4 max-w-screen-md p-4 font-sans antialiased ${
           debug ? 'debug' : ''
         }`}
       >

@@ -13,9 +13,9 @@ const SearchBox: FC<Props> = (props) => {
 
   return (
     <form>
-      <div className="w-full flex text-2xl">
+      <div className="flex w-full text-2xl">
         <input
-          className="pl-2 flex-grow h-12 rounded-l-md border-2 border-r-0 border-gray-600 focus:outline-none"
+          className="focus:outline-none h-12 flex-grow rounded-l-md border-2 border-r-0 border-gray-600 pl-2"
           type="text"
           name="query"
           value={query}
@@ -23,7 +23,7 @@ const SearchBox: FC<Props> = (props) => {
           onChange={(event) => setQuery(event.currentTarget.value)}
         />
         <button
-          className="h-12 w-16 rounded-r-md bg-gray-300 border-2 border-gray-600"
+          className="h-12 w-16 rounded-r-md border-2 border-gray-600 bg-gray-300"
           aria-label="Search stories"
           type="submit"
         >

@@ -13,10 +13,10 @@ const Card: FC<Props> = ({ type, title, id, description, imageURL }) => {
   }/${id}`
   return (
     <a className="no-underline" href={url}>
-      <div className="h-full bg-gray-200 rounded">
+      <div className="h-full rounded bg-gray-200">
         <div className="py-2 px-3">
           <h3 className="leading-snug">{title}</h3>
-          {description ? <p className="text-xs pt-1">{description}</p> : null}
+          {description ? <p className="pt-1 text-xs">{description}</p> : null}
         </div>
       </div>
     </a>

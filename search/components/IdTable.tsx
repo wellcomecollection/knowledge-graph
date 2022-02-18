@@ -7,7 +7,7 @@ type Props = {
 }
 const IdTable: FC<Props> = ({ wikidata_id, mesh_id, lcsh_id }) => {
   return (
-    <div className="mt-4 pl-1 bg-gray-200 rounded text-sm py-2 space-y-1">
+    <div className="mt-4 space-y-1 rounded bg-gray-200 py-2 pl-1 text-sm">
       <table className="table-auto">
         <tbody>
           <tr>

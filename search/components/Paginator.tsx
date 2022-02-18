@@ -18,10 +18,10 @@ const Paginator: FC<Props> = ({
   works,
 }) => {
   return total > 10 ? (
-    <div className="pt-7 space-x-4">
+    <div className="space-x-4 pt-7">
       {page > 1 ? (
         <a
-          className="no-underline px-3 py-2 rounded border-2 border-black"
+          className="rounded border-2 border-black px-3 py-2 no-underline"
           href={`/${query ? `?query=${query}` : ''}${
             conceptId ? `?concept=${conceptId}` : ''
           }${personId ? `?person=${personId}` : ''}&page=${page - 1}`}
@@ -32,7 +32,7 @@ const Paginator: FC<Props> = ({
       <span>Page {page}</span>
       {!(works.length < 10) ? (
         <a
-          className="no-underline px-3 py-2 rounded border-2 border-black"
+          className="rounded border-2 border-black px-3 py-2 no-underline"
           href={`/${query ? `?query=${query}` : ''}${
             conceptId ? `?concept=${conceptId}` : ''
           }${personId ? `?person=${personId}` : ''}&page=${

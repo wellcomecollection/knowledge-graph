@@ -85,7 +85,7 @@ const Concept: NextPage<Props> = (props) => {
           <ul>
             {props.variants.map((variant) => (
               <li
-                className="inline-block bg-gray-200 rounded-lg px-2 py-1 text-xs text-gray-700 capitalize mr-2"
+                className="mr-2 inline-block rounded-lg bg-gray-200 px-2 py-1 text-xs capitalize text-gray-700"
                 key={variant}
               >
                 {variant}
@@ -100,7 +100,7 @@ const Concept: NextPage<Props> = (props) => {
           this concept:`}
         </h2>
 
-        <div className="pt-2 grid grid-cols-1 md:grid-cols-3 md:space-x-4 md:space-y-0 space-x-0 space-y-4 h-auto">
+        <div className="grid h-auto grid-cols-1 space-x-0 space-y-4 pt-2 md:grid-cols-3 md:space-x-4 md:space-y-0">
           {props.fullStories.map((story: Story) => {
             const { id, standfirst, type, title } = story
             return (
@@ -117,7 +117,7 @@ const Concept: NextPage<Props> = (props) => {
         </div>
         <div className="pt-4">
           <a
-            className="no-underline px-3 py-2 rounded border-2 border-black text-sm"
+            className="rounded border-2 border-black px-3 py-2 text-sm no-underline"
             href={`/?concept=${props.id}`}
           >
             See more →
@@ -131,7 +131,7 @@ const Concept: NextPage<Props> = (props) => {
           this concept:`}
         </h2>
 
-        <div className="pt-2 grid grid-cols-1 md:grid-cols-3 md:space-x-4 md:space-y-0 space-x-0 space-y-4 h-auto">
+        <div className="grid h-auto grid-cols-1 space-x-0 space-y-4 pt-2 md:grid-cols-3 md:space-x-4 md:space-y-0">
           {props.fullWorks.map((work: Work) => {
             const { id, description, type, title } = work
             return (
@@ -148,7 +148,7 @@ const Concept: NextPage<Props> = (props) => {
         </div>
         <div className="pt-4">
           <a
-            className="no-underline px-3 py-2 rounded border-2 border-black text-sm"
+            className="rounded border-2 border-black px-3 py-2 text-sm no-underline"
             href={`/?concept=${props.id}`}
           >
             See more →
