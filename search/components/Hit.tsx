@@ -22,7 +22,7 @@ const SearchResult: FC<Props> = ({ work }) => {
   return (
     <>
       <a
-        href={`https://wellcomecollection.org/works/${work.wellcome_id}`}
+        href={`https://wellcomecollection.org/works/${work.id}`}
         className="no-underline"
       >
         <p className="text-xl font-bold">{work.title}</p>
