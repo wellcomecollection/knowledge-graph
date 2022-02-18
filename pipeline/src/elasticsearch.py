@@ -10,7 +10,10 @@ from .wellcome import get_description, get_notes, get_work_data
 def format_work_for_elasticsearch(work):
     work_concepts = work.concepts.all()
     concept_ids = [concept.uid for concept in work_concepts]
-    concept_names = [concept.name for concept in work_concepts]
+    concept_names = [
+        # TODO: use the preferred name
+        concept.name for concept in work_concepts
+    ]
     concept_variants = [
         variant
         for concept in work_concepts
@@ -47,7 +50,10 @@ def format_work_for_elasticsearch(work):
 def format_story_for_elasticsearch(story):
     story_concepts = story.concepts.all()
     concept_ids = [concept.uid for concept in story_concepts]
-    concept_names = [concept.name for concept in story_concepts]
+    concept_names = [
+        # TODO: use the preferred name
+        concept.name for concept in story_concepts
+    ]
     concept_variants = [
         variant
         for concept in story_concepts
@@ -81,9 +87,14 @@ def format_story_for_elasticsearch(story):
 
 
 def format_concept_for_elasticsearch(concept):
-    concept_works = concept.works.all()
-    works = [story.title for story in concept_works]
-    work_ids = [story.wellcome_id for story in concept_works]
+    concept_works = concept.works.filter(type="work")
+    works = [work.title for work in concept_works]
+    work_ids = [work.wellcome_id for work in concept_works]
+
+    concept_stories = concept.works.filter(type="story")
+    stories = [story.title for story in concept_stories]
+    story_ids = [story.wellcome_id for story in concept_stories]
+
     variants = [
         variant
         for source_concept in concept.sources.all()
@@ -95,6 +106,8 @@ def format_concept_for_elasticsearch(concept):
         "type": concept.type,
         "works": works,
         "work_ids": work_ids,
+        "stories": stories,
+        "story_ids": story_ids,
         "variants": variants,
     }
 

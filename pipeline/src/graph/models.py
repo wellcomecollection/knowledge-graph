@@ -418,6 +418,7 @@ class Concept(StructuredNode):
                         log.info(
                             "Creating neighbour concept",
                             mesh_id=neighbour_mesh_id,
+                            name=name,
                         )
                         neighbour_concept = Concept(name=name).save()
                         neighbour_concept.collect_sources(

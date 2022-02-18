@@ -4,10 +4,10 @@ type Props = {
   type: string
   title: string
   id: string
-  standfirst?: string
+  description?: string
   imageURL?: string
 }
-const WorkCard: FC<Props> = ({ type, title, id, standfirst, imageURL }) => {
+const Card: FC<Props> = ({ type, title, id, description, imageURL }) => {
   const url = `https://wellcomecollection.org/${
     type == 'work' ? 'works' : 'articles'
   }/${id}`
@@ -16,11 +16,11 @@ const WorkCard: FC<Props> = ({ type, title, id, standfirst, imageURL }) => {
       <div className="h-full bg-gray-200 rounded">
         <div className="py-2 px-3">
           <h3 className="leading-snug">{title}</h3>
-          {standfirst ? <p className="text-xs pt-1">{standfirst}</p> : null}
+          {description ? <p className="text-xs pt-1">{description}</p> : null}
         </div>
       </div>
     </a>
   )
 }
 
-export default WorkCard
+export default Card

@@ -1,11 +1,12 @@
-import { Concept, Work } from '../types/elasticsearch'
 import { GetServerSideProps, NextPage } from 'next'
 
+import { Concept } from '../types/concept'
 import ConceptPanel from '../components/ConceptPanel'
 import Layout from '../components/Layout'
 import Paginator from '../components/Paginator'
 import SearchBox from '../components/SearchBox'
 import SearchResult from '../components/Hit'
+import { Work } from '../types/work'
 import absoluteUrl from 'next-absolute-url'
 
 type Props = {
@@ -78,12 +79,12 @@ const Search: NextPage<Props> = ({
 }) => {
   return (
     <Layout
-      title="Stories search"
-      description="Search for stories on wellcomecollection.org/stories"
+      title="Knowledge-graph search"
+      description="Search for works, stories, and concepts in Wellcome Collection"
     >
       <h1>Knowledge-graph search</h1>
       <p>
-        Search for works and concepts from{' '}
+        Search for works, stories, and concepts from{' '}
         <a href="https://wellcomecollection.org/">Wellcome Collection</a>.
       </p>
       <div className="pt-4">
