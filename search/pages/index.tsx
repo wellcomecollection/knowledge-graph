@@ -107,7 +107,7 @@ const Search: NextPage<Props> = ({
           </span>
         ) : null}
       </div>
-      <ul className="space-y-5 divide-y divide-gray-400">
+      <ul className="space-y-5 divide-y divide">
         {works.map((work) => (
           <li key={work.id} className="pt-4">
             <SearchResult work={work} />

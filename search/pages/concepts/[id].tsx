@@ -85,7 +85,7 @@ const Concept: NextPage<Props> = (props) => {
           <ul>
             {props.variants.map((variant) => (
               <li
-                className="mr-2 inline-block rounded-lg bg-gray-200 px-2 py-1 text-xs capitalize text-gray-700"
+                className="mr-2 inline-block rounded-lg bg-offwhite-3 px-2 py-1 text-xs capitalize "
                 key={variant}
               >
                 {variant}

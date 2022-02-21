@@ -32,7 +32,7 @@ const SearchResult: FC<Props> = ({ work }) => {
         {work.concepts.map((concept) => (
           <li key={concept.id} className="inline-block pr-2">
             <Link href={`/concepts/${concept.id}`}>
-              <a className="rounded-lg bg-gray-200 px-2 py-1 text-xs text-gray-700 no-underline">
+              <a className="rounded-lg bg-paper-2 px-2 py-1 text-xs no-underline">
                 {concept.name}
               </a>
             </Link>
