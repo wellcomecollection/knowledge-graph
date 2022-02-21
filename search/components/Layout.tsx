@@ -11,14 +11,14 @@ type Props = {
 
 const Layout: FC<Props> = ({ children, title, description, debug = false }) => {
   return (
-    <div>
+    <div className="bg-offwhite-1 min-h-screen">
       <Head>
         <meta charSet="utf-8" />
         <title>{title}</title>
         <meta name="description" content={description} />
       </Head>
       <div
-        className={`mx-auto mb-4 max-w-screen-md p-4 font-sans antialiased ${
+        className={`mx-auto mb-4 max-w-screen-md p-4 font-sans antialiased  ${
           debug ? 'debug' : ''
         }`}
       >

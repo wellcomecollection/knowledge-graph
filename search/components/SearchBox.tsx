@@ -6,6 +6,7 @@ type Props = {
 
 const SearchBox: FC<Props> = (props) => {
   const [query, setQuery] = useState(props.query)
+  const [tab, setTab] = useState('works')
 
   useEffect(() => {
     setQuery(props.query)
@@ -13,22 +14,38 @@ const SearchBox: FC<Props> = (props) => {
 
   return (
     <form>
-      <div className="flex w-full text-2xl">
-        <input
-          className="focus:outline-none h-12 flex-grow rounded-l-md border-2 border-r-0 border-gray-600 pl-2"
-          type="text"
-          name="query"
-          value={query}
-          placeholder="What are you looking for?"
-          onChange={(event) => setQuery(event.currentTarget.value)}
-        />
-        <button
-          className="h-12 w-16 rounded-r-md border-2 border-gray-600 bg-gray-300"
-          aria-label="Search stories"
-          type="submit"
-        >
-          🔎
-        </button>
+      <div className="bg-paper-3 px-3 py-4">
+        <div className="flex">
+          <button
+            type="button"
+            className={`${
+              tab == 'works' ? 'bg-paper-1' : 'bg-paper-2'
+            } border border-b-0 border-r-0 border-paper-2 px-3 py-2`}
+            onClick={() => setTab('works')}
+          >
+            Works
+          </button>
+          <button
+            type="button"
+            className={`${
+              tab == 'stories' ? 'bg-paper-1' : 'bg-paper-2'
+            } border border-b-0 border-paper-2 px-3 py-2`}
+            onClick={() => setTab('stories')}
+          >
+            Stories
+          </button>
+        </div>
+        <div className="flex w-full">
+          <input
+            className="text-xl focus:outline-none h-12 flex-grow border-2 border-paper-2 pl-2 placeholder-gray-300"
+            type="text"
+            name="query"
+            value={query}
+            placeholder="What are you looking for?"
+            onChange={(event) => setQuery(event.currentTarget.value)}
+          />
+
+        </div>
       </div>
     </form>
   )
