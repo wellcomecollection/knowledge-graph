@@ -70,7 +70,7 @@ export function parseWork(workHit: WorkHit): Work {
   })
 
   return {
-    type: work.type,
+    type: 'work',
     id: workHit._id,
     contributors: contributors,
     concepts: concepts,
@@ -96,7 +96,7 @@ export function parseStory(storyHit: StoryHit): Story {
   })
 
   return {
-    type: story.type,
+    type: 'story',
     id: storyHit._id,
     contributors: contributors,
     concepts: concepts,

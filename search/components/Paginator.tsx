@@ -1,43 +1,47 @@
 import { FC } from 'react'
-import { Work } from '../types/work'
 
 type Props = {
   total: number
   page: number
   query: string
-  conceptId: string
-  personId: string
-  works: Work[]
+  conceptId?: string
+  personId?: string
+  length: number
+  index: string
 }
+
 const Paginator: FC<Props> = ({
   total,
+  index,
   page,
   query,
   conceptId,
   personId,
-  works,
+  length,
 }) => {
+  const url = `/?query=${query}&index=${index}`
+  if (conceptId) {
+    url + `&concept=${conceptId}`
+  }
+  if (personId) {
+    url + `&person=${personId}`
+  }
+
   return total > 10 ? (
-    <div className="space-x-4 pt-7">
+    <div>
       {page > 1 ? (
         <a
-          className="rounded border-2 border-black px-3 py-2 no-underline"
-          href={`/${query ? `?query=${query}` : ''}${
-            conceptId ? `?concept=${conceptId}` : ''
-          }${personId ? `?person=${personId}` : ''}&page=${page - 1}`}
+          className="bg-paper-2 px-3 py-2 no-underline"
+          href={url + `&page=${page - 1}`}
         >
           ← previous
         </a>
       ) : null}
-      <span>Page {page}</span>
-      {!(works.length < 10) ? (
+      <span className="bg-paper-3 px-3 py-2">Page {page}</span>
+      {!(length < 10) ? (
         <a
-          className="rounded border-2 border-black px-3 py-2 no-underline"
-          href={`/${query ? `?query=${query}` : ''}${
-            conceptId ? `?concept=${conceptId}` : ''
-          }${personId ? `?person=${personId}` : ''}&page=${
-            page ? page + 1 : 2
-          }`}
+          className="bg-paper-2 px-3 py-2 no-underline"
+          href={url + `&page=${page + 1}`}
         >
           next →
         </a>

@@ -12,19 +12,17 @@ const ConceptPanel: FC<Props> = ({ concept, color }) => {
   const description = concept.wikidata_description || concept.mesh_description
 
   return (
-    <div className="pt-5">
-      <div className={`flex bg-${color} py-3 px-4 text-white`}>
-        <div className="my-auto flex-auto">
-          <h2 className="text-2xl font-semibold">{title}</h2>
-          <p className="text-sm md:w-3/4">{description}</p>
-        </div>
-        <div className="my-auto flex-none">
-          <Link href={`/concepts/${concept.id}`}>
-            <a className="border-2 border-white px-3 py-2 text-sm no-underline">
-              Find out more →
-            </a>
-          </Link>
-        </div>
+    <div className={`flex bg-${color} py-3 px-4 text-white`}>
+      <div className="my-auto flex-auto">
+        <h2 className="titlecase text-2xl font-semibold">{title}</h2>
+        <p className="mr-5 text-sm">{description}</p>
+      </div>
+      <div className="my-auto flex-none">
+        <Link href={`/concepts/${concept.id}`}>
+          <a className="border-2 border-white px-3 py-2 text-sm no-underline">
+            Find out more →
+          </a>
+        </Link>
       </div>
     </div>
   )
