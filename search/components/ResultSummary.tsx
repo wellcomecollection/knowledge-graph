@@ -46,10 +46,20 @@ const ResultSummary: FC<Props> = ({
           )}`}</p>
         )
       ) : personId ? (
-        <span>
-          {total} results tagged with person ID{' '}
-          <a href={`/people/${personId}`}>{personId}</a>
-        </span>
+        total > 10 ? (
+          <p>
+            <span className="capitalize">{index}</span>
+            {` ${(page - 1) * 10 + 1}-${Math.min(
+              page * 10,
+              total
+            )} of ${total} tagged with`}
+            <a href={`/people/${personId}`}>{personId}</a>
+          </p>
+        ) : (
+          <p>{`${total} ${index} tagged with ${(
+            <a href={`/people/${personId}`}>{personId}</a>
+          )}`}</p>
+        )
       ) : null}
     </>
   )

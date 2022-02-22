@@ -27,12 +27,14 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({
   query: qs,
   req,
 }) => {
+  // parse the query string
   const index = qs.index ? qs.index.toString() : 'works'
   const query = qs.query ? qs.query.toString() : ''
   const page = qs.page ? parseInt(qs.page.toString()) : 1
   const conceptId = qs.concept ? qs.concept.toString() : ''
   const personId = qs.person ? qs.person.toString() : ''
 
+  // get the results from the API
   let total: number = 0
   let results: Work[] | Story[] = []
   let concept: Concept | null = null
@@ -52,12 +54,13 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({
       url.searchParams.append('page', page.toString())
     }
     const response = await fetch(url.toString()).then((res) => res.json())
-    console.log([index, query, conceptId, personId, page])
+
     total = response.total
     results = response.results
     concept = response.concept.length > 0 ? response.concept[0] : null
     person = response.person.length > 0 ? response.person[0] : null
   }
+
   return {
     props: {
       query,
@@ -84,19 +87,16 @@ const Search: NextPage<Props> = ({
   page,
   index,
 }) => {
+  const title = 'Knowledge-graph search'
+  const description =
+    'Search for works, stories, and concepts from Wellcome Collection'
   return (
-    <Layout
-      title="Knowledge-graph search"
-      description="Search for works, stories, and concepts in Wellcome Collection"
-    >
+    <Layout title={title} description={description}>
       <div className="space-y-5">
-        <div>
-          <h1>Knowledge-graph search</h1>
-          <p>
-            Search for works, stories, and concepts from{' '}
-            <a href="https://wellcomecollection.org/">Wellcome Collection</a>.
-          </p>
-        </div>
+        <header>
+          <h1>{title}</h1>
+          <p>{description}</p>
+        </header>
 
         <SearchBox query={query} index={index} />
 

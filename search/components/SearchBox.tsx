@@ -18,7 +18,9 @@ const SearchBox: FC<Props> = (props) => {
 
   const search = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    window.location.href = `/?query=${query}&index=${index}`
+    if (query) {
+      window.location.href = `/?query=${query}&index=${index}`
+    }
   }
 
   return (
@@ -26,7 +28,7 @@ const SearchBox: FC<Props> = (props) => {
       <div className="bg-paper-3 px-3 py-4">
         <div className="flex">
           <button
-            type="button"
+            type="submit"
             className={`${
               index == 'works' ? 'bg-paper-1' : 'bg-paper-2'
             } border-2 border-b-0 border-r-0 border-paper-2 px-3 py-2`}
@@ -35,7 +37,7 @@ const SearchBox: FC<Props> = (props) => {
             Works
           </button>
           <button
-            type="button"
+            type="submit"
             className={`${
               index == 'stories' ? 'bg-paper-1' : 'bg-paper-2'
             } border-2 border-b-0 border-l-0 border-paper-2 px-3 py-2`}
