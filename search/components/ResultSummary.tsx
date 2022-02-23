@@ -16,6 +16,7 @@ const ResultSummary: FC<Props> = ({
   conceptId,
   personId,
 }) => {
+
   return (
     <>
       {query ? (
@@ -41,9 +42,10 @@ const ResultSummary: FC<Props> = ({
             <a href={`/concepts/${conceptId}`}>{conceptId}</a>
           </p>
         ) : (
-          <p>{`${total} ${index} tagged with concept ID ${(
+          <p>
+            {`${total} ${index} tagged with concept ID `}
             <a href={`/concepts/${conceptId}`}>{conceptId}</a>
-          )}`}</p>
+          </p>
         )
       ) : personId ? (
         total > 10 ? (
@@ -56,9 +58,10 @@ const ResultSummary: FC<Props> = ({
             <a href={`/people/${personId}`}>{personId}</a>
           </p>
         ) : (
-          <p>{`${total} ${index} tagged with person ID ${(
+          <p>
+            {`${total} ${index} tagged with person ID `}
             <a href={`/people/${personId}`}>{personId}</a>
-          )}`}</p>
+          </p>
         )
       ) : null}
     </>

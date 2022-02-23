@@ -100,8 +100,12 @@ const Search: NextPage<Props> = ({
 
         <SearchBox query={query} index={index} />
 
-        {concept ? <ConceptPanel concept={concept} color={'red'} /> : null}
-        {person ? <ConceptPanel concept={person} color={'blue'} /> : null}
+        {query && concept ? (
+          <ConceptPanel concept={concept} color={'red'} />
+        ) : null}
+        {query && person ? (
+          <ConceptPanel concept={person} color={'blue'} />
+        ) : null}
 
         <div>
           <ResultSummary

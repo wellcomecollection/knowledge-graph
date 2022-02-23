@@ -28,9 +28,16 @@ export default async function search(
       stories: process.env.ELASTIC_STORIES_INDEX,
     }[index as string]
 
-    const structuredQuery = JSON.parse(
-      JSON.stringify(blankQuery).replace(/{{query}}/g, query as string)
-    )
+    const structuredQuery = query
+      ? JSON.parse(
+          JSON.stringify(blankQuery).replace(/{{query}}/g, query as string)
+        )
+      : {
+          bool: {
+            filter: [],
+          },
+        }
+
     if (concept) {
       structuredQuery.bool.filter.push({
         term: {
