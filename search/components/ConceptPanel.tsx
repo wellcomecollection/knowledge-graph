@@ -7,7 +7,8 @@ const ConceptPanel: FC<Props> = ({ concept, color }) => {
   const title =
     concept.wikidata_preferred_name ||
     concept.mesh_preferred_name ||
-    concept.lcsh_preferred_name ||
+    concept.lc_subjects_preferred_name ||
+    concept.lc_names_preferred_name ||
     concept.name
   const description = concept.wikidata_description || concept.mesh_description
 
