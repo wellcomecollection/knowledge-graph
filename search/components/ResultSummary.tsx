@@ -37,11 +37,11 @@ const ResultSummary: FC<Props> = ({
             {` ${(page - 1) * 10 + 1}-${Math.min(
               page * 10,
               total
-            )} of ${total} tagged with`}
+            )} of ${total} tagged with concept ID `}
             <a href={`/concepts/${conceptId}`}>{conceptId}</a>
           </p>
         ) : (
-          <p>{`${total} ${index} tagged with ${(
+          <p>{`${total} ${index} tagged with concept ID ${(
             <a href={`/concepts/${conceptId}`}>{conceptId}</a>
           )}`}</p>
         )
@@ -52,11 +52,11 @@ const ResultSummary: FC<Props> = ({
             {` ${(page - 1) * 10 + 1}-${Math.min(
               page * 10,
               total
-            )} of ${total} tagged with`}
+            )} of ${total} tagged with person ID `}
             <a href={`/people/${personId}`}>{personId}</a>
           </p>
         ) : (
-          <p>{`${total} ${index} tagged with ${(
+          <p>{`${total} ${index} tagged with person ID ${(
             <a href={`/people/${personId}`}>{personId}</a>
           )}`}</p>
         )

@@ -89,7 +89,7 @@ const Search: NextPage<Props> = ({
 }) => {
   const title = 'Knowledge-graph search'
   const description =
-    'Search for works, stories, and concepts from Wellcome Collection'
+    'Search for works, stories, and concepts from Wellcome Collection.'
   return (
     <Layout title={title} description={description}>
       <div className="space-y-5">
@@ -100,7 +100,7 @@ const Search: NextPage<Props> = ({
 
         <SearchBox query={query} index={index} />
 
-        {concept ? <ConceptPanel concept={concept} color={'green'} /> : null}
+        {concept ? <ConceptPanel concept={concept} color={'red'} /> : null}
         {person ? <ConceptPanel concept={person} color={'blue'} /> : null}
 
         <div>
@@ -113,7 +113,7 @@ const Search: NextPage<Props> = ({
             personId={personId}
           />
 
-          <ul className="divide divide-y">
+          <ul className="divide-y divide-green ">
             {results.map((result) => (
               <li key={result.id} className="py-4 ">
                 <SearchResult result={result} />

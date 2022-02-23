@@ -13,7 +13,7 @@ const Card: FC<Props> = ({ type, title, id, description, imageURL }) => {
   }/${id}`
   return (
     <a className="no-underline" href={url}>
-      <div className="h-full rounded bg-offwhite-3">
+      <div className="h-full bg-red">
         <div className="py-2 px-3">
           <h3 className="leading-snug">{title}</h3>
           {description ? <p className="pt-1 text-xs">{description}</p> : null}

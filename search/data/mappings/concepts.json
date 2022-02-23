@@ -26,7 +26,20 @@
                 }
             }
         },
-        "lcsh_preferred_name": {
+        "lc_subjects_preferred_name": {
+            "type": "text",
+            "fields": {
+                "keyword": {
+                    "type": "keyword",
+                    "normalizer": "lowercase_normalizer"
+                },
+                "english": {
+                    "type": "text",
+                    "analyzer": "english_analyzer"
+                }
+            }
+        },
+        "lc_names_preferred_name": {
             "type": "text",
             "fields": {
                 "keyword": {
@@ -77,7 +90,11 @@
             "type": "keyword",
             "normalizer": "lowercase_normalizer"
         },
-        "lcsh_id": {
+        "lc_subjects_id": {
+            "type": "keyword",
+            "normalizer": "lowercase_normalizer"
+        },
+        "lc_names_id": {
             "type": "keyword",
             "normalizer": "lowercase_normalizer"
         },

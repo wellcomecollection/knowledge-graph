@@ -4,7 +4,6 @@ export type StorySource = {
   concepts: string[]
   concept_ids: string[]
   concept_variants: string[][]
-  fulltext: string
   published: Date
   standfirst: string
   title: string
@@ -29,7 +28,6 @@ export type Story = {
     id: string
     name: string
   }[]
-  fulltext: string
   published: Date
   standfirst: string
   title: string

@@ -1,6 +1,8 @@
 export type ConceptSource = {
-  lcsh_id: string
-  lcsh_preferred_name: string
+  lc_subjects_id: string
+  lc_subjects_preferred_name: string
+  lc_names_id: string
+  lc_names_preferred_name: string
   mesh_description: string
   mesh_id: string
   mesh_preferred_name: string
@@ -25,8 +27,10 @@ export type ConceptHit = {
 export type Concept = {
   id: string
   type: string
-  lcsh_id: string
-  lcsh_preferred_name: string
+  lc_subjects_id: string
+  lc_subjects_preferred_name: string
+  lc_names_id: string
+  lc_names_preferred_name: string
   mesh_description: string
   mesh_id: string
   mesh_preferred_name: string
