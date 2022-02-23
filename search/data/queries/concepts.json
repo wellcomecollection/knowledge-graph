@@ -4,21 +4,16 @@
             "multi_match": {
                 "query": "{{query}}",
                 "fields": [
-                    "variants",
-                    "name",
-                    "name.*",
-                    "wikidata_preferred_name",
-                    "wikidata_preferred_name.*",
-                    "wikidata_id",
-                    "lc_subjects_preferred_name",
-                    "lc_subjects_preferred_name.*",
-                    "lc_subjects_id",
-                    "lc_names_preferred_name",
-                    "lc_names_preferred_name.*",
                     "lc_names_id",
-                    "mesh_preferred_name",
-                    "mesh_preferred_name.*",
-                    "mesh_id"
+                    "wikidata_id",
+                    "lc_subjects_id",
+                    "mesh_id",
+                    "variants.keyword",
+                    "name.keyword",
+                    "wikidata_preferred_name.keyword",
+                    "lc_subjects_preferred_name.keyword",
+                    "lc_names_preferred_name.keyword",
+                    "mesh_preferred_name.keyword"
                 ]
             }
         },
