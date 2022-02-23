@@ -102,9 +102,9 @@ export function parseStory(storyHit: StoryHit): Story {
     id: storyHit._id,
     contributors: contributors,
     concepts: concepts,
-    published: new Date(story.published),
+    published: story.published,
     standfirst: story.standfirst,
     title: story.title,
-    wikidata_id: story.wikidata_id,
+    wikidata_id: story.wikidata_id ? story.wikidata_id : null,
   }
 }

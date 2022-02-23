@@ -39,7 +39,7 @@ const IdTable: FC<Props> = ({
     <table className="w-full table-auto bg-paper-2">
       <thead className="border-b border-green">
         <tr className="text-left">
-          <th>Source</th>
+          <th className="px-2">Source</th>
           <th>ID</th>
         </tr>
       </thead>
@@ -49,7 +49,7 @@ const IdTable: FC<Props> = ({
             key={item.label}
             className={`${index % 2 == 0 ? 'bg-paper-3' : null}`}
           >
-            <td className="pr-4">{item.label}</td>
+            <td className="px-2">{item.label}</td>
             <td>
               {item.id ? (
                 <a href={item.url} className="no-underline">

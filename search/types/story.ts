@@ -7,7 +7,7 @@ export type StorySource = {
   published: Date
   standfirst: string
   title: string
-  wikidata_id: string
+  wikidata_id: string | null
   type: string
 }
 
@@ -31,5 +31,5 @@ export type Story = {
   published: Date
   standfirst: string
   title: string
-  wikidata_id: string
+  wikidata_id: string | null
 }

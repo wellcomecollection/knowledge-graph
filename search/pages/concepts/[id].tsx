@@ -69,7 +69,7 @@ const Concept: NextPage<Props> = (props) => {
 
   return (
     <Layout title={`Concept | ${title}`} description={description}>
-      <div className="space-y-4">
+      <div className="space-y-6">
         <header>
           <h1>{title}</h1>
           <p>{description}</p>
@@ -95,13 +95,13 @@ const Concept: NextPage<Props> = (props) => {
           </div>
         ) : null}
         {props.fullStories.length > 0 ? (
-          <div className="pt-4">
+          <div>
             <h2 className="text-lg font-bold">
               {`We've got ${props.fullStories.length} stories about
           this concept:`}
             </h2>
 
-            <div className="grid h-auto grid-cols-1 space-x-0 space-y-4 pt-2 md:grid-cols-3 md:space-x-4 md:space-y-0">
+            <div className="grid h-auto grid-cols-1 space-x-0 space-y-2 pt-2 md:grid-cols-3 md:space-x-2 md:space-y-0">
               {props.fullStories.map((story: Story) => {
                 const { id, contributors, type, title } = story
                 return (
@@ -119,9 +119,9 @@ const Concept: NextPage<Props> = (props) => {
                 )
               })}
             </div>
-            <div className="pt-4">
+            <div className="pt-2">
               <a
-                className="bg-pink px-3 py-2 text-sm no-underline"
+                className="bg-green px-3 py-2 text-sm no-underline"
                 href={`/?concept=${props.id}`}
               >
                 See more →
@@ -130,7 +130,7 @@ const Concept: NextPage<Props> = (props) => {
           </div>
         ) : null}
         {props.fullWorks.length > 0 ? (
-          <div className="pt-4">
+          <div>
             <h2 className="text-lg font-bold">
               {`We've got ${props.work_ids.length} works about
           this concept:`}
@@ -138,7 +138,7 @@ const Concept: NextPage<Props> = (props) => {
 
             <div className="grid h-auto grid-cols-1 space-x-0 space-y-2 pt-2 md:grid-cols-3 md:space-x-2 md:space-y-0">
               {props.fullWorks.map((work: Work) => {
-                const { id, description, contributors, type, title } = work
+                const { id, contributors, type, title } = work
                 return (
                   <li className="inline-block" key={id}>
                     <Card
