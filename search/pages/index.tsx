@@ -4,17 +4,20 @@ import { Concept } from '../types/concept'
 import ConceptPanel from '../components/ConceptPanel'
 import Layout from '../components/Layout'
 import Paginator from '../components/Paginator'
+import ResultSummary from '../components/ResultSummary'
 import SearchBox from '../components/SearchBox'
-import SearchResult from '../components/Hit'
+import SearchResult from '../components/SearchResult'
+import { Story } from '../types/story'
 import { Work } from '../types/work'
 import absoluteUrl from 'next-absolute-url'
 
 type Props = {
   query: string
+  index: string
   conceptId: string
   personId: string
   total: number
-  works: Work[]
+  results: Work[] | Story[]
   concept: Concept | null
   person: Concept | null
   page: number
@@ -24,17 +27,20 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({
   query: qs,
   req,
 }) => {
+  // parse the query string
+  const index = qs.index ? qs.index.toString() : 'works'
   const query = qs.query ? qs.query.toString() : ''
   const page = qs.page ? parseInt(qs.page.toString()) : 1
   const conceptId = qs.concept ? qs.concept.toString() : ''
   const personId = qs.person ? qs.person.toString() : ''
 
+  // get the results from the API
   let total: number = 0
-  let works: Work[] = []
+  let results: Work[] | Story[] = []
   let concept: Concept | null = null
   let person: Concept | null = null
-  if (query || conceptId) {
-    let url = new URL(`${absoluteUrl(req).origin}/api/search`)
+  if ((query && index) || conceptId || personId) {
+    let url = new URL(`${absoluteUrl(req).origin}/api/search/${index}`)
     if (query) {
       url.searchParams.append('query', query)
     }
@@ -48,11 +54,13 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({
       url.searchParams.append('page', page.toString())
     }
     const response = await fetch(url.toString()).then((res) => res.json())
-    total = response.works.total
-    works = response.works.results
+
+    total = response.total
+    results = response.results
     concept = response.concept.length > 0 ? response.concept[0] : null
     person = response.person.length > 0 ? response.person[0] : null
   }
+
   return {
     props: {
       query,
@@ -60,9 +68,10 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({
       personId,
       person,
       total,
-      works,
+      results,
       concept,
       page,
+      index,
     },
   }
 }
@@ -72,56 +81,57 @@ const Search: NextPage<Props> = ({
   conceptId,
   personId,
   total,
-  works,
+  results,
   concept,
   person,
   page,
+  index,
 }) => {
+  const title = 'Knowledge-graph search'
+  const description =
+    'Search for works, stories, and concepts from Wellcome Collection.'
   return (
-    <Layout
-      title="Knowledge-graph search"
-      description="Search for works, stories, and concepts in Wellcome Collection"
-    >
-      <h1>Knowledge-graph search</h1>
-      <p>
-        Search for works, stories, and concepts from{' '}
-        <a href="https://wellcomecollection.org/">Wellcome Collection</a>.
-      </p>
-      <div className="pt-4">
-        <SearchBox query={query} />
+    <Layout title={title} description={description}>
+      <div className="space-y-5">
+        <header>
+          <h1>{title}</h1>
+          <p>{description}</p>
+        </header>
+
+        <SearchBox query={query} index={index} />
+
+        {concept ? <ConceptPanel concept={concept} color={'red'} /> : null}
+        {person ? <ConceptPanel concept={person} color={'blue'} /> : null}
+
+        <div>
+          <ResultSummary
+            query={query}
+            index={index}
+            total={total}
+            page={page}
+            conceptId={conceptId}
+            personId={personId}
+          />
+
+          <ul className="divide-y divide-green ">
+            {results.map((result) => (
+              <li key={result.id} className="py-4 ">
+                <SearchResult result={result} />
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <Paginator
+          page={page}
+          total={total}
+          query={query}
+          conceptId={conceptId}
+          personId={personId}
+          length={results.length}
+          index={index}
+        />
       </div>
-      {concept ? <ConceptPanel concept={concept} color={'green'} /> : null}
-      {person ? <ConceptPanel concept={person} color={'blue'} /> : null}
-      <div className="pt-5">
-        {query ? (
-          `${total} results for "${query}"`
-        ) : conceptId ? (
-          <span>
-            {total} results tagged with concept ID{' '}
-            <a href={`/concepts/${conceptId}`}>{conceptId}</a>
-          </span>
-        ) : personId ? (
-          <span>
-            {total} results tagged with person ID{' '}
-            <a href={`/people/${personId}`}>{personId}</a>
-          </span>
-        ) : null}
-      </div>
-      <ul className="space-y-5 divide-y divide-gray-400">
-        {works.map((work) => (
-          <li key={work.id} className="pt-4">
-            <SearchResult work={work} />
-          </li>
-        ))}
-      </ul>
-      <Paginator
-        page={page}
-        total={total}
-        query={query}
-        conceptId={conceptId}
-        personId={personId}
-        works={works}
-      />
     </Layout>
   )
 }

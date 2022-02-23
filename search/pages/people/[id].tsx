@@ -21,13 +21,17 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
     index: process.env.ELASTIC_CONCEPTS_INDEX as string,
     id,
   })
+  const work_contribution_ids =
+    conceptsResponse.body._source.work_contribution_ids
+  const story_contribution_ids =
+    conceptsResponse.body._source.story_contribution_ids
 
   const fullWorks = (
-    conceptsResponse.body._source.work_ids.length > 0
+    work_contribution_ids.length > 0
       ? await client
           .mget({
             index: process.env.ELASTIC_WORKS_INDEX as string,
-            body: { ids: conceptsResponse.body._source.work_ids.slice(0, 3) },
+            body: { ids: work_contribution_ids.slice(0, 3) },
           })
           .then((res) => {
             return res.body.docs
@@ -36,11 +40,11 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   ).map((doc: WorkHit) => parseWork(doc))
 
   const fullStories = (
-    conceptsResponse.body._source.story_ids.length > 0
+    story_contribution_ids.length > 0
       ? await client
           .mget({
             index: process.env.ELASTIC_STORIES_INDEX as string,
-            body: { ids: conceptsResponse.body._source.story_ids.slice(0, 3) },
+            body: { ids: story_contribution_ids.slice(0, 3) },
           })
           .then((res) => {
             return res.body.docs
@@ -94,13 +98,11 @@ const Concept: NextPage<Props> = (props) => {
             </ul>
           </div>
         ) : null}
-        {props.fullStories.length > 0 ? (
+        {props.story_contribution_ids.length > 0 ? (
           <div>
             <h2 className="text-lg font-bold">
-              {`We've got ${props.fullStories.length} stories about
-          this concept:`}
+              {`We've got ${props.story_contribution_ids.length} stories by this person:`}
             </h2>
-
             <div className="grid h-auto grid-cols-1 space-x-0 space-y-2 pt-2 md:grid-cols-3 md:space-x-2 md:space-y-0">
               {props.fullStories.map((story: Story) => {
                 const { id, contributors, type, title } = story
@@ -129,11 +131,10 @@ const Concept: NextPage<Props> = (props) => {
             </div>
           </div>
         ) : null}
-        {props.fullWorks.length > 0 ? (
+        {props.work_contribution_ids.length > 0 ? (
           <div>
             <h2 className="text-lg font-bold">
-              {`We've got ${props.work_ids.length} works about
-          this concept:`}
+              {`We've got ${props.work_contribution_ids.length} works by this person:`}
             </h2>
 
             <div className="grid h-auto grid-cols-1 space-x-0 space-y-2 pt-2 md:grid-cols-3 md:space-x-2 md:space-y-0">

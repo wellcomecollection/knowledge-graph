@@ -34,18 +34,38 @@ export function parseConcept(conceptHit: ConceptHit): Concept {
       id: concept.story_ids[index],
     }
   })
+  const work_contributions = concept.work_contributions
+    ? concept.work_contributions.map((workTitle, index) => {
+        return {
+          name: workTitle,
+          id: concept.work_ids[index],
+        }
+      })
+    : []
+  const story_contributions = concept.story_contributions
+    ? concept.story_contributions.map((storyTitle, index) => {
+        return {
+          name: storyTitle,
+          id: concept.story_ids[index],
+        }
+      })
+    : []
 
   return {
     type: concept.type,
     id: conceptHit._id,
-    lcsh_id: concept.lcsh_id,
-    lcsh_preferred_name: concept.lcsh_preferred_name,
+    lc_subjects_id: concept.lc_subjects_id,
+    lc_subjects_preferred_name: concept.lc_subjects_preferred_name,
+    lc_names_id: concept.lc_names_id,
+    lc_names_preferred_name: concept.lc_names_preferred_name,
     mesh_description: concept.mesh_description,
     mesh_id: concept.mesh_id,
     mesh_preferred_name: concept.mesh_preferred_name,
     name: concept.name,
     works,
     stories,
+    work_contributions,
+    story_contributions,
     variants: concept.variants,
     wikidata_description: concept.wikidata_description,
     wikidata_id: concept.wikidata_id,
@@ -70,7 +90,7 @@ export function parseWork(workHit: WorkHit): Work {
   })
 
   return {
-    type: work.type,
+    type: 'work',
     id: workHit._id,
     contributors: contributors,
     concepts: concepts,
@@ -96,14 +116,13 @@ export function parseStory(storyHit: StoryHit): Story {
   })
 
   return {
-    type: story.type,
+    type: 'story',
     id: storyHit._id,
     contributors: contributors,
     concepts: concepts,
-    fulltext: story.fulltext,
-    published: new Date(story.published),
+    published: story.published,
     standfirst: story.standfirst,
     title: story.title,
-    wikidata_id: story.wikidata_id,
+    wikidata_id: story.wikidata_id ? story.wikidata_id : null,
   }
 }
