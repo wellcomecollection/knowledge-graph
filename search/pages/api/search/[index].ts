@@ -59,7 +59,7 @@ export default async function search(
           { index: chosenIndex },
           {
             query: structuredQuery,
-            size:10,
+            size: 10,
             from: (parseInt(page as string) - 1) * 10,
           },
           { index: process.env.ELASTIC_CONCEPTS_INDEX as string },
@@ -78,15 +78,18 @@ export default async function search(
         }
       })
 
+      const concept = conceptsResponse.hits.hits.map((hit: ConceptHit) =>
+        parseConcept(hit)
+      )
+      const person = peopleResponse.hits.hits.map((hit: ConceptHit) =>
+        parseConcept(hit)
+      )
+
       res.status(200).json({
-        results: results,
+        results,
         total: response.hits.total.value,
-        concept: conceptsResponse.hits.hits.map((hit: ConceptHit) =>
-          parseConcept(hit)
-        ),
-        person: peopleResponse.hits.hits.map((hit: ConceptHit) =>
-          parseConcept(hit)
-        ),
+        concept,
+        person,
       })
     } catch {
       res.status(500).json({ error: 'Unable to query' })

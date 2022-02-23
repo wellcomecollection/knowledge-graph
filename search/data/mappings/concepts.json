@@ -122,6 +122,66 @@
         "story_ids": {
             "type": "keyword"
         },
+        "story_contributions": {
+            "type": "text",
+            "fields": {
+                "keyword": {
+                    "type": "keyword",
+                    "normalizer": "lowercase_normalizer"
+                },
+                "english": {
+                    "type": "text",
+                    "analyzer": "english_analyzer"
+                },
+                "shingles": {
+                    "type": "text",
+                    "analyzer": "shingle_asciifolding_analyzer"
+                }
+            }
+        },
+        "story_contribution_ids": {
+            "type": "keyword"
+        },
+        "works": {
+            "type": "text",
+            "fields": {
+                "keyword": {
+                    "type": "keyword",
+                    "normalizer": "lowercase_normalizer"
+                },
+                "english": {
+                    "type": "text",
+                    "analyzer": "english_analyzer"
+                },
+                "shingles": {
+                    "type": "text",
+                    "analyzer": "shingle_asciifolding_analyzer"
+                }
+            }
+        },
+        "work_ids": {
+            "type": "keyword"
+        },
+        "work_contributions": {
+            "type": "text",
+            "fields": {
+                "keyword": {
+                    "type": "keyword",
+                    "normalizer": "lowercase_normalizer"
+                },
+                "english": {
+                    "type": "text",
+                    "analyzer": "english_analyzer"
+                },
+                "shingles": {
+                    "type": "text",
+                    "analyzer": "shingle_asciifolding_analyzer"
+                }
+            }
+        },
+        "work_contribution_ids": {
+            "type": "keyword"
+        },
         "type": {
             "type": "keyword"
         }

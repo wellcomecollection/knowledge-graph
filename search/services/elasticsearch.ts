@@ -34,6 +34,22 @@ export function parseConcept(conceptHit: ConceptHit): Concept {
       id: concept.story_ids[index],
     }
   })
+  const work_contributions = concept.work_contributions
+    ? concept.work_contributions.map((workTitle, index) => {
+        return {
+          name: workTitle,
+          id: concept.work_ids[index],
+        }
+      })
+    : []
+  const story_contributions = concept.story_contributions
+    ? concept.story_contributions.map((storyTitle, index) => {
+        return {
+          name: storyTitle,
+          id: concept.story_ids[index],
+        }
+      })
+    : []
 
   return {
     type: concept.type,
@@ -48,6 +64,8 @@ export function parseConcept(conceptHit: ConceptHit): Concept {
     name: concept.name,
     works,
     stories,
+    work_contributions,
+    story_contributions,
     variants: concept.variants,
     wikidata_description: concept.wikidata_description,
     wikidata_id: concept.wikidata_id,

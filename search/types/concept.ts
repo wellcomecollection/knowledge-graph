@@ -16,6 +16,10 @@ export type ConceptSource = {
   wikidata_id: string
   wikidata_preferred_name: string
   type: string
+  work_contributions: string[]
+  work_contribution_ids: string[]
+  story_contributions: string[]
+  story_contribution_ids: string[]
 }
 
 export type ConceptHit = {
@@ -40,6 +44,14 @@ export type Concept = {
     id: string
   }[]
   stories: {
+    name: string
+    id: string
+  }[]
+  work_contributions: {
+    name: string
+    id: string
+  }[]
+  story_contributions: {
     name: string
     id: string
   }[]
