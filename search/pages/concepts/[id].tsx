@@ -103,12 +103,15 @@ const Concept: NextPage<Props> = (props) => {
 
             <div className="grid h-auto grid-cols-1 space-x-0 space-y-4 pt-2 md:grid-cols-3 md:space-x-4 md:space-y-0">
               {props.fullStories.map((story: Story) => {
-                const { id, standfirst, type, title } = story
+                const { id, contributors, type, title } = story
                 return (
                   <li className="inline-block" key={id}>
                     <Card
                       id={id}
-                      description={standfirst}
+                      color={type === 'work' ? 'blue' : 'green'}
+                      contributors={contributors.map(
+                        (contributor) => contributor.name
+                      )}
                       type={type}
                       title={title}
                     />
@@ -118,7 +121,7 @@ const Concept: NextPage<Props> = (props) => {
             </div>
             <div className="pt-4">
               <a
-                className="rounded border-2 border-black px-3 py-2 text-sm no-underline"
+                className="bg-pink px-3 py-2 text-sm no-underline"
                 href={`/?concept=${props.id}`}
               >
                 See more →
@@ -133,24 +136,27 @@ const Concept: NextPage<Props> = (props) => {
           this concept:`}
             </h2>
 
-            <div className="grid h-auto grid-cols-1 space-x-0 space-y-4 pt-2 md:grid-cols-3 md:space-x-4 md:space-y-0">
+            <div className="grid h-auto grid-cols-1 space-x-0 space-y-2 pt-2 md:grid-cols-3 md:space-x-2 md:space-y-0">
               {props.fullWorks.map((work: Work) => {
-                const { id, description, type, title } = work
+                const { id, description, contributors, type, title } = work
                 return (
                   <li className="inline-block" key={id}>
                     <Card
-                      title={title}
                       id={id}
-                      description={description}
+                      color={type === 'work' ? 'pink' : 'green'}
+                      contributors={contributors.map(
+                        (contributor) => contributor.name
+                      )}
                       type={type}
+                      title={title}
                     />
                   </li>
                 )
               })}
             </div>
-            <div className="pt-4">
+            <div className="pt-2">
               <a
-                className="rounded border-2 border-black px-3 py-2 text-sm no-underline"
+                className="bg-pink px-3 py-2 text-sm no-underline"
                 href={`/?concept=${props.id}`}
               >
                 See more →

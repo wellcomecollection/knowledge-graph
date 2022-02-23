@@ -6,6 +6,7 @@ module.exports = {
   darkMode: false,
   theme: {
     extend: {
+      spacing: { '2/3': '66.666667%' },
       colors: {
         red: '#C88F7E',
         tan: '#E6B692',
