@@ -124,7 +124,7 @@ const Concept: NextPage<Props> = (props) => {
             <div className="pt-2">
               <a
                 className="bg-green px-3 py-2 text-sm no-underline"
-                href={`/?concept=${props.id}`}
+                href={`/?person=${props.id}`}
               >
                 See more →
               </a>
@@ -158,7 +158,7 @@ const Concept: NextPage<Props> = (props) => {
             <div className="pt-2">
               <a
                 className="bg-pink px-3 py-2 text-sm no-underline"
-                href={`/?concept=${props.id}`}
+                href={`/?person=${props.id}`}
               >
                 See more →
               </a>
