@@ -2,8 +2,8 @@ import { Concept } from '../types/concept'
 import { FC } from 'react'
 import Link from 'next/link'
 
-type Props = { concept: Concept; color: string }
-const ConceptPanel: FC<Props> = ({ concept, color }) => {
+type Props = { concept: Concept }
+const ConceptPanel: FC<Props> = ({ concept }) => {
   const title =
     concept.wikidata_preferred_name ||
     concept.mesh_preferred_name ||
@@ -14,7 +14,11 @@ const ConceptPanel: FC<Props> = ({ concept, color }) => {
 
   return (
     <>
-      <div className={` bg-${color} py-3 px-4 text-white`}>
+      <div
+        className={` ${
+          concept.type == 'concept' ? 'bg-red' : 'bg-blue'
+        } py-3 px-4 text-white`}
+      >
         <div className="flex">
           <div className="my-auto flex-auto">
             <p className="text-sm uppercase">{concept.type}</p>
