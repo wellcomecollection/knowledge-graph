@@ -1,31 +1,31 @@
 import { FC } from 'react'
 
 type Props = {
-  total: number
-  page: number
-  query: string
-  conceptId?: string
-  personId?: string
-  length: number
+  conceptId: string
   index: string
+  length: number
+  page: number
+  personId: string
+  query: string
+  total: number
 }
 
 const Paginator: FC<Props> = ({
-  total,
-  index,
-  page,
-  query,
   conceptId,
-  personId,
+  index,
   length,
+  page,
+  personId,
+  query,
+  total,
 }) => {
-  const url = `/?query=${query}&index=${index}`
-  if (conceptId) {
-    url + `&concept=${conceptId}`
-  }
-  if (personId) {
-    url + `&person=${personId}`
-  }
+  const params = new URLSearchParams({
+    concept: conceptId,
+    index,
+    person: personId,
+    query,
+  })
+  const url = `/?${params.toString()}`
 
   return total > 10 ? (
     <div>

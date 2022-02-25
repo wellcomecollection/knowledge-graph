@@ -1,20 +1,20 @@
 import { FC } from 'react'
 
 type Props = {
-  query?: string
-  index: string
-  total: number
-  page: number
   conceptId?: string
+  index: string
+  page: number
   personId?: string
+  query?: string
+  total: number
 }
 const ResultSummary: FC<Props> = ({
-  query,
-  index,
-  total,
-  page,
   conceptId,
+  index,
+  page,
   personId,
+  query,
+  total,
 }) => {
 
   return (

@@ -12,15 +12,15 @@ import { Work } from '../types/work'
 import absoluteUrl from 'next-absolute-url'
 
 type Props = {
-  query: string
-  index: string
-  conceptId: string
-  personId: string
-  total: number
-  results: Work[] | Story[]
   concept: Concept | null
-  person: Concept | null
+  conceptId: string
+  index: string
   page: number
+  person: Concept | null
+  personId: string
+  query: string
+  results: Work[] | Story[]
+  total: number
 }
 
 export const getServerSideProps: GetServerSideProps<Props> = async ({
@@ -63,29 +63,29 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({
 
   return {
     props: {
-      query,
-      conceptId,
-      personId,
-      person,
-      total,
-      results,
       concept,
-      page,
+      conceptId,
       index,
+      page,
+      person,
+      personId,
+      query,
+      results,
+      total,
     },
   }
 }
 
 const Search: NextPage<Props> = ({
-  query,
-  conceptId,
-  personId,
-  total,
-  results,
   concept,
-  person,
-  page,
+  conceptId,
   index,
+  page,
+  person,
+  personId,
+  query,
+  results,
+  total,
 }) => {
   const title = 'Knowledge-graph search'
   const description =
