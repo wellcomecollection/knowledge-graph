@@ -13,6 +13,19 @@
                 }
             }
         },
+        "preferred_name": {
+            "type": "text",
+            "fields": {
+                "keyword": {
+                    "type": "keyword",
+                    "normalizer": "lowercase_normalizer"
+                },
+                "english": {
+                    "type": "text",
+                    "analyzer": "english_analyzer"
+                }
+            }
+        },
         "mesh_preferred_name": {
             "type": "text",
             "fields": {
