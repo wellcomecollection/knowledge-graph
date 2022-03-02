@@ -13,7 +13,8 @@
                     "wikidata_preferred_name.keyword",
                     "lc_subjects_preferred_name.keyword",
                     "lc_names_preferred_name.keyword",
-                    "mesh_preferred_name.keyword"
+                    "mesh_preferred_name.keyword",
+                    "preferred_name.keyword^100"
                 ]
             }
         },
