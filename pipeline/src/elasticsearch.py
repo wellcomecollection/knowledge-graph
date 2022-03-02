@@ -12,7 +12,8 @@ def format_work_for_elasticsearch(work):
     concept_ids = [concept.uid for concept in work_concepts]
     concept_names = [
         # TODO: use the preferred name
-        concept.name for concept in work_concepts
+        concept.name
+        for concept in work_concepts
     ]
     concept_variants = [
         variant
@@ -24,9 +25,9 @@ def format_work_for_elasticsearch(work):
     work_contributors = work.contributors.all()
     contributor_ids = [contributor.uid for contributor in work_contributors]
     contributors = [
-        source_concept.preferred_name
+        # TODO: use the preferred name
+        contributor.name
         for contributor in work_contributors
-        for source_concept in contributor.sources.all()
     ]
 
     work_data = get_work_data(work.wellcome_id)
@@ -52,7 +53,8 @@ def format_story_for_elasticsearch(story):
     concept_ids = [concept.uid for concept in story_concepts]
     concept_names = [
         # TODO: use the preferred name
-        concept.name for concept in story_concepts
+        concept.name
+        for concept in story_concepts
     ]
     concept_variants = [
         variant
@@ -64,9 +66,9 @@ def format_story_for_elasticsearch(story):
     story_contributors = story.contributors.all()
     contributor_ids = [contributor.uid for contributor in story_contributors]
     contributors = [
-        source_concept.preferred_name
+        # TODO: use the preferred name
+        contributor.name
         for contributor in story_contributors
-        for source_concept in contributor.sources.all()
     ]
     slices = get_slices(story.wellcome_id)
     full_text = get_fulltext(slices)
@@ -95,6 +97,14 @@ def format_concept_for_elasticsearch(concept):
     stories = [story.title for story in concept_stories]
     story_ids = [story.wellcome_id for story in concept_stories]
 
+    concept_work_contributions = concept.contributed_to_work.filter(type="work")
+    work_contributions = [work.title for work in concept_work_contributions]
+    work_contribution_ids = [work.wellcome_id for work in concept_work_contributions]
+
+    concept_story_contributions = concept.contributed_to_work.filter(type="story")
+    story_contributions = [story.title for story in concept_story_contributions]
+    story_contribution_ids = [story.wellcome_id for story in concept_story_contributions]
+
     variants = [
         variant
         for source_concept in concept.sources.all()
@@ -103,11 +113,16 @@ def format_concept_for_elasticsearch(concept):
 
     document = {
         "name": concept.name,
+        "preferred_name": concept.name,
         "type": concept.type,
         "works": works,
         "work_ids": work_ids,
         "stories": stories,
         "story_ids": story_ids,
+        "work_contributions": work_contributions,
+        "work_contribution_ids": work_contribution_ids,
+        "story_contributions": story_contributions,
+        "story_contribution_ids": story_contribution_ids,
         "variants": variants,
     }
 
@@ -116,34 +131,38 @@ def format_concept_for_elasticsearch(concept):
     lc_names_source = concept.sources.get_or_none(source_type="lc-names")
     mesh_source = concept.sources.get_or_none(source_type="nlm-mesh")
 
-    if wikidata_source:
-        document.update(
-            {
-                "wikidata_description": wikidata_source.description,
-                "wikidata_id": wikidata_source.source_id,
-                "wikidata_preferred_name": wikidata_source.preferred_name,
-            }
-        )
-    if lc_subjects_source:
-        document.update(
-            {
-                "lc_subjects_id": lc_subjects_source.source_id,
-                "lcsh_preferred_name": lc_subjects_source.preferred_name,
-            }
-        )
-    if lc_names_source:
-        document.update(
-            {
-                "lc_names_id": lc_names_source.source_id,
-                "lcsh_preferred_name": lc_names_source.preferred_name,
-            }
-        )
     if mesh_source:
         document.update(
             {
                 "mesh_description": mesh_source.description,
                 "mesh_id": mesh_source.source_id,
                 "mesh_preferred_name": mesh_source.preferred_name,
+                "preferred_name": mesh_source.preferred_name,
+            }
+        )
+    if lc_names_source:
+        document.update(
+            {
+                "lc_names_id": lc_names_source.source_id,
+                "lc_names_preferred_name": lc_names_source.preferred_name,
+                "preferred_name": lc_names_source.preferred_name,
+            }
+        )
+    if lc_subjects_source:
+        document.update(
+            {
+                "lc_subjects_id": lc_subjects_source.source_id,
+                "lc_subjects_preferred_name": lc_subjects_source.preferred_name,
+                "preferred_name": lc_subjects_source.preferred_name,
+            }
+        )
+    if wikidata_source:
+        document.update(
+            {
+                "wikidata_description": wikidata_source.description,
+                "wikidata_id": wikidata_source.source_id,
+                "wikidata_preferred_name": wikidata_source.preferred_name,
+                "preferred_name": wikidata_source.preferred_name,
             }
         )
 

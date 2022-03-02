@@ -29,6 +29,10 @@ es = Elasticsearch(
     ),
 )
 
+STORIES_START_POSITION = 0
+WORKS_START_POSITION = 0
+CONCEPTS_START_POSITION = 0
+PEOPLE_START_POSITION = 0
 
 # stories
 stories_index_name = os.environ["ELASTIC_STORIES_INDEX"]
@@ -38,24 +42,30 @@ with open(mappings_path / "stories.json", "r") as f:
 with open(settings_path / "stories.json", "r") as f:
     stories_settings = json.load(f)
 
-es.indices.delete(index=stories_index_name, ignore=404)
-es.indices.create(
-    index=stories_index_name,
-    mappings=stories_mappings,
-    settings=stories_settings,
-)
+if not STORIES_START_POSITION:
+    es.indices.delete(index=stories_index_name, ignore=404)
+    es.indices.create(
+        index=stories_index_name,
+        mappings=stories_mappings,
+        settings=stories_settings,
+    )
 
 log.info("Populating the stories index")
-for story in tqdm(
+progress_bar = tqdm(
     Work.nodes.filter(type="story"),
     total=len(Work.nodes.filter(type="story")),
     unit="stories",
-):
-    es.index(
-        index=stories_index_name,
-        id=story.wellcome_id,
-        document=format_story_for_elasticsearch(story),
-    )
+)
+for story in progress_bar:
+    if progress_bar.n < STORIES_START_POSITION:
+        progress_bar.set_description(f"Skipping story {story.uid}")
+    else:
+        progress_bar.set_description(f"Indexing story {story.uid}")
+        es.index(
+            index=stories_index_name,
+            id=story.uid,
+            document=format_story_for_elasticsearch(story),
+        )
 
 
 # works
@@ -66,25 +76,30 @@ with open(mappings_path / "works.json", "r") as f:
 with open(settings_path / "works.json", "r") as f:
     works_settings = json.load(f)
 
-es.indices.delete(index=works_index_name, ignore=404)
-es.indices.create(
-    index=works_index_name,
-    mappings=works_mappings,
-    settings=works_settings,
+if not WORKS_START_POSITION:
+    es.indices.delete(index=works_index_name, ignore=404)
+    es.indices.create(
+        index=works_index_name,
+        mappings=works_mappings,
+        settings=works_settings,
 )
 
 log.info("Populating the works index")
-for work in tqdm(
+progress_bar = tqdm(
     Work.nodes.filter(type="work"),
     total=len(Work.nodes.filter(type="work")),
     unit="works",
-):
+)
+for work in progress_bar:
+    if progress_bar.n < WORKS_START_POSITION:
+        progress_bar.set_description(f"Skipping work {work.uid}")
+    else:
+        progress_bar.set_description(f"Indexing work {work.uid}")
     es.index(
         index=works_index_name,
         id=work.wellcome_id,
         document=format_work_for_elasticsearch(work),
     )
-
 
 # concepts
 concepts_index_name = os.environ["ELASTIC_CONCEPTS_INDEX"]
@@ -94,21 +109,52 @@ with open(mappings_path / "concepts.json", "r") as f:
 with open(settings_path / "concepts.json", "r") as f:
     concepts_settings = json.load(f)
 
-es.indices.delete(index=concepts_index_name, ignore=404)
-es.indices.create(
-    index=concepts_index_name,
-    mappings=concepts_mappings,
-    settings=concepts_settings,
-)
+if not CONCEPTS_START_POSITION:
+    es.indices.delete(index=concepts_index_name, ignore=404)
+    es.indices.create(
+        index=concepts_index_name,
+        mappings=concepts_mappings,
+        settings=concepts_settings,
+    )
 
 log.info("Populating the concepts index")
-for concept in tqdm(
+progress_bar = tqdm(
     Concept.nodes.all(),
     total=len(Concept.nodes.all()),
     unit="concepts",
-):
-    es.index(
-        index=concepts_index_name,
-        id=concept.uid,
-        document=format_concept_for_elasticsearch(concept),
-    )
+)
+for concept in progress_bar:
+    if progress_bar.n < CONCEPTS_START_POSITION:
+        progress_bar.set_description(f"Skipping concept {concept.uid}")
+    else:
+        progress_bar.set_description(f"Indexing concept {concept.uid}")
+        es.index(
+            index=concepts_index_name,
+            id=concept.uid,
+            document=format_concept_for_elasticsearch(concept),
+        )
+
+# people
+concepts_index_name = os.environ["ELASTIC_CONCEPTS_INDEX"]
+with open(mappings_path / "concepts.json", "r") as f:
+    concepts_mappings = json.load(f)
+with open(settings_path / "concepts.json", "r") as f:
+    concepts_settings = json.load(f)
+
+log.info("Populating the concepts index")
+progress_bar = tqdm(
+    Concept.nodes.filter(type="person"),
+    total=len(Concept.nodes.filter(type="person")),
+    unit="people",
+)
+
+for person in progress_bar:
+    if progress_bar.n < PEOPLE_START_POSITION:
+        progress_bar.set_description(f"Skipping person {person.uid}")
+    else:
+        progress_bar.set_description(f"Indexing person {person.uid}")
+        es.index(
+            index=concepts_index_name,
+            id=person.uid,
+            document=format_concept_for_elasticsearch(person),
+        )
