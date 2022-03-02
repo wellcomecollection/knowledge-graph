@@ -97,11 +97,11 @@ def format_concept_for_elasticsearch(concept):
     stories = [story.title for story in concept_stories]
     story_ids = [story.wellcome_id for story in concept_stories]
 
-    concept_work_contributions = concept.contributions.filter(type="work")
+    concept_work_contributions = concept.contributed_to_work.filter(type="work")
     work_contributions = [work.title for work in concept_work_contributions]
     work_contribution_ids = [work.wellcome_id for work in concept_work_contributions]
 
-    concept_story_contributions = concept.contributions.filter(type="story")
+    concept_story_contributions = concept.contributed_to_work.filter(type="story")
     story_contributions = [story.title for story in concept_story_contributions]
     story_contribution_ids = [story.wellcome_id for story in concept_story_contributions]
 
