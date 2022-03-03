@@ -64,12 +64,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
 
 const Concept: NextPage<Props> = (props) => {
   const description = props.wikidata_description || props.mesh_description
-  const title =
-    props.wikidata_preferred_name ||
-    props.mesh_preferred_name ||
-    props.lc_subjects_preferred_name ||
-    props.lc_names_preferred_name ||
-    props.name
+  const title = props.preferred_name
 
   return (
     <Layout title={`Concept | ${title}`} description={description}>

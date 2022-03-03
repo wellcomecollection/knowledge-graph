@@ -62,6 +62,7 @@ export function parseConcept(conceptHit: ConceptHit): Concept {
     mesh_id: concept.mesh_id,
     mesh_preferred_name: concept.mesh_preferred_name,
     name: concept.name,
+    preferred_name: concept.preferred_name,
     works,
     stories,
     work_contributions,

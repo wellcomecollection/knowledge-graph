@@ -6,15 +6,21 @@ from elasticsearch.helpers import scan
 from .prismic import get_fulltext, get_slices, get_standfirst
 from .wellcome import get_description, get_notes, get_work_data
 
+ordered_source_preferences = ["wikidata", "nlm-mesh", "lc-subjects", "lc-names"]
+
 
 def format_work_for_elasticsearch(work):
     work_concepts = work.concepts.all()
     concept_ids = [concept.uid for concept in work_concepts]
-    concept_names = [
-        # TODO: use the preferred name
-        concept.name
-        for concept in work_concepts
-    ]
+    concept_names = []
+    for concept in work_concepts:
+        preferred_name = concept.name
+        for source_type in ordered_source_preferences:
+            source = concept.sources.get_or_none(source_type=source_type)
+            if source:
+                preferred_name = source.preferred_name
+                break
+        concept_names.append(preferred_name)
     concept_variants = [
         variant
         for concept in work_concepts
@@ -24,10 +30,20 @@ def format_work_for_elasticsearch(work):
 
     work_contributors = work.contributors.all()
     contributor_ids = [contributor.uid for contributor in work_contributors]
-    contributors = [
-        # TODO: use the preferred name
-        contributor.name
+    contributor_names = []
+    for contributor in work_contributors:
+        preferred_name = contributor.name
+        for source_type in ordered_source_preferences:
+            source = contributor.sources.get_or_none(source_type=source_type)
+            if source:
+                preferred_name = source.preferred_name
+                break
+        contributor_names.append(preferred_name)
+    contributor_variants = [
+        variant
         for contributor in work_contributors
+        for source_contributor in contributor.sources.all()
+        for variant in source_contributor.variant_names
     ]
 
     work_data = get_work_data(work.wellcome_id)
@@ -38,9 +54,9 @@ def format_work_for_elasticsearch(work):
         "concept_ids": concept_ids,
         "concept_variants": concept_variants,
         "concepts": concept_names,
-        "contributors": contributors,
         "contributor_ids": contributor_ids,
-        "contributors": contributors,
+        "contributor_variants": contributor_variants,
+        "contributors": contributor_names,
         "published": work.published,
         "title": work.title,
         "description": description,
@@ -51,11 +67,15 @@ def format_work_for_elasticsearch(work):
 def format_story_for_elasticsearch(story):
     story_concepts = story.concepts.all()
     concept_ids = [concept.uid for concept in story_concepts]
-    concept_names = [
-        # TODO: use the preferred name
-        concept.name
-        for concept in story_concepts
-    ]
+    concept_names = []
+    for concept in story_concepts:
+        preferred_name = concept.name
+        for source_type in ordered_source_preferences:
+            source = concept.sources.get_or_none(source_type=source_type)
+            if source:
+                preferred_name = source.preferred_name
+                break
+        concept_names.append(preferred_name)
     concept_variants = [
         variant
         for concept in story_concepts
@@ -65,11 +85,22 @@ def format_story_for_elasticsearch(story):
 
     story_contributors = story.contributors.all()
     contributor_ids = [contributor.uid for contributor in story_contributors]
-    contributors = [
-        # TODO: use the preferred name
-        contributor.name
+    contributor_names = []
+    for contributor in story_contributors:
+        preferred_name = contributor.name
+        for source_type in ordered_source_preferences:
+            source = contributor.sources.get_or_none(source_type=source_type)
+            if source:
+                preferred_name = source.preferred_name
+                break
+        contributor_names.append(preferred_name)
+    contributor_variants = [
+        variant
         for contributor in story_contributors
+        for source_contributor in contributor.sources.all()
+        for variant in source_contributor.variant_names
     ]
+
     slices = get_slices(story.wellcome_id)
     full_text = get_fulltext(slices)
     standfirst = get_standfirst(slices)
@@ -79,8 +110,8 @@ def format_story_for_elasticsearch(story):
         "concept_variants": concept_variants,
         "concepts": concept_names,
         "contributor_ids": contributor_ids,
-        "contributors": contributors,
-        "contributors": contributors,
+        "contributors": contributor_names,
+        "contributor_variants": contributor_variants,
         "full_text": full_text,
         "published": story.published,
         "standfirst": standfirst,
@@ -99,11 +130,15 @@ def format_concept_for_elasticsearch(concept):
 
     concept_work_contributions = concept.contributed_to_work.filter(type="work")
     work_contributions = [work.title for work in concept_work_contributions]
-    work_contribution_ids = [work.wellcome_id for work in concept_work_contributions]
+    work_contribution_ids = [
+        work.wellcome_id for work in concept_work_contributions
+    ]
 
     concept_story_contributions = concept.contributed_to_work.filter(type="story")
     story_contributions = [story.title for story in concept_story_contributions]
-    story_contribution_ids = [story.wellcome_id for story in concept_story_contributions]
+    story_contribution_ids = [
+        story.wellcome_id for story in concept_story_contributions
+    ]
 
     variants = [
         variant

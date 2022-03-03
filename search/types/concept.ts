@@ -7,6 +7,7 @@ export type ConceptSource = {
   mesh_id: string
   mesh_preferred_name: string
   name: string
+  preferred_name: string
   works: string[]
   work_ids: string[]
   stories: string[]
@@ -39,6 +40,7 @@ export type Concept = {
   mesh_id: string
   mesh_preferred_name: string
   name: string
+  preferred_name: string
   works: {
     name: string
     id: string

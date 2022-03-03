@@ -32,8 +32,8 @@ log = get_logger(__name__)
 
 
 def get_neo4j_session(clear=False):
-    config.CONNECTION_TIMEOUT = 60 * 5
-    config.MAX_CONNECTION_LIFETIME = 60 * 60 * 12
+    config.CONNECTION_TIMEOUT = 60 * 60 * 100
+    config.MAX_CONNECTION_LIFETIME = 60 * 60 * 100
     config.DATABASE_URL = os.environ["NEO4J_CONNECTION_URI"]
     db.set_connection(os.environ["NEO4J_CONNECTION_URI"])
     wait_until_neo4j_is_live()

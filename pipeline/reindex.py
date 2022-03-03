@@ -34,72 +34,72 @@ WORKS_START_POSITION = 0
 CONCEPTS_START_POSITION = 0
 PEOPLE_START_POSITION = 0
 
-# stories
-stories_index_name = os.environ["ELASTIC_STORIES_INDEX"]
-log.info(f"Creating the stories index: {stories_index_name}")
-with open(mappings_path / "stories.json", "r") as f:
-    stories_mappings = json.load(f)
-with open(settings_path / "stories.json", "r") as f:
-    stories_settings = json.load(f)
+# # stories
+# stories_index_name = os.environ["ELASTIC_STORIES_INDEX"]
+# log.info(f"Creating the stories index: {stories_index_name}")
+# with open(mappings_path / "stories.json", "r") as f:
+#     stories_mappings = json.load(f)
+# with open(settings_path / "stories.json", "r") as f:
+#     stories_settings = json.load(f)
 
-if not STORIES_START_POSITION:
-    es.indices.delete(index=stories_index_name, ignore=404)
-    es.indices.create(
-        index=stories_index_name,
-        mappings=stories_mappings,
-        settings=stories_settings,
-    )
+# if not STORIES_START_POSITION:
+#     es.indices.delete(index=stories_index_name, ignore=404)
+#     es.indices.create(
+#         index=stories_index_name,
+#         mappings=stories_mappings,
+#         settings=stories_settings,
+#     )
 
-log.info("Populating the stories index")
-progress_bar = tqdm(
-    Work.nodes.filter(type="story"),
-    total=len(Work.nodes.filter(type="story")),
-    unit="stories",
-)
-for story in progress_bar:
-    if progress_bar.n < STORIES_START_POSITION:
-        progress_bar.set_description(f"Skipping story {story.uid}")
-    else:
-        progress_bar.set_description(f"Indexing story {story.uid}")
-        es.index(
-            index=stories_index_name,
-            id=story.uid,
-            document=format_story_for_elasticsearch(story),
-        )
+# log.info("Populating the stories index")
+# progress_bar = tqdm(
+#     Work.nodes.filter(type="story"),
+#     total=len(Work.nodes.filter(type="story")),
+#     unit="stories",
+# )
+# for story in progress_bar:
+#     if progress_bar.n < STORIES_START_POSITION:
+#         progress_bar.set_description(f"Skipping story {story.uid}")
+#     else:
+#         progress_bar.set_description(f"Indexing story {story.uid}")
+#         es.index(
+#             index=stories_index_name,
+#             id=story.uid,
+#             document=format_story_for_elasticsearch(story),
+#         )
 
 
-# works
-works_index_name = os.environ["ELASTIC_WORKS_INDEX"]
-log.info(f"Creating the works index: {works_index_name}")
-with open(mappings_path / "works.json", "r") as f:
-    works_mappings = json.load(f)
-with open(settings_path / "works.json", "r") as f:
-    works_settings = json.load(f)
+# # works
+# works_index_name = os.environ["ELASTIC_WORKS_INDEX"]
+# log.info(f"Creating the works index: {works_index_name}")
+# with open(mappings_path / "works.json", "r") as f:
+#     works_mappings = json.load(f)
+# with open(settings_path / "works.json", "r") as f:
+#     works_settings = json.load(f)
 
-if not WORKS_START_POSITION:
-    es.indices.delete(index=works_index_name, ignore=404)
-    es.indices.create(
-        index=works_index_name,
-        mappings=works_mappings,
-        settings=works_settings,
-)
+# if not WORKS_START_POSITION:
+#     es.indices.delete(index=works_index_name, ignore=404)
+#     es.indices.create(
+#         index=works_index_name,
+#         mappings=works_mappings,
+#         settings=works_settings,
+#     )
 
-log.info("Populating the works index")
-progress_bar = tqdm(
-    Work.nodes.filter(type="work"),
-    total=len(Work.nodes.filter(type="work")),
-    unit="works",
-)
-for work in progress_bar:
-    if progress_bar.n < WORKS_START_POSITION:
-        progress_bar.set_description(f"Skipping work {work.uid}")
-    else:
-        progress_bar.set_description(f"Indexing work {work.uid}")
-    es.index(
-        index=works_index_name,
-        id=work.wellcome_id,
-        document=format_work_for_elasticsearch(work),
-    )
+# log.info("Populating the works index")
+# progress_bar = tqdm(
+#     Work.nodes.filter(type="work"),
+#     total=len(Work.nodes.filter(type="work")),
+#     unit="works",
+# )
+# for work in progress_bar:
+#     if progress_bar.n < WORKS_START_POSITION:
+#         progress_bar.set_description(f"Skipping work {work.uid}")
+#     else:
+#         progress_bar.set_description(f"Indexing work {work.uid}")
+#     es.index(
+#         index=works_index_name,
+#         id=work.wellcome_id,
+#         document=format_work_for_elasticsearch(work),
+#     )
 
 # concepts
 concepts_index_name = os.environ["ELASTIC_CONCEPTS_INDEX"]
@@ -119,8 +119,8 @@ if not CONCEPTS_START_POSITION:
 
 log.info("Populating the concepts index")
 progress_bar = tqdm(
-    Concept.nodes.all(),
-    total=len(Concept.nodes.all()),
+    Concept.nodes.filter(type="concept"),
+    total=len(Concept.nodes.filter(type="concept")),
     unit="concepts",
 )
 for concept in progress_bar:

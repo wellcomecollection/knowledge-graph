@@ -30,7 +30,7 @@ df = pd.read_excel(
 
 # stories
 log.info("Processing stories")
-for _, story_data in df.head(20).iterrows():
+for _, story_data in df.iterrows():
     story_id = Path(story_data["URL"]).name
     log.info("Processing story", story_id=story_id)
     story = Work(
@@ -99,7 +99,7 @@ for _, story_data in df.head(20).iterrows():
 
 # works
 log.info("Processing works")
-for document in yield_popular_works(size=20):
+for document in yield_popular_works(size=10_000):
     try:
         work_data = document["_source"]["data"]
     except KeyError as e:

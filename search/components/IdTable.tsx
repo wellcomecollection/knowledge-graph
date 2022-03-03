@@ -31,7 +31,7 @@ const IdTable: FC<Props> = ({
     {
       id: lc_names_id,
       label: 'LC Names',
-      url: `https://id.loc.gov/authorities/subjects/${lc_subjects_id}.html`,
+      url: `https://id.loc.gov/authorities/names/${lc_names_id}.html`,
     },
   ]
 
