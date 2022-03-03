@@ -82,6 +82,18 @@ services:
         target: /data/cache
     command: python reindex.py
 
+  deduplicate:
+    build: pipeline
+    env_file: .env
+    volumes:
+      - type: bind
+        source: ./search/data
+        target: /data
+      - type: bind
+        source: ./data/cache
+        target: /data/cache
+    command: python deduplicate.py
+
   pipeline:
     build: pipeline
     env_file: .env
