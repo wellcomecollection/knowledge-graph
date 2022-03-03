@@ -50,6 +50,12 @@ export function parseConcept(conceptHit: ConceptHit): Concept {
         }
       })
     : []
+  const neighbours = concept.neighbour_ids.map((id, index) => {
+    return {
+      id,
+      name: concept.neighbour_names[index],
+    }
+  })
 
   return {
     type: concept.type,
@@ -63,6 +69,7 @@ export function parseConcept(conceptHit: ConceptHit): Concept {
     mesh_preferred_name: concept.mesh_preferred_name,
     name: concept.name,
     preferred_name: concept.preferred_name,
+    neighbours,
     works,
     stories,
     work_contributions,

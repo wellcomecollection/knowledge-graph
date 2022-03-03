@@ -91,6 +91,22 @@
                 }
             }
         },
+        "neighbour_names": {
+            "type": "text",
+            "fields": {
+                "keyword": {
+                    "type": "keyword",
+                    "normalizer": "lowercase_normalizer"
+                },
+                "english": {
+                    "type": "text",
+                    "analyzer": "english_analyzer"
+                }
+            }
+        },
+        "neighbour_ids": {
+            "type": "keyword"
+        },
         "wikidata_description": {
             "type": "text",
             "analyzer": "english_analyzer"
