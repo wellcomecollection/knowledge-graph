@@ -7,6 +7,7 @@ import Card from '../../components/Card'
 import { ConceptSource } from '../../types/concept'
 import IdTable from '../../components/IdTable'
 import Layout from '../../components/Layout'
+import Link from 'next/link'
 
 type Props = ConceptSource & {
   fullWorks: Work[]
@@ -84,6 +85,22 @@ const Concept: NextPage<Props> = (props) => {
                   <span className="bg-paper-3 px-2 py-1 text-xs capitalize">
                     {variant}
                   </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
+        {props.neighbour_ids ? (
+          <div>
+            <h2 className="text-lg">Has neighbours</h2>
+            <ul className="pt-2 leading-7">
+              {props.neighbour_ids.map((id, index) => (
+                <li className="inline-block pr-1" key={id}>
+                  <Link href={`/concepts/${id}`}>
+                    <a className="bg-paper-3 px-2 py-1 text-xs capitalize no-underline">
+                      {props.neighbour_names[index]}
+                    </a>
+                  </Link>
                 </li>
               ))}
             </ul>

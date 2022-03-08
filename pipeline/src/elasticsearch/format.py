@@ -1,10 +1,17 @@
 import os
 
-from elasticsearch import Elasticsearch
 from elasticsearch.helpers import scan
 
-from .prismic import get_fulltext, get_slices, get_standfirst
-from .wellcome import get_description, get_notes, get_work_data
+from . import (
+    Concept,
+    get_description,
+    get_fulltext,
+    get_notes,
+    get_reporting_es_client,
+    get_slices,
+    get_standfirst,
+    get_work_data,
+)
 
 ordered_source_preferences = ["wikidata", "nlm-mesh", "lc-subjects", "lc-names"]
 
@@ -119,7 +126,7 @@ def format_story_for_elasticsearch(story):
     }
 
 
-def format_concept_for_elasticsearch(concept):
+def format_concept_for_elasticsearch(concept: Concept):
     concept_works = concept.works.filter(type="work")
     works = [work.title for work in concept_works]
     work_ids = [work.wellcome_id for work in concept_works]
@@ -134,7 +141,9 @@ def format_concept_for_elasticsearch(concept):
         work.wellcome_id for work in concept_work_contributions
     ]
 
-    concept_story_contributions = concept.contributed_to_work.filter(type="story")
+    concept_story_contributions = concept.contributed_to_work.filter(
+        type="story"
+    )
     story_contributions = [story.title for story in concept_story_contributions]
     story_contribution_ids = [
         story.wellcome_id for story in concept_story_contributions
@@ -146,12 +155,26 @@ def format_concept_for_elasticsearch(concept):
         for variant in source_concept.variant_names
     ]
 
+    concept_neighbours = concept.neighbours.all()
+    neighbour_names = []
+    for concept in concept_neighbours:
+        preferred_name = concept.name
+        for source_type in ordered_source_preferences:
+            source = concept.sources.get_or_none(source_type=source_type)
+            if source:
+                preferred_name = source.preferred_name
+                break
+        neighbour_names.append(preferred_name)
+    neighbour_ids = [neighbour.uid for neighbour in concept_neighbours]
+
     document = {
         "name": concept.name,
         "preferred_name": concept.name,
         "type": concept.type,
         "works": works,
         "work_ids": work_ids,
+        "neighbour_names": neighbour_names,
+        "neighbour_ids": neighbour_ids,
         "stories": stories,
         "story_ids": story_ids,
         "work_contributions": work_contributions,
@@ -205,18 +228,8 @@ def format_concept_for_elasticsearch(concept):
 
 
 def yield_popular_works(size=10_000):
-    reporting_es = Elasticsearch(
-        os.environ["ELASTIC_REPORTING_HOST"],
-        http_auth=(
-            os.environ["ELASTIC_REPORTING_USERNAME"],
-            os.environ["ELASTIC_REPORTING_PASSWORD"],
-        ),
-        timeout=30,
-        retry_on_timeout=True,
-        max_retries=10,
-    )
-
-    response = reporting_es.search(
+    reporting_es_client = get_reporting_es_client()
+    response = reporting_es_client.search(
         index="metrics-conversion-prod",
         body={
             "size": 0,
@@ -240,18 +253,9 @@ def yield_popular_works(size=10_000):
         for bucket in response["aggregations"]["popular_works"]["buckets"]
     ]
 
-    pipeline_es = Elasticsearch(
-        os.environ["ELASTIC_PIPELINE_HOST"],
-        http_auth=(
-            os.environ["ELASTIC_PIPELINE_USERNAME"],
-            os.environ["ELASTIC_PIPELINE_PASSWORD"],
-        ),
-        timeout=30,
-        retry_on_timeout=True,
-        max_retries=10,
-    )
+    pipeline_es_client = get_pipeline_es_client()
     works_generator = scan(
-        pipeline_es,
+        pipeline_es_client,
         index=os.environ["ELASTIC_PIPELINE_WORKS_INDEX"],
         query={
             "query": {
