@@ -23,28 +23,28 @@ services:
       - JUPYTER_ENABLE_LAB=yes
       - CACHE_DIRECTORY=/home/jovyan/data/cache
 
-  neo4j:
-    image: neo4j:4.4.3
-    volumes:
-      - type: bind
-        source: ./data/neo4j/data
-        target: /data
-      - type: bind
-        source: ./data/neo4j/logs
-        target: /logs
-      - type: bind
-        source: ./data/neo4j/dump
-        target: /dump
-    ports:
-      - 7474:7474
-      - 7473:7473
-      - 7687:7687
-    env_file: .env
-    environment:
-      - NEO4J_ACCEPT_LICENSE_AGREEMENT=yes
-      - NEO4JLABS_PLUGINS=["graph-data-science", "apoc"]
-      - NEO4J_dbms_security_procedures_whitelist=gds.*, apoc.*
-      - NEO4J_dbms_security_procedures_unrestricted=gds.*, apoc.*
+  # neo4j:
+  #   image: neo4j:4.4.3
+  #   volumes:
+  #     - type: bind
+  #       source: ./data/neo4j/data
+  #       target: /data
+  #     - type: bind
+  #       source: ./data/neo4j/logs
+  #       target: /logs
+  #     - type: bind
+  #       source: ./data/neo4j/dump
+  #       target: /dump
+  #   ports:
+  #     - 7474:7474
+  #     - 7473:7473
+  #     - 7687:7687
+  #   env_file: .env
+  #   environment:
+  #     - NEO4J_ACCEPT_LICENSE_AGREEMENT=yes
+  #     - NEO4JLABS_PLUGINS=["graph-data-science", "apoc"]
+  #     - NEO4J_dbms_security_procedures_whitelist=gds.*, apoc.*
+  #     - NEO4J_dbms_security_procedures_unrestricted=gds.*, apoc.*
 
   graph:
     build: pipeline
@@ -70,7 +70,7 @@ services:
         target: /data/cache
     command: python neighbours.py
 
-  reindex:
+  index:
     build: pipeline
     env_file: .env
     volumes:
@@ -80,7 +80,7 @@ services:
       - type: bind
         source: ./data/cache
         target: /data/cache
-    command: python reindex.py
+    command: python index.py
 
   deduplicate:
     build: pipeline
@@ -99,7 +99,10 @@ services:
     env_file: .env
     volumes:
       - type: bind
-        source: ./data
+        source: ./search/data
         target: /data
+      - type: bind
+        source: ./data/cache
+        target: /data/cache
     command: >
-      sh -c "python graph.py && python neighbours.py && python reindex.py"
+      sh -c "python graph.py && python neighbours.py && python index.py"
