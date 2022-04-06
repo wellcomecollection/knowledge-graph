@@ -30,7 +30,3 @@ h6 {
 .debug * {
   outline: 1px solid gold;
 }
-
-:root {
-  @apply bg-paper-1;
-}
