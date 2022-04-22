@@ -2,9 +2,7 @@ from .utils import fetch_json
 
 
 def get_prismic_master_ref():
-    response = fetch_json(
-        "https://wellcomecollection.cdn.prismic.io/api",
-    )
+    response = fetch_json("https://wellcomecollection.cdn.prismic.io/api")
     return response["refs"][0]["ref"]
 
 
@@ -41,3 +39,29 @@ def get_standfirst(slices):
         for paragraph in slice["primary"]["text"]
     ]
     return "\n".join(paragraphs)
+
+
+def yield_exhibitions(size=None):
+    response = httpx.get(
+        "https://wellcomecollection.cdn.prismic.io/api/v2/documents/search",
+        params={
+            "ref": master_ref,
+            "q": '[[at(document.type, "exhibitions")]]',
+            "pageSize": size,
+        },
+    )
+    for result in response["results"]:
+        yield result["data"]
+
+
+def yield_events(size=None):
+    response = fetch_json(
+        "https://wellcomecollection.cdn.prismic.io/api/v2/documents/search",
+        params={
+            "ref": master_ref,
+            "q": '[[at(document.type, "events")]]',
+            "pageSize": size,
+        },
+    )
+    for result in response["results"]:
+        yield result["data"]

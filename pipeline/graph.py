@@ -1,8 +1,8 @@
+from dateutil.parser import parse
 import datetime
 from pathlib import Path
 
 import pandas as pd
-
 from src.elasticsearch import yield_popular_works
 from src.enrich.wikidata import (
     get_contributor_wikidata_ids,
@@ -13,7 +13,8 @@ from src.enrich.wikidata import (
     get_wikidata_variant_names,
 )
 from src.graph import get_neo4j_session
-from src.graph.models import Concept, SourceConcept, Work
+from src.graph.models import Concept, SourceConcept, Work, Exhibition, Event
+from src.prismic import yield_events, yield_exhibitions
 from src.utils import clean, clean_csv, get_logger
 
 log = get_logger(__name__)
@@ -31,45 +32,70 @@ df = pd.read_excel(
 # stories
 log.info("Processing stories")
 for _, story_data in df.iterrows():
-    story_id = Path(story_data["URL"]).name
-    log.info("Processing story", story_id=story_id)
+    log.info("Processing story", title=story_data["Title"])
     story = Work(
         type="story",
-        wellcome_id=story_id,
+        wellcome_id=Path(story_data["URL"]).name,
         title=story_data["Title"],
         published=story_data["Date published"].date(),
-        wikidata_id=story_data["Wikidata ID"],
+        wikidata_id=story_data["Wikidata ID"]
     ).save()
 
-    story_wikidata = get_wikidata(story.wikidata_id)
-    contributor_wikidata_ids = get_contributor_wikidata_ids(story_wikidata)
-    for contributor_wikidata_id in contributor_wikidata_ids:
-        existing_person_source_concept = SourceConcept.nodes.get_or_none(
-            source_id=contributor_wikidata_id
+    if story.wikidata_id:
+        story_wikidata = get_wikidata(story.wikidata_id)
+        contributor_wikidata_ids = get_contributor_wikidata_ids(
+            story_wikidata
         )
-        if existing_person_source_concept:
-            log.debug(
-                "Found existing person source concept",
-                wikidata_id=contributor_wikidata_id,
+
+        for contributor_wikidata_id in contributor_wikidata_ids:
+            existing_person_source_concept = SourceConcept.nodes.get_or_none(
+                source_id=contributor_wikidata_id
             )
-            person = existing_person_source_concept.parent.all()[0]
-        else:
-            contributor_wikidata = get_wikidata(contributor_wikidata_id)
-            source_concept = SourceConcept(
-                source_id=contributor_wikidata_id,
-                source_type="wikidata",
-                description=get_wikidata_description(contributor_wikidata),
-                preferred_name=get_wikidata_preferred_name(
-                    contributor_wikidata
-                ),
-                variant_names=get_wikidata_variant_names(contributor_wikidata),
-            ).save()
-            log.debug("Creating person", name=source_concept.preferred_name)
-            person = Concept(
-                name=source_concept.preferred_name, type="person"
-            ).save()
-            person.sources.connect(source_concept)
-        story.contributors.connect(person)
+            if existing_person_source_concept:
+                log.debug(
+                    "Found existing person source concept",
+                    wikidata_id=contributor_wikidata_id,
+                )
+                person = existing_person_source_concept.parent.all()[0]
+            else:
+                contributor_wikidata = get_wikidata(contributor_wikidata_id)
+                source_concept = SourceConcept(
+                    source_id=contributor_wikidata_id,
+                    source_type="wikidata",
+                    description=get_wikidata_description(contributor_wikidata),
+                    preferred_name=get_wikidata_preferred_name(
+                        contributor_wikidata
+                    ),
+                    variant_names=get_wikidata_variant_names(contributor_wikidata),
+                ).save()
+                log.debug("Creating person", name=source_concept.preferred_name)
+                person = Concept(
+                    name=source_concept.preferred_name, type="person"
+                ).save()
+                person.sources.connect(source_concept)
+            story.contributors.connect(person)
+    else:
+        contributors = (
+            story_data["Author"].split(",") +
+            story_data["Images by"].split(",")
+        )
+        for contributor in contributors:
+            contributor_name = clean(contributor)
+            existing_person_source_concept = SourceConcept.nodes.get_or_none(
+                preferred_name=contributor
+            )
+            if existing_person_source_concept:
+                log.debug(
+                    "Found existing person source concept",
+                    source_id=existing_person_source_concept.source_id,
+                )
+                person = existing_person_source_concept.parent.all()[0]
+            else:
+                log.debug("Creating person", name=contributor_name)
+                person = Concept(
+                    name=contributor_name, type="person"
+                ).save()
+            story.contributors.connect(person)
 
     for concept_name in clean_csv(story_data["Keywords"]):
         clean_concept_name = clean(concept_name)
@@ -99,7 +125,7 @@ for _, story_data in df.iterrows():
 
 # works
 log.info("Processing works")
-for document in yield_popular_works(size=10_000):
+for document in yield_popular_works(size=5_000):
     try:
         work_data = document["_source"]["data"]
     except KeyError as e:
@@ -220,3 +246,82 @@ for document in yield_popular_works(size=10_000):
                 work=work.title,
                 error=e,
             )
+
+
+
+# exhibitions
+log.info("Processing exhibitions")
+for exhibition in yield_exhibitions(size=1000):
+    try:
+        description = exhibition['promo'][0]['primary']['caption'][0]['text']
+    except (KeyError, IndexError, TypeError):
+        description = ""
+    try:
+        image_url = exhibition['promo'][0]['primary']['image']['url']
+    except (KeyError, IndexError, TypeError):
+        image_url = ""
+    try:
+        image_alt = exhibition['promo'][0]['primary']['image']['alt']
+    except (KeyError, IndexError, TypeError):
+        image_alt = ""
+
+    exhibition_data = {
+        "title": exhibition['title'][0]['text'],
+        "format": (
+            'Permanent exhibition' if exhibition['isPermanent']
+            else 'Exhibition'
+        ),
+        "description": description,
+        "start_date": parse(exhibition['start']).date(),
+        "end_date": parse(exhibition['end']).date(),
+        "image_url": image_url,
+        "image_alt": image_alt,
+        "location": exhibition['place']['slug'],
+    }
+
+    existing_exhibition = Exhibition.nodes.first_or_none(**exhibition_data)
+    if existing_exhibition:
+        log.debug(
+            "Found existing exhibition", uid=existing_exhibition.uid
+        )
+    else:
+        log.debug("Creating exhibition", title=exhibition["title"][0]["text"])
+        Exhibition(**exhibition_data).save()
+
+
+
+# events
+log.info("Processing events")
+for event in yield_events(size=1000):
+    try:
+        description = event['promo'][0]['primary']['caption'][0]['text']
+    except (KeyError, IndexError, TypeError):
+        description = ""
+    try:
+        image_url = event['promo'][0]['primary']['image']['url']
+    except (KeyError, IndexError, TypeError):
+        image_url = ""
+    try:
+        image_alt = event['promo'][0]['primary']['image']['alt']
+    except (KeyError, IndexError, TypeError):
+        image_alt = ""
+
+    event_data = {
+        "title": event['title'][0]['text'],
+        "format": event['format']['slug'],
+        "description": description,
+        "start_date": parse(event['times'][0]['startDateTime']).date(),
+        "end_date": parse(event['times'][0]['endDateTime']).date(),
+        "image_url": image_url,
+        "image_alt": image_alt,
+        "location": [location['name'] for location in event['locations']],
+    }
+
+    existing_event = Event.nodes.first_or_none(**event_data)
+    if existing_event:
+        log.debug(
+            "Found existing event", uid=existing_event.uid
+        )
+    else:
+        log.debug("Creating event", title=event["title"][0]["text"])
+        Event(**event_data).save()

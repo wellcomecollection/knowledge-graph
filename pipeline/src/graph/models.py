@@ -32,6 +32,30 @@ from . import (
 log = get_logger(__name__)
 
 
+class Exhibition(StructuredNode):
+    uid = UniqueIdProperty()
+    format = StringProperty()
+    title = StringProperty(required=True)
+    description = StringProperty()
+    start_date = DateProperty()
+    end_date = DateProperty()
+    image_url = StringProperty()
+    image_alt = StringProperty()
+    location = StringProperty()
+
+
+class Event(StructuredNode):
+    uid = UniqueIdProperty()
+    format = StringProperty()
+    title = StringProperty(required=True)
+    description = StringProperty()
+    start_date = DateProperty()
+    end_date = DateProperty()
+    image_url = StringProperty()
+    image_alt = StringProperty()
+    location = StringProperty()
+
+
 class Work(StructuredNode):
     uid = UniqueIdProperty()
     wellcome_id = StringProperty(unique_index=True, required=True)

@@ -3,7 +3,7 @@ import os
 from elasticsearch import Elasticsearch
 from elasticsearch.helpers import scan
 
-from ..graph.models import Concept
+from ..graph.models import Concept, Work, Exhibition, Event
 from ..prismic import get_fulltext, get_slices, get_standfirst
 from ..utils import get_logger
 from ..wellcome import get_description, get_notes, get_work_data
@@ -48,3 +48,54 @@ def get_pipeline_es_client():
         max_retries=10,
     )
     return pipeline_es_client
+
+
+def yield_popular_works(size=10_000):
+    reporting_es_client = get_reporting_es_client()
+    response = reporting_es_client.search(
+        index="metrics-conversion-prod",
+        body={
+            "size": 0,
+            "query": {
+                "bool": {
+                    "must": [
+                        {"term": {"page.name": {"value": "work"}}},
+                        {"range": {"@timestamp": {"gte": "2021-09-01"}}},
+                    ]
+                }
+            },
+            "aggs": {
+                "popular_works": {
+                    "terms": {"field": "page.query.id", "size": size}
+                }
+            },
+        },
+    )
+    popular_work_ids = [
+        bucket["key"]
+        for bucket in response["aggregations"]["popular_works"]["buckets"]
+    ]
+
+    pipeline_es_client = get_pipeline_es_client()
+    works_generator = scan(
+        pipeline_es_client,
+        index=os.environ["ELASTIC_PIPELINE_WORKS_INDEX"],
+        query={
+            "query": {
+                "bool": {
+                    "should": [
+                        {"exists": {"field": "data.contributors"}},
+                        {"exists": {"field": "data.subjects"}},
+                    ],
+                    "filter": [
+                        {"term": {"type": "Visible"}},
+                        {"terms": {"_id": popular_work_ids}},
+                    ],
+                }
+            }
+        },
+        size=10,
+        scroll="30m",
+        preserve_order=True,
+    )
+    return works_generator

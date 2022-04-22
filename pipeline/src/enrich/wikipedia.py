@@ -3,7 +3,7 @@ from . import clean, fetch_json
 
 def get_wikipedia_name_from_wikidata(wikidata):
     try:
-        wikipedia_name = wikidata["claims"]["sitelinks"]['enwiki']['name']
+        wikipedia_name = wikidata["claims"]["sitelinks"]["enwiki"]["name"]
     except (IndexError, KeyError, TypeError):
         wikipedia_name = None
     return wikipedia_name
@@ -29,7 +29,7 @@ def get_wikipedia_data(wikipedia_name):
 
 def get_wikipedia_neighbours(wikipedia_data):
     page_names = [
-        category_name['title'].replace("Category:", "")
+        category_name["title"].replace("Category:", "")
         for category_name in wikipedia_data["categories"]
     ]
     return page_names
