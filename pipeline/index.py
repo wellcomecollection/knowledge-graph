@@ -5,8 +5,7 @@ from src.elasticsearch.index import (
     index_people,
     index_stories,
     index_works,
-    index_exhibitions,
-    index_events
+    index_whats_on,
 
 )
 from src.graph import get_neo4j_session
@@ -30,12 +29,8 @@ def main(
     people: int = typer.Option(
         0, help="Reindex people from the given position onwards"
     ),
-    exhibitions: int = typer.Option(
-        0, help="Reindex exhibitions from the given position onwards"
-    ),
-    events: int = typer.Option(
-        0, 
-        help="Reindex events from the given position onwards"
+    whats_on: int = typer.Option(
+        0, help="Reindex events and exhibitions from the given position onwards"
     ),
 ):
     """
@@ -52,19 +47,16 @@ def main(
         index_concepts(concepts)
     if people:
         index_people(people)
-    if exhibitions:
-        index_exhibitions(exhibitions)
-    if events:
-        index_events(events)
+    if whats_on:
+        index_whats_on(whats_on)
 
-    if not any([stories, works, concepts, people, exhibitions, events]):
+
+    if not any([stories, works, concepts, people, whats_on]):
         index_stories(stories)
         index_works(works)
         index_concepts(concepts)
         index_people(people)
-        index_exhibitions(exhibitions)
-        index_events(events)
-
+        index_whats_on(whats_on)
 
 if __name__ == "__main__":
     typer.run(main)

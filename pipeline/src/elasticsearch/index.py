@@ -204,23 +204,24 @@ def index_people(start_index=0, create=False):
             )
 
 
-def index_exhibitions(start_index=0, create=False):
+
+def index_whats_on(start_index=0, create=False):
     concepts_es_client = get_concepts_es_client()
-    index_name = os.environ["ELASTIC_EXHIBITIONS_INDEX"]
+    index_name = os.environ["ELASTIC_WHATS_ON_INDEX"]
 
     if create:
         with open(mappings_path / "exhibitions.json", "r") as f:
-            exhibitions_mappings = json.load(f)
+            whats_on_mappings = json.load(f)
         with open(settings_path / "exhibitions.json", "r") as f:
-            exhibitions_settings = json.load(f)
+            whats_on_settings = json.load(f)
         create_index(
             client=concepts_es_client,
             name=index_name,
-            mappings=exhibitions_mappings,
-            settings=exhibitions_settings,
+            mappings=whats_on_mappings,
+            settings=whats_on_settings,
         )
 
-    log.info("Populating the exhibitions index")
+    log.info("Populating the whats-on index with exhibitions")
     exhibitions_progress_bar = tqdm(
         Exhibition.nodes.all(),
         total=len(Exhibition.nodes.all()),
@@ -237,29 +238,12 @@ def index_exhibitions(start_index=0, create=False):
                 f"Indexing exhibition {exhibition.uid}"
                 )
             concepts_es_client.index(
-                index=os.environ["ELASTIC_EXHIBITIONS_INDEX"],
+                index=index_name,
                 id=exhibition.uid,
                 document=format_exhibition_for_elasticsearch(exhibition),
             )
 
-            
-def index_events(start_index=0, create=False):
-    concepts_es_client = get_concepts_es_client()
-    index_name = os.environ["ELASTIC_EVENTS_INDEX"]
-
-    if create:
-        with open(mappings_path / "events.json", "r") as f:
-            events_mappings = json.load(f)
-        with open(settings_path / "events.json", "r") as f:
-            events_settings = json.load(f)
-        create_index(
-            client=concepts_es_client,œ
-            name=index_name,
-            mappings=events_mappings,
-            settings=events_settings,
-        )
-
-    log.info("Populating the events index")
+    log.info("Populating the whats-on index with events")
     events_progress_bar = tqdm(
         Event.nodes.all(),
         total=len(Event.nodes.all()),
