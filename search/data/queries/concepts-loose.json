@@ -1,0 +1,50 @@
+{
+    "bool": {
+        "should": [
+            {
+                "multi_match": {
+                    "fields": [
+                        "lc_names_id",
+                        "wikidata_id",
+                        "lc_subjects_id",
+                        "mesh_id"
+                    ],
+                    "query": "{{query}}",
+                    "_name": "identifiers",
+                    "boost": 100
+                }
+            },
+            {
+                "match": {
+                    "preferred_name": {
+                        "query": "{{query}}",
+                        "boost": 10,
+                        "_name": "preferred name"
+                    }
+                }
+            },
+            {
+                "multi_match": {
+                    "fields": [
+                        "name.keyword",
+                        "wikidata_preferred_name.keyword",
+                        "lc_subjects_preferred_name.keyword",
+                        "lc_names_preferred_name.keyword",
+                        "mesh_preferred_name.keyword"
+                    ],
+                    "query": "{{query}}",
+                    "_name": "other preferred names",
+                    "boost": 5
+                }
+            },
+            {
+                "match": {
+                    "variants": {
+                        "query": "{{query}}",
+                        "_name": "variant names"
+                    }
+                }
+            }
+        ]
+    }
+}

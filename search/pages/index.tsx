@@ -1,143 +1,78 @@
-import { GetServerSideProps, NextPage } from 'next'
+import CardBlock from '../components/new/card-block'
+import Layout from '../components/new/layout'
+import { NextPage } from 'next'
 
-import { Concept } from '../types/concept'
-import ConceptPanel from '../components/ConceptPanel'
-import Layout from '../components/Layout'
-import Paginator from '../components/Paginator'
-import ResultSummary from '../components/ResultSummary'
-import SearchBox from '../components/SearchBox'
-import SearchResult from '../components/SearchResult'
-import { Story } from '../types/story'
-import { Work } from '../types/work'
-import absoluteUrl from 'next-absolute-url'
-
-type Props = {
-  concept: Concept | null
-  conceptId: string
-  index: string
-  page: number
-  person: Concept | null
-  personId: string
-  query: string
-  results: Work[] | Story[]
-  total: number
-}
-
-export const getServerSideProps: GetServerSideProps<Props> = async ({
-  query: qs,
-  req,
-}) => {
-  // parse the query string
-  const index = qs.index ? qs.index.toString() : 'works'
-  const query = qs.query ? qs.query.toString() : ''
-  const page = qs.page ? parseInt(qs.page.toString()) : 1
-  const conceptId = qs.concept ? qs.concept.toString() : ''
-  const personId = qs.person ? qs.person.toString() : ''
-
-  // get the results from the API
-  let total: number = 0
-  let results: Work[] | Story[] = []
-  let concept: Concept | null = null
-  let person: Concept | null = null
-  if ((query && index) || conceptId || personId) {
-    let url = new URL(`${absoluteUrl(req).origin}/api/search/${index}`)
-    if (query) {
-      url.searchParams.append('query', query)
-    }
-    if (conceptId) {
-      url.searchParams.append('concept', conceptId)
-    }
-    if (personId) {
-      url.searchParams.append('person', personId)
-    }
-    if (page) {
-      url.searchParams.append('page', page.toString())
-    }
-    const response = await fetch(url.toString()).then((res) => res.json())
-
-    total = response.total
-    results = response.results
-    concept = response.concept.length > 0 ? response.concept[0] : null
-    person = response.person.length > 0 ? response.person[0] : null
-  }
-
-  return {
-    props: {
-      concept,
-      conceptId,
-      index,
-      page,
-      person,
-      personId,
-      query,
-      results,
-      total,
+const Index: NextPage = () => {
+  const exhibitionCards = [
+    {
+      imageURL:
+        'https://images.prismic.io/wellcomecollection/3eb4b341-6471-4610-9f12-c97f5c7be0bc_SDP_20201005_0278-81.jpg?auto=compress%2Cformat&rect=0%2C0%2C2955%2C1662&w=2048&h=1152',
+      imageAlt:
+        'Photograph of a museum gallery space with display cases and exhibits. In the foreground is a woman wearing a face covering and a pair of yellow over the ear headphones. She is in the process of plugging the headphones into the socket of an audio exhibit. To the right of her is another woman also wearing a face covering who is looking up at a transparent model of human being. In the far distance is a man, also wearing a face covering who is exploring the exhibiton.',
+      title: 'Being Human',
+      description: 'Now on',
+      URL: 'https://wellcomecollection.org/exhibitions/XNFfsxAAANwqbNWD',
+      type: 'Permanent exhibition',
     },
-  }
-}
-
-const Search: NextPage<Props> = ({
-  concept,
-  conceptId,
-  index,
-  page,
-  person,
-  personId,
-  query,
-  results,
-  total,
-}) => {
-  const title = 'Knowledge-graph search'
-  const description =
-    'Search for works, stories, and concepts from Wellcome Collection.'
+    {
+      imageURL:
+        'https://images.prismic.io/wellcomecollection/3eb4b341-6471-4610-9f12-c97f5c7be0bc_SDP_20201005_0278-81.jpg?auto=compress%2Cformat&rect=0%2C0%2C2955%2C1662&w=2048&h=1152',
+      imageAlt:
+        'Photograph of a museum gallery space with display cases and exhibits. In the foreground is a woman wearing a face covering and a pair of yellow over the ear headphones. She is in the process of plugging the headphones into the socket of an audio exhibit. To the right of her is another woman also wearing a face covering who is looking up at a transparent model of human being. In the far distance is a man, also wearing a face covering who is exploring the exhibiton.',
+      title: 'Being Human',
+      description: 'Now on',
+      URL: 'https://wellcomecollection.org/exhibitions/XNFfsxAAANwqbNWD',
+      type: 'Permanent exhibition',
+    },
+    {
+      imageURL:
+        'https://images.prismic.io/wellcomecollection/3eb4b341-6471-4610-9f12-c97f5c7be0bc_SDP_20201005_0278-81.jpg?auto=compress%2Cformat&rect=0%2C0%2C2955%2C1662&w=2048&h=1152',
+      imageAlt:
+        'Photograph of a museum gallery space with display cases and exhibits. In the foreground is a woman wearing a face covering and a pair of yellow over the ear headphones. She is in the process of plugging the headphones into the socket of an audio exhibit. To the right of her is another woman also wearing a face covering who is looking up at a transparent model of human being. In the far distance is a man, also wearing a face covering who is exploring the exhibiton.',
+      title: 'Being Human',
+      description: 'Now on',
+      URL: 'https://wellcomecollection.org/exhibitions/XNFfsxAAANwqbNWD',
+      type: 'Permanent exhibition',
+    },
+  ]
+  const storiesCards = [
+    {
+      imageURL:
+        'https://images.prismic.io/wellcomecollection/3eb4b341-6471-4610-9f12-c97f5c7be0bc_SDP_20201005_0278-81.jpg?auto=compress%2Cformat&rect=0%2C0%2C2955%2C1662&w=2048&h=1152',
+      imageAlt:
+        'Photograph of a museum gallery space with display cases and exhibits. In the foreground is a woman wearing a face covering and a pair of yellow over the ear headphones. She is in the process of plugging the headphones into the socket of an audio exhibit. To the right of her is another woman also wearing a face covering who is looking up at a transparent model of human being. In the far distance is a man, also wearing a face covering who is exploring the exhibiton.',
+      title: 'Being Human',
+      description: 'Now on',
+      URL: 'https://wellcomecollection.org/exhibitions/XNFfsxAAANwqbNWD',
+      type: 'Permanent exhibition',
+    },
+    {
+      imageURL:
+        'https://images.prismic.io/wellcomecollection/3eb4b341-6471-4610-9f12-c97f5c7be0bc_SDP_20201005_0278-81.jpg?auto=compress%2Cformat&rect=0%2C0%2C2955%2C1662&w=2048&h=1152',
+      imageAlt:
+        'Photograph of a museum gallery space with display cases and exhibits. In the foreground is a woman wearing a face covering and a pair of yellow over the ear headphones. She is in the process of plugging the headphones into the socket of an audio exhibit. To the right of her is another woman also wearing a face covering who is looking up at a transparent model of human being. In the far distance is a man, also wearing a face covering who is exploring the exhibiton.',
+      title: 'Being Human',
+      description: 'Now on',
+      URL: 'https://wellcomecollection.org/exhibitions/XNFfsxAAANwqbNWD',
+      type: 'Permanent exhibition',
+    },
+    {
+      imageURL:
+        'https://images.prismic.io/wellcomecollection/3eb4b341-6471-4610-9f12-c97f5c7be0bc_SDP_20201005_0278-81.jpg?auto=compress%2Cformat&rect=0%2C0%2C2955%2C1662&w=2048&h=1152',
+      imageAlt:
+        'Photograph of a museum gallery space with display cases and exhibits. In the foreground is a woman wearing a face covering and a pair of yellow over the ear headphones. She is in the process of plugging the headphones into the socket of an audio exhibit. To the right of her is another woman also wearing a face covering who is looking up at a transparent model of human being. In the far distance is a man, also wearing a face covering who is exploring the exhibiton.',
+      title: 'Being Human',
+      description: 'Now on',
+      URL: 'https://wellcomecollection.org/exhibitions/XNFfsxAAANwqbNWD',
+      type: 'Permanent exhibition',
+    },
+  ]
   return (
-    <Layout title={title} description={description}>
-      <div className="space-y-5">
-        <header>
-          <h1>{title}</h1>
-          <p>{description}</p>
-        </header>
-
-        <SearchBox query={query} index={index} />
-
-        {query && concept ? (
-          <ConceptPanel concept={concept} />
-        ) : null}
-        {query && person ? (
-          <ConceptPanel concept={person} />
-        ) : null}
-
-        <div>
-          <ResultSummary
-            query={query}
-            index={index}
-            total={total}
-            page={page}
-            conceptId={conceptId}
-            personId={personId}
-          />
-
-          <ul className="divide-y divide-green ">
-            {results.map((result) => (
-              <li key={result.id} className="py-4 ">
-                <SearchResult result={result} />
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <Paginator
-          page={page}
-          total={total}
-          query={query}
-          conceptId={conceptId}
-          personId={personId}
-          length={results.length}
-          index={index}
-        />
-      </div>
+    <Layout isHomePage>
+      <CardBlock title="Exhibitions" cards={exhibitionCards} />
+      <CardBlock title="Stories" cards={storiesCards} />
     </Layout>
   )
 }
 
-export default Search
+export default Index

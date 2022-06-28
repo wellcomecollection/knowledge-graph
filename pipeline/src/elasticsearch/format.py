@@ -3,12 +3,14 @@ from . import (
     Exhibition,
     Work,
     Event,
-    get_description,
-    get_fulltext,
-    get_notes,
-    get_slices,
-    get_standfirst,
+    get_work_description,
+    get_story_fulltext,
+    get_work_notes,
+    get_story_data,
+    get_story_standfirst,
     get_work_data,
+    get_work_image,
+    get_story_image
 )
 
 ordered_source_preferences = ["wikidata", "nlm-mesh", "lc-subjects", "lc-names"]
@@ -52,8 +54,9 @@ def format_work_for_elasticsearch(work: Work):
     ]
 
     work_data = get_work_data(work.wellcome_id)
-    description = get_description(work_data)
-    notes = get_notes(work_data)
+    description = get_work_description(work_data)
+    notes = get_work_notes(work_data)
+    image_url = get_work_image(work_data)
 
     return {
         "concept_ids": concept_ids,
@@ -66,6 +69,7 @@ def format_work_for_elasticsearch(work: Work):
         "title": work.title,
         "description": description,
         "notes": notes,
+        "image_url": image_url,
     }
 
 
@@ -106,9 +110,10 @@ def format_story_for_elasticsearch(story: Work):
         for variant in source_contributor.variant_names
     ]
 
-    slices = get_slices(story.wellcome_id)
-    full_text = get_fulltext(slices)
-    standfirst = get_standfirst(slices)
+    story_data = get_story_data(story.wellcome_id)
+    full_text = get_story_fulltext(story_data)
+    standfirst = get_story_standfirst(story_data)
+    image_url = get_story_image(story_data)
 
     return {
         "concept_ids": concept_ids,
@@ -121,6 +126,7 @@ def format_story_for_elasticsearch(story: Work):
         "published": story.published,
         "standfirst": standfirst,
         "title": story.title,
+        "image_url": image_url,
     }
 
 

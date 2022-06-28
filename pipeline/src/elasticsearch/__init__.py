@@ -4,9 +4,9 @@ from elasticsearch import Elasticsearch
 from elasticsearch.helpers import scan
 
 from ..graph.models import Concept, Work, Exhibition, Event
-from ..prismic import get_fulltext, get_slices, get_standfirst
+from ..prismic import get_story_fulltext, get_story_data, get_story_standfirst, get_story_image
 from ..utils import get_logger
-from ..wellcome import get_description, get_notes, get_work_data
+from ..wellcome import get_work_description, get_work_notes, get_work_data, get_work_image
 
 ordered_source_preferences = ["wikidata", "nlm-mesh", "lc-subjects", "lc-names"]
 

@@ -1,3 +1,5 @@
+const defaultTheme = require('tailwindcss/defaultTheme')
+
 module.exports = {
   purge: [
     './components/**/*.{html,js,ts,jsx,tsx}',
@@ -6,6 +8,10 @@ module.exports = {
   darkMode: false,
   theme: {
     extend: {
+      fontFamily: {
+        wellcome: ['Wellcome'],
+        sans: ['Inter', ...defaultTheme.fontFamily.sans],
+      },
       colors: {
         red: '#C88F7E',
         tan: '#E6B692',
@@ -18,7 +24,12 @@ module.exports = {
         paper: { 1: '#FBF6E9', 2: '#F0EADA', 3: '#DED5BF' },
         white: '#FFFFFF',
       },
-      spacing: { '2/3': '66.666667%' },
+      spacing: {
+        '1/2': '50%',
+        '2/3': '66.666667%',
+        '3/4': '75%',
+        '4/5': '80%',
+      },
     },
   },
 }

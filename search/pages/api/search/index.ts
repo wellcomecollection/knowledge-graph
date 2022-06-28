@@ -18,23 +18,18 @@ export default async function searchEndpoint(
 ) {
   if (req.method === 'GET') {
     try {
-      const { query: searchTerms, index: selectedIndex } = req.query
+      const { query: searchTerms } = req.query
       const client = getClient()
       const resultCounts = await getResultCounts(client, searchTerms as string)
 
-
-      const results = orderedTabs.reduce((acc, tab) => {
-        acc[tab] = []
-        return acc
-      }, {})
-
-      const tab = slugToTab[selectedIndex as string]
-      console.log(tab)
-      results[tab] = await search(
-        selectedIndex as string,
-        searchTerms as string,
-        client,
+      const results = orderedTabs.reduce(
+        (acc, tab) => async () => {
+          acc[tab] = search(tab, searchTerms as string, client)
+          return acc
+        },
+        {}
       )
+      console.log(results)
       res.status(200).json({
         results,
         resultCounts,

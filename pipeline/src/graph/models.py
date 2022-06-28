@@ -68,6 +68,8 @@ class Work(StructuredNode):
         required=True,
         choices={c: c for c in ["story", "work"]},
     )
+    format = StringProperty()
+    production_date = StringProperty()
 
 
 class SourceConcept(StructuredNode):

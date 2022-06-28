@@ -1,4 +1,5 @@
 from .utils import fetch_json
+import httpx
 
 
 def get_prismic_master_ref():
@@ -9,40 +10,44 @@ def get_prismic_master_ref():
 master_ref = get_prismic_master_ref()
 
 
-def get_slices(id, ref=master_ref):
+def get_story_data(id, ref=master_ref):
     try:
         response = fetch_json(
             "https://wellcomecollection.cdn.prismic.io/api/v2/documents/search",
             params={"ref": ref, "q": f'[[at(document.id, "{id}")]]'},
         )
-        slices = response["results"][0]["data"]["body"]
+        story_data = response["results"][0]["data"]
     except (KeyError, IndexError, TypeError, ValueError):
-        slices = []
-    return slices
+        story_data = {"body": []}
+    return story_data
 
 
-def get_fulltext(slices):
+def get_story_fulltext(story_data):
     paragraphs = [
         paragraph["text"]
-        for slice in slices
+        for slice in story_data["body"]
         if slice["slice_type"] == "text"
         for paragraph in slice["primary"]["text"]
     ]
     return "\n".join(paragraphs)
 
 
-def get_standfirst(slices):
+def get_story_standfirst(story_data):
     paragraphs = [
         paragraph["text"]
-        for slice in slices
+        for slice in story_data["body"]
         if slice["slice_type"] == "standfirst"
         for paragraph in slice["primary"]["text"]
     ]
     return "\n".join(paragraphs)
 
 
-def yield_exhibitions(size=None):
-    response = httpx.get(
+def get_story_image(story_data):
+    return story_data["promo"][0]['primary']['image']['url']
+
+
+def yield_exhibitions(size=100):
+    response = fetch_json(
         "https://wellcomecollection.cdn.prismic.io/api/v2/documents/search",
         params={
             "ref": master_ref,
@@ -54,7 +59,7 @@ def yield_exhibitions(size=None):
         yield result["data"]
 
 
-def yield_events(size=None):
+def yield_events(size=100):
     response = fetch_json(
         "https://wellcomecollection.cdn.prismic.io/api/v2/documents/search",
         params={

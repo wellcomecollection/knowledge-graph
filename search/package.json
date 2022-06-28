@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@elastic/elasticsearch": "^7.15.0",
+    "@prismicio/client": "^6.4.2",
     "next": "12.0.4",
     "next-absolute-url": "^1.2.2",
     "react": "17.0.2",

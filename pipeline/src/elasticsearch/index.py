@@ -210,9 +210,9 @@ def index_whats_on(start_index=0, create=False):
     index_name = os.environ["ELASTIC_WHATS_ON_INDEX"]
 
     if create:
-        with open(mappings_path / "exhibitions.json", "r") as f:
+        with open(mappings_path / "whats-on.json", "r") as f:
             whats_on_mappings = json.load(f)
-        with open(settings_path / "exhibitions.json", "r") as f:
+        with open(settings_path / "whats-on.json", "r") as f:
             whats_on_settings = json.load(f)
         create_index(
             client=concepts_es_client,

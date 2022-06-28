@@ -6,9 +6,11 @@ type Props = {
 }
 const Layout: FC<Props> = ({ isHomePage, children }) => {
   return (
-    <div className="w-full antialiased">
-      <Header isHomePage={isHomePage} />
-      <div className="mt-20 w-full">{children}</div>
+    <div className="relative antialiased">
+      <div className="absolute w-full z-40">
+        <Header isHomePage={isHomePage} />
+      </div>
+      <div className="w-full space-y-8 pt-32 ">{children}</div>
     </div>
   )
 }

@@ -1,50 +1,70 @@
-import { FC, useState } from 'react'
+import { FC } from 'react'
+import Link from 'next/link'
 
-const tabs = [
-  'Overview',
-  'Collections',
-  'Images',
-  'Stories',
-  'Exhibitions & Events',
-] as const
-type Tab = typeof tabs[number]
+export const tabToSlug = {
+  Works: 'works',
+  Images: 'images',
+  Stories: 'stories',
+  Subjects: 'subjects',
+  People: 'people',
+  "What's on": 'whats-on',
+}
+export const slugToTab = Object.fromEntries(
+  Object.entries(tabToSlug).map(([k, v]) => [v, k])
+)
+
+export const orderedTabs = Object.keys(tabToSlug) as Array<
+  keyof typeof tabToSlug
+>
+export type Tab = keyof typeof tabToSlug
+
+export function formatNumber(number?: number): string {
+  return number ? number.toLocaleString('en-US') : '0'
+}
 
 type Props = {
-  selected: Tab
-  nResults: {
-    Collections: number
-    Images: number
-    Stories: number
-    'Exhibitions & Events': number
-  }
+  selectedTab: string
+  resultCounts: { [key in Tab]: number }
+  queryParams: { [key: string]: string }
 }
 
-export function formatNumber(number: number): string {
-  return number.toLocaleString('en-US')
-}
-
-const Tabs: FC<Props> = (props) => {
-  const { nResults } = props
-  const [selected, setSelected] = useState(props.selected)
+const Tabs: FC<Props> = ({ queryParams, selectedTab, resultCounts }) => {
   return (
     <ul className="divide-y divide-gray-400 xl:flex xl:divide-y-0 xl:divide-x">
-      {tabs.map((tab) => {
+      <Link
+        href={{
+          pathname: `/search`,
+          query: queryParams,
+        }}
+        key={'overview'}
+      >
+        <a
+          className={`block px-5 py-4 no-underline xl:inline xl:h-full ${
+            selectedTab == 'overview' ? 'bg-black text-white' : ''
+          }`}
+        >
+          Overview
+        </a>
+      </Link>
+      {orderedTabs.map((tab) => {
         return (
-          <li key={tab}>
-            <button
-              onClick={() => setSelected(tab)}
-              name="tab"
-              value={tab}
-              className={`block w-full px-5 py-4 text-left xl:inline xl:h-full ${
-                selected == tab ? 'bg-black text-white' : ''
+          <Link
+            href={{
+              pathname: `/search/${tabToSlug[tab]}`,
+              query: queryParams,
+            }}
+            key={tab}
+          >
+            <a
+              className={`block px-5 py-4 no-underline xl:inline xl:h-full ${
+                slugToTab[selectedTab] == tab ? 'bg-black text-white' : ''
               }`}
-            >
-              {tab} {tab in nResults ? ` (${formatNumber(nResults[tab])})` : ''}
-            </button>
-          </li>
+            >{`${tab} (${formatNumber(resultCounts[tab])})`}</a>
+          </Link>
         )
       })}
     </ul>
   )
 }
+
 export default Tabs
