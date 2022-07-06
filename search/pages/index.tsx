@@ -1,4 +1,5 @@
 import CardBlock from '../components/card-block'
+import { CardProps } from '../components/card'
 import Layout from '../components/layout'
 import { NextPage } from 'next'
 
@@ -69,8 +70,8 @@ const Index: NextPage = () => {
   ]
   return (
     <Layout isHomePage>
-      <CardBlock title="Exhibitions" cards={exhibitionCards} />
-      <CardBlock title="Stories" cards={storiesCards} />
+      <CardBlock title="Exhibitions" cards={exhibitionCards as CardProps[]} />
+      <CardBlock title="Stories" cards={storiesCards as CardProps[]} />
     </Layout>
   )
 }

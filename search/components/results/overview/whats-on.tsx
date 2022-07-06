@@ -20,8 +20,8 @@ const WhatsOnResultsOverview: FC<Props> = ({
       queryParams={queryParams}
     >
       <ul className="grid h-auto grid-cols-3 gap-3 pt-4">
-        {results.map((whatsOn) => {
-          return <WhatsOnResult whatsOn={whatsOn} key={whatsOn.title} />
+        {results.map((result) => {
+          return <WhatsOnResult result={result} key={result.id} />
         })}
       </ul>{' '}
     </OverviewResultsBlock>

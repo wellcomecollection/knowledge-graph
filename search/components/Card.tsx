@@ -1,3 +1,5 @@
+import { FC } from "react"
+
 const cardTypes = [
   'Story',
   'Exhibition',

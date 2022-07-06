@@ -1,16 +1,10 @@
+import { Slug, Tab, slugToTab } from '../../components/tabs'
 import { countImages, searchImages } from './image'
-import { countPeople, searchPeople } from './person'
 import { countStories, searchStories } from './story'
-import { countSubjects, searchSubjects } from './subject'
 import { countWhatsOn, searchWhatsOn } from './whats-on'
 import { countWorks, searchWorks } from './work'
 
 import { Client } from '@elastic/elasticsearch'
-import { Image } from '../../types/image'
-import { Story } from '../../types/story'
-import { Tab } from '../../components/tabs'
-import { WhatsOn } from '../../types/whats-on'
-import { Work } from '../../types/work'
 
 const { ELASTIC_PASSWORD, ELASTIC_USERNAME, ELASTIC_CLOUD_ID } = process.env
 
@@ -49,10 +43,10 @@ export async function getResultCounts(
 }
 
 const searchServices = {
-  images: searchImages,
-  stories: searchStories,
-  'whats-on': searchWhatsOn,
-  works: searchWorks,
+  Images: searchImages,
+  Works: searchWorks,
+  Stories: searchStories,
+  "What's on": searchWhatsOn,
 }
 
 export async function search(
@@ -61,7 +55,8 @@ export async function search(
   client: Client,
   n: number
 ) {
-  return await searchServices[index](client, searchTerms, n)
+  const searchService = searchServices[slugToTab[index] as Tab]
+  return await searchService(client, searchTerms, n)
 }
 
 export { getWorks, getWork, parseWork, searchWorks } from './work'

@@ -1,4 +1,4 @@
-import { formatNumber, tabToSlug } from '../../tabs'
+import { Tab, formatNumber, tabToSlug } from '../../tabs'
 
 import { ArrowRight } from 'react-feather'
 import { FC } from 'react'
@@ -22,7 +22,7 @@ const OverviewResultsBlock: FC<Props> = ({
       <div className="py-4">{children}</div>
       <Link
         href={{
-          pathname: `/search/${tabToSlug[name]}`,
+          pathname: `/search/${tabToSlug[name as Tab]}`,
           query: queryParams,
         }}
       >

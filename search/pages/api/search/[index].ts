@@ -26,7 +26,7 @@ export default async function searchEndpoint(
       const resultCounts = await getResultCounts(client, searchTerms as string)
 
       const results = {} as { [key in Tab]: any[] }
-      results[slugToTab[selectedIndex]] = await search(
+      results[slugToTab[selectedIndex as string] as Tab] = await search(
         selectedIndex as string,
         searchTerms as string,
         client,

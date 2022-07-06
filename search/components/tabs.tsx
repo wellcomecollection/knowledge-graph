@@ -15,6 +15,7 @@ export const orderedTabs = Object.keys(tabToSlug) as Array<
   keyof typeof tabToSlug
 >
 export type Tab = keyof typeof tabToSlug
+export type Slug = keyof typeof slugToTab
 
 export function formatNumber(number?: number): string {
   return number ? number.toLocaleString('en-US') : '0'
