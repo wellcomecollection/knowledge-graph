@@ -1,24 +1,8 @@
-import { Concept, ConceptHit } from '../types/concept'
-import { Story, StoryHit } from '../types/story'
-import { Work, WorkHit } from '../types/work'
+import { Concept, ConceptHit } from '../../types/concept'
 
 import { Client } from '@elastic/elasticsearch'
-
-const { ELASTIC_PASSWORD, ELASTIC_USERNAME, ELASTIC_CLOUD_ID } = process.env
-
-let client: Client
-export function getClient(): Client {
-  client = new Client({
-    cloud: {
-      id: ELASTIC_CLOUD_ID!,
-    },
-    auth: {
-      username: ELASTIC_USERNAME!,
-      password: ELASTIC_PASSWORD!,
-    },
-  })
-  return client
-}
+import blankQuery from '../../data/queries/concepts-loose.json'
+import { formatQuery } from '.'
 
 export function parseConcept(conceptHit: ConceptHit): Concept {
   const concept = conceptHit._source
@@ -80,57 +64,43 @@ export function parseConcept(conceptHit: ConceptHit): Concept {
     wikidata_preferred_name: concept.wikidata_preferred_name,
   }
 }
+const index = process.env.ELASTIC_SUBJECTS_INDEX as string
 
-export function parseWork(workHit: WorkHit): Work {
-  const work = workHit._source
-  const concepts = work.concepts.map((concept, index) => {
-    return {
-      name: concept,
-      id: work.concept_ids[index],
-    }
+export function getSubjects(client: Client, ids: string[]): Promise<Concept[]> {
+  return client.mget({ index, body: { ids } }).then((response) => {
+    return response.body.docs.map((doc: ConceptHit) => {
+      return parseConcept(doc)
+    })
   })
-
-  const contributors = work.contributors.map((contributor, index) => {
-    return {
-      name: contributor,
-      id: work.contributor_ids[index],
-    }
-  })
-
-  return {
-    type: 'work',
-    id: workHit._id,
-    contributors: contributors,
-    concepts: concepts,
-    description: work.description,
-    notes: work.notes,
-    title: work.title,
-  }
 }
 
-export function parseStory(storyHit: StoryHit): Story {
-  const story = storyHit._source
-  const concepts = story.concepts.map((concept, index) => {
-    return {
-      name: concept,
-      id: story.concept_ids[index],
-    }
+export function getSubject(client: Client, id: string): Promise<Concept> {
+  return client.get({ index, id }).then((response) => {
+    return parseConcept(response.body as ConceptHit)
   })
-  const contributors = story.contributors.map((contributor, index) => {
-    return {
-      name: contributor,
-      id: story.contributor_ids[index],
-    }
-  })
+}
 
-  return {
-    type: 'story',
-    id: storyHit._id,
-    contributors: contributors,
-    concepts: concepts,
-    published: story.published,
-    standfirst: story.standfirst,
-    title: story.title,
-    wikidata_id: story.wikidata_id ? story.wikidata_id : null,
-  }
+export async function searchSubjects(
+  client: Client,
+  searchTerms: string
+): Promise<Concept[]> {
+  const response = await client.search({
+    index,
+    body: formatQuery(blankQuery, searchTerms),
+  })
+  const results = response.body.hits.hits.map((doc: ConceptHit) => {
+    return parseConcept(doc)
+  })
+  return JSON.parse(JSON.stringify(results))
+}
+
+export async function countSubjects(
+  client: Client,
+  searchTerms: string
+): Promise<number> {
+  const response = await client.count({
+    index,
+    body: formatQuery(blankQuery, searchTerms),
+  })
+  return response.body.count
 }

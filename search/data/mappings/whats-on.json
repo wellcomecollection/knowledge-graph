@@ -1,0 +1,34 @@
+{
+    "properties": {
+        "title": {
+            "type": "text",
+            "analyzer": "english_analyzer"
+        },
+        "format": {
+            "type": "text",
+            "analyzer": "english_analyzer"
+        },
+        "description": {
+            "type": "text",
+            "analyzer": "english_analyzer"
+        },
+        "start_date": {
+            "type": "date"
+        },
+        "end_date": {
+            "type": "date"
+        },
+        "image_url": {
+            "type": "object",
+            "enabled": false
+        },
+        "image_alt": {
+            "type": "object",
+            "enabled": false
+        },
+        "location": {
+            "type": "text",
+            "analyzer": "english_analyzer"
+        }
+    }
+}

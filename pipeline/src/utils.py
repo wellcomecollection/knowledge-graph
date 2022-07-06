@@ -62,7 +62,7 @@ def http_fetch_json(url, params=None, cache=True):
             response = http_client.get(url, params=params)
             if response.status_code == 200:
                 result = response.json()
-                log.debug(f"Fetched {response.url}", params=params)
+                log.debug(f"Fetched {response.url}")
                 if cache:
                     log.debug(f"Caching {response.url}")
                     cache_result(url, params, result)
@@ -75,7 +75,7 @@ def http_fetch_json(url, params=None, cache=True):
             log.exception(
                 f"Timed out when calling {url} with params {params}", error=e
             )
-            sleep(2 ** i)
+            sleep(2**i)
         except Exception as e:
             log.exception(
                 f"Error when calling {url} with params {params}", error=e
@@ -87,4 +87,4 @@ def clean(input_string):
 
 
 def clean_csv(input_string):
-    return [clean(y) for y in str(input_string).split(", ") if y != ""]
+    return [clean(y) for y in str(input_string).split(",") if y != ""]

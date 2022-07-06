@@ -5,13 +5,15 @@ from time import sleep
 
 from tqdm import tqdm
 
-from ..graph.models import Concept, Work
+from ..graph.models import Concept, Exhibition, Work, Event
 from ..utils import get_logger
 from . import get_concepts_es_client
 from .format import (
     format_concept_for_elasticsearch,
     format_story_for_elasticsearch,
     format_work_for_elasticsearch,
+    format_exhibition_for_elasticsearch,
+    format_event_for_elasticsearch,
 )
 
 data_path = Path("/data")
@@ -135,7 +137,7 @@ def index_works(start_index=0):
 
 def index_concepts(start_index=0, create=False):
     concepts_es_client = get_concepts_es_client()
-    concepts_index_name = os.environ["ELASTIC_CONCEPTS_INDEX"]
+    index_name = os.environ["ELASTIC_SUBJECTS_INDEX"]
 
     if create:
         with open(mappings_path / "concepts.json", "r") as f:
@@ -144,12 +146,12 @@ def index_concepts(start_index=0, create=False):
             concepts_settings = json.load(f)
         create_index(
             client=concepts_es_client,
-            name=concepts_index_name,
+            name=index_name,
             mappings=concepts_mappings,
             settings=concepts_settings,
         )
 
-    log.info("Populating the concepts index")
+    log.info("Populating the subjects index")
     progress_bar = tqdm(
         Concept.nodes.filter(type="concept"),
         total=len(Concept.nodes.filter(type="concept")),
@@ -161,17 +163,29 @@ def index_concepts(start_index=0, create=False):
         else:
             progress_bar.set_description(f"Indexing concept {concept.uid}")
             concepts_es_client.index(
-                index=concepts_index_name,
+                index=index_name,
                 id=concept.uid,
                 document=format_concept_for_elasticsearch(concept),
             )
 
 
-def index_people(start_index=0):
+def index_people(start_index=0, create=False):
     concepts_es_client = get_concepts_es_client()
-    concepts_index_name = os.environ["ELASTIC_CONCEPTS_INDEX"]
+    index_name = os.environ["ELASTIC_PEOPLE_INDEX"]
 
-    log.info("Populating the concepts index")
+    if create:
+        with open(mappings_path / "concepts.json", "r") as f:
+            concepts_mappings = json.load(f)
+        with open(settings_path / "concepts.json", "r") as f:
+            concepts_settings = json.load(f)
+        create_index(
+            client=concepts_es_client,
+            name=index_name,
+            mappings=concepts_mappings,
+            settings=concepts_settings,
+        )
+
+    log.info("Populating the people index")
     progress_bar = tqdm(
         Concept.nodes.filter(type="person"),
         total=len(Concept.nodes.filter(type="person")),
@@ -184,7 +198,69 @@ def index_people(start_index=0):
         else:
             progress_bar.set_description(f"Indexing person {person.uid}")
             concepts_es_client.index(
-                index=concepts_index_name,
+                index=index_name,
                 id=person.uid,
                 document=format_concept_for_elasticsearch(person),
+            )
+
+
+
+def index_whats_on(start_index=0, create=False):
+    concepts_es_client = get_concepts_es_client()
+    index_name = os.environ["ELASTIC_WHATS_ON_INDEX"]
+
+    if create:
+        with open(mappings_path / "whats-on.json", "r") as f:
+            whats_on_mappings = json.load(f)
+        with open(settings_path / "whats-on.json", "r") as f:
+            whats_on_settings = json.load(f)
+        create_index(
+            client=concepts_es_client,
+            name=index_name,
+            mappings=whats_on_mappings,
+            settings=whats_on_settings,
+        )
+
+    log.info("Populating the whats-on index with exhibitions")
+    exhibitions_progress_bar = tqdm(
+        Exhibition.nodes.all(),
+        total=len(Exhibition.nodes.all()),
+        unit="exhibitions",
+    )
+
+    for exhibition in exhibitions_progress_bar:
+        if exhibitions_progress_bar.n < start_index:
+            exhibitions_progress_bar.set_description(
+                f"Skipping exhibition {exhibition.uid}"
+                )
+        else:
+            exhibitions_progress_bar.set_description(
+                f"Indexing exhibition {exhibition.uid}"
+                )
+            concepts_es_client.index(
+                index=index_name,
+                id=exhibition.uid,
+                document=format_exhibition_for_elasticsearch(exhibition),
+            )
+
+    log.info("Populating the whats-on index with events")
+    events_progress_bar = tqdm(
+        Event.nodes.all(),
+        total=len(Event.nodes.all()),
+        unit="events",
+    )
+
+    for event in events_progress_bar:
+        if events_progress_bar.n < start_index:
+            events_progress_bar.set_description(
+                f"Skipping event {event.uid}"
+                )
+        else:
+            events_progress_bar.set_description(
+                f"Indexing event {event.uid}"
+                )
+            concepts_es_client.index(
+                index=index_name,
+                id=event.uid,
+                document=format_event_for_elasticsearch(event),
             )

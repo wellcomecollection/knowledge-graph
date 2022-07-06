@@ -6,7 +6,8 @@
   - concepts
     - including people, languages
 - Creates flat, searchable **elasticsearch indices** for
-  - concepts
+  - subjects
   - people
   - works
   - stories
+  - exhibitions & events

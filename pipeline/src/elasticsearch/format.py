@@ -1,22 +1,22 @@
-import os
-
-from elasticsearch.helpers import scan
-
 from . import (
     Concept,
-    get_description,
-    get_fulltext,
-    get_notes,
-    get_reporting_es_client,
-    get_slices,
-    get_standfirst,
+    Exhibition,
+    Work,
+    Event,
+    get_work_description,
+    get_story_fulltext,
+    get_work_notes,
+    get_story_data,
+    get_story_standfirst,
     get_work_data,
+    get_work_image,
+    get_story_image
 )
 
 ordered_source_preferences = ["wikidata", "nlm-mesh", "lc-subjects", "lc-names"]
 
 
-def format_work_for_elasticsearch(work):
+def format_work_for_elasticsearch(work: Work):
     work_concepts = work.concepts.all()
     concept_ids = [concept.uid for concept in work_concepts]
     concept_names = []
@@ -54,8 +54,9 @@ def format_work_for_elasticsearch(work):
     ]
 
     work_data = get_work_data(work.wellcome_id)
-    description = get_description(work_data)
-    notes = get_notes(work_data)
+    description = get_work_description(work_data)
+    notes = get_work_notes(work_data)
+    image_url = get_work_image(work_data)
 
     return {
         "concept_ids": concept_ids,
@@ -68,10 +69,11 @@ def format_work_for_elasticsearch(work):
         "title": work.title,
         "description": description,
         "notes": notes,
+        "image_url": image_url,
     }
 
 
-def format_story_for_elasticsearch(story):
+def format_story_for_elasticsearch(story: Work):
     story_concepts = story.concepts.all()
     concept_ids = [concept.uid for concept in story_concepts]
     concept_names = []
@@ -108,9 +110,10 @@ def format_story_for_elasticsearch(story):
         for variant in source_contributor.variant_names
     ]
 
-    slices = get_slices(story.wellcome_id)
-    full_text = get_fulltext(slices)
-    standfirst = get_standfirst(slices)
+    story_data = get_story_data(story.wellcome_id)
+    full_text = get_story_fulltext(story_data)
+    standfirst = get_story_standfirst(story_data)
+    image_url = get_story_image(story_data)
 
     return {
         "concept_ids": concept_ids,
@@ -123,6 +126,7 @@ def format_story_for_elasticsearch(story):
         "published": story.published,
         "standfirst": standfirst,
         "title": story.title,
+        "image_url": image_url,
     }
 
 
@@ -227,52 +231,29 @@ def format_concept_for_elasticsearch(concept: Concept):
     return document
 
 
-def yield_popular_works(size=10_000):
-    reporting_es_client = get_reporting_es_client()
-    response = reporting_es_client.search(
-        index="metrics-conversion-prod",
-        body={
-            "size": 0,
-            "query": {
-                "bool": {
-                    "must": [
-                        {"term": {"page.name": {"value": "work"}}},
-                        {"range": {"@timestamp": {"gte": "2021-09-01"}}},
-                    ]
-                }
-            },
-            "aggs": {
-                "popular_works": {
-                    "terms": {"field": "page.query.id", "size": size}
-                }
-            },
-        },
-    )
-    popular_work_ids = [
-        bucket["key"]
-        for bucket in response["aggregations"]["popular_works"]["buckets"]
-    ]
+def format_exhibition_for_elasticsearch(exhibition: Exhibition):
+    document = {
+        "format": exhibition.format,
+        "title": exhibition.title,
+        "description": exhibition.description,
+        "start_date": exhibition.start_date,
+        "end_date": exhibition.end_date,
+        "location": exhibition.location,
+        "image_url": exhibition.image_url,
+        "image_alt": exhibition.image_alt,
+    }
+    return document
 
-    pipeline_es_client = get_pipeline_es_client()
-    works_generator = scan(
-        pipeline_es_client,
-        index=os.environ["ELASTIC_PIPELINE_WORKS_INDEX"],
-        query={
-            "query": {
-                "bool": {
-                    "should": [
-                        {"exists": {"field": "data.contributors"}},
-                        {"exists": {"field": "data.subjects"}},
-                    ],
-                    "filter": [
-                        {"term": {"type": "Visible"}},
-                        {"terms": {"_id": popular_work_ids}},
-                    ],
-                }
-            }
-        },
-        size=10,
-        scroll="30m",
-        preserve_order=True,
-    )
-    return works_generator
+
+def format_event_for_elasticsearch(event: Event):
+    document = {
+        "format": event.format,
+        "title": event.title,
+        "description": event.description,
+        "start_date": event.start_date,
+        "end_date": event.end_date,
+        "location": event.location,
+        "image_url": event.image_url,
+        "image_alt": event.image_alt,
+    }
+    return document

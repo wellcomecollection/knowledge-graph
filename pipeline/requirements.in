@@ -5,4 +5,4 @@ neomodel==4.0.7
 structlog==21.4.0
 pandas==1.3.4
 tqdm==4.62.3
-typer==0.4.0
+typer

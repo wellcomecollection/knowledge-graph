@@ -1,26 +1,26 @@
 export type ConceptSource = {
-  lc_names_id: string
-  lc_names_preferred_name: string
-  lc_subjects_id: string
-  lc_subjects_preferred_name: string
-  mesh_description: string
-  mesh_id: string
-  mesh_preferred_name: string
-  name: string
-  preferred_name: string
+  lc_names_id?: string
+  lc_names_preferred_name?: string
+  lc_subjects_id?: string
+  lc_subjects_preferred_name?: string
+  mesh_description?: string
+  mesh_id?: string
+  mesh_preferred_name?: string
+  name?: string
+  preferred_name?: string
   works: string[]
   work_ids: string[]
-  neighbour_ids: string[] 
+  neighbour_ids: string[]
   neighbour_names: string[]
   stories: string[]
   story_contribution_ids: string[]
   story_contributions: string[]
   story_ids: string[]
-  type: string
+  type?: string
   variants: string[]
-  wikidata_description: string
-  wikidata_id: string
-  wikidata_preferred_name: string
+  wikidata_description?: string
+  wikidata_id?: string
+  wikidata_preferred_name?: string
   work_contribution_ids: string[]
   work_contributions: string[]
 }
@@ -33,15 +33,15 @@ export type ConceptHit = {
 
 export type Concept = {
   id: string
-  lc_names_id: string
-  lc_names_preferred_name: string
-  lc_subjects_id: string
-  lc_subjects_preferred_name: string
-  mesh_description: string
-  mesh_id: string
-  mesh_preferred_name: string
-  name: string
-  preferred_name: string
+  lc_names_id?: string
+  lc_names_preferred_name?: string
+  lc_subjects_id?: string
+  lc_subjects_preferred_name?: string
+  mesh_description?: string
+  mesh_id?: string
+  mesh_preferred_name?: string
+  name?: string
+  preferred_name?: string
   works: {
     name: string
     id: string
@@ -50,7 +50,7 @@ export type Concept = {
     id: string
     name: string
   }[]
-  type: string
+  type?: string
   stories: {
     name: string
     id: string
@@ -64,7 +64,7 @@ export type Concept = {
     name: string
     id: string
   }[]
-  wikidata_description: string
-  wikidata_id: string
-  wikidata_preferred_name: string
+  wikidata_description?: string
+  wikidata_id?: string
+  wikidata_preferred_name?: string
 }

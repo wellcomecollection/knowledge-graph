@@ -17,11 +17,6 @@
                     "preferred_name.keyword^100"
                 ]
             }
-        },
-        "filter": {
-            "term": {
-                "type": "person"
-            }
         }
     }
 }

@@ -1,0 +1,19 @@
+{
+    "bool": {
+        "should": [
+            {
+                "match": {
+                    "title": {
+                        "query": "{{query}}",
+                        "boost": 10
+                    }
+                }
+            },
+            {
+                "match": {
+                    "description": "{{query}}"
+                }
+            }
+        ]
+    }
+}

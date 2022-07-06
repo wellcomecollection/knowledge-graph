@@ -1,0 +1,68 @@
+{
+    "bool": {
+        "filter": [],
+        "should": [
+            {
+                "multi_match": {
+                    "fields": [
+                        "wellcome_id",
+                        "wikidata_id"
+                    ],
+                    "query": "{{query}}",
+                    "_name": "identifiers",
+                    "boost": 1000
+                }
+            },
+            {
+                "multi_match": {
+                    "fields": [
+                        "title",
+                        "title.*"
+                    ],
+                    "query": "{{query}}",
+                    "_name": "title",
+                    "operator": "OR",
+                    "boost": 100
+                }
+            },
+            {
+                "multi_match": {
+                    "fields": [
+                        "concepts",
+                        "concepts.*",
+                        "concept_variants",
+                        "concept_variants.*"
+                    ],
+                    "query": "{{query}}",
+                    "_name": "concepts",
+                    "operator": "OR",
+                    "boost": 100
+                }
+            },
+            {
+                "match": {
+                    "contributors": {
+                        "query": "{{query}}",
+                        "_name": "contributors",
+                        "operator": "OR",
+                        "boost": 100
+                    }
+                }
+            },
+            {
+                "multi_match": {
+                    "fields": [
+                        "description",
+                        "description.*",
+                        "title",
+                        "title.*"
+                    ],
+                    "query": "{{query}}",
+                    "_name": "fuzz",
+                    "operator": "OR",
+                    "fuzziness": "AUTO"
+                }
+            }
+        ]
+    }
+}
