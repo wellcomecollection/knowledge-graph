@@ -22,11 +22,13 @@ const index = process.env.ELASTIC_WHATS_ON_INDEX as string
 
 export async function searchWhatsOn(
   client: Client,
-  searchTerms: string
+  searchTerms: string,
+  n: number
 ): Promise<WhatsOn[]> {
   const response = await client.search({
     index,
     body: formatQuery(blankQuery, searchTerms),
+    size: n,
   })
   const results = response.body.hits.hits.map((doc: WhatsOnHit) => {
     return parseWhatsOn(doc)

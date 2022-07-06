@@ -44,24 +44,24 @@ export function parseConcept(conceptHit: ConceptHit): Concept {
   return {
     type: concept.type,
     id: conceptHit._id,
-    lc_subjects_id: concept.lc_subjects_id,
-    lc_subjects_preferred_name: concept.lc_subjects_preferred_name,
-    lc_names_id: concept.lc_names_id,
-    lc_names_preferred_name: concept.lc_names_preferred_name,
-    mesh_description: concept.mesh_description,
-    mesh_id: concept.mesh_id,
-    mesh_preferred_name: concept.mesh_preferred_name,
-    name: concept.name,
-    preferred_name: concept.preferred_name,
+    lc_subjects_id: concept.lc_subjects_id || null,
+    lc_subjects_preferred_name: concept.lc_subjects_preferred_name || null,
+    lc_names_id: concept.lc_names_id || null,
+    lc_names_preferred_name: concept.lc_names_preferred_name || null,
+    mesh_description: concept.mesh_description || null,
+    mesh_id: concept.mesh_id || null,
+    mesh_preferred_name: concept.mesh_preferred_name || null,
+    name: concept.name || null,
+    preferred_name: concept.preferred_name || null,
     neighbours,
     works,
     stories,
     work_contributions,
     story_contributions,
-    variants: concept.variants,
-    wikidata_description: concept.wikidata_description,
-    wikidata_id: concept.wikidata_id,
-    wikidata_preferred_name: concept.wikidata_preferred_name,
+    variants: concept.variants || null,
+    wikidata_description: concept.wikidata_description || null,
+    wikidata_id: concept.wikidata_id || null,
+    wikidata_preferred_name: concept.wikidata_preferred_name || null,
   }
 }
 const index = process.env.ELASTIC_SUBJECTS_INDEX as string
@@ -71,6 +71,12 @@ export function getSubjects(client: Client, ids: string[]): Promise<Concept[]> {
     return response.body.docs.map((doc: ConceptHit) => {
       return parseConcept(doc)
     })
+  })
+}
+
+export function getSubject(client: Client, id: string): Promise<Concept> {
+  return client.get({ index, id }).then((response) => {
+    return parseConcept(response.body as ConceptHit)
   })
 }
 

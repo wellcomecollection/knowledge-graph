@@ -1,5 +1,6 @@
 import { Image, ImageSource } from '../../types/image'
 
+import { Client } from '@elastic/elasticsearch'
 import { URLSearchParams } from 'url'
 
 export function parseImage(imageSource: ImageSource): Image {
@@ -14,10 +15,14 @@ export function parseImage(imageSource: ImageSource): Image {
 }
 
 export async function searchImages(
-  client,
-  searchTerms: string
+  client: Client,
+  searchTerms: string,
+  n: number
 ): Promise<Image[]> {
-  const params = new URLSearchParams({ query: encodeURIComponent(searchTerms) })
+  const params = new URLSearchParams({
+    query: encodeURIComponent(searchTerms),
+    pageSize: n.toString(),
+  })
   const response = await fetch(
     `https://api.wellcomecollection.org/catalogue/v2/images?${params}`
   ).then((res) => res.json())

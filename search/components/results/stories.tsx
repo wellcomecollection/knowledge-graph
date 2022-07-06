@@ -1,6 +1,6 @@
 import { FC } from 'react'
 import Link from 'next/link'
-import { Story } from '../../../types/story'
+import { Story } from '../../types/story'
 import { formatDate } from '.'
 
 type Props = {
@@ -13,7 +13,9 @@ const StoryResults: FC<Props> = ({ results }) => {
       {results.map((story) => {
         return (
           <div key={story.id} className="py-4">
-            <Link href={`https://wellcomecollection.org/articles/${story.id}`}>
+            <Link
+              href={`https://wellcomecollection.org/articles/${story.id}`}
+            >
               <a className="no-underline">
                 <div className="pb-1">
                   <span className="bg-paper-3 px-1 py-0.5 text-xs font-semibold capitalize text-black">
@@ -38,4 +40,5 @@ const StoryResults: FC<Props> = ({ results }) => {
     </ol>
   )
 }
+
 export default StoryResults

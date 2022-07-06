@@ -1,47 +1,38 @@
-import { FC } from 'react'
+const cardTypes = [
+  'Story',
+  'Exhibition',
+  'Event',
+  'Permanent exhibition',
+  'Installation',
+  'Film',
+] as const
+type CardType = typeof cardTypes[number]
 
-type Props = {
-  type: string
+export type CardProps = {
+  imageURL: string
+  imageAlt: string
   title: string
-  id: string
-  color: string
-  contributors?: string[]
-  imageURL?: string
+  description: string
+  URL: string
+  type: CardType
 }
-const Card: FC<Props> = ({
-  type,
-  title,
-  id,
-  contributors,
-  color,
-  imageURL,
-}) => {
-  const url = `https://wellcomecollection.org/${
-    type == 'work' ? 'works' : 'articles'
-  }/${id}`
-  const croppedTitle =
-    title.length > 50 ? title.substring(0, 50) + '...' : title
+
+const Card: FC<CardProps> = ({ imageURL, title, description, URL, type }) => {
   return (
-    <a className="no-underline" href={url}>
-      <div className={`h-full bg-${color}`}>
-        {imageURL ? (
-          <div className="relative pb-2/3">
-            <img
-              src={imageURL}
-              alt="a very image"
-              className="absolute h-full w-full object-cover"
-            />
+    <div className="overflow-hidden rounded-lg bg-paper-3">
+      <a href={URL} className="no-underline">
+        <div className="relative">
+          <img src={imageURL} alt={imageURL} />
+          <div className="absolute bottom-0 left-0 bg-yellow py-1 px-3 text-sm">
+            {type}
           </div>
-        ) : null}
-        <div className="px-3 pt-2 pb-8 leading-snug">
-          <h4>{croppedTitle}</h4>
-          {contributors ? (
-            <p className="text-sm capitalize">{contributors.join(', ')}</p>
-          ) : null}
         </div>
-      </div>
-    </a>
+        <div className="h-24 py-2 px-3">
+          <h3>{title}</h3>
+          <p>{description}</p>
+        </div>
+      </a>
+    </div>
   )
 }
-
 export default Card

@@ -5,8 +5,6 @@ export const tabToSlug = {
   Works: 'works',
   Images: 'images',
   Stories: 'stories',
-  Subjects: 'subjects',
-  People: 'people',
   "What's on": 'whats-on',
 }
 export const slugToTab = Object.fromEntries(
@@ -30,7 +28,7 @@ type Props = {
 
 const Tabs: FC<Props> = ({ queryParams, selectedTab, resultCounts }) => {
   return (
-    <ul className="divide-y divide-gray-400 xl:flex xl:divide-y-0 xl:divide-x">
+    <ul className="flex divide-gray-400 border-b">
       <Link
         href={{
           pathname: `/search`,
@@ -39,11 +37,11 @@ const Tabs: FC<Props> = ({ queryParams, selectedTab, resultCounts }) => {
         key={'overview'}
       >
         <a
-          className={`block px-5 py-4 no-underline xl:inline xl:h-full ${
-            selectedTab == 'overview' ? 'bg-black text-white' : ''
+          className={`inline h-full border-yellow px-5 py-3 no-underline ${
+            selectedTab == 'overview' ? 'border-b-4' : ''
           }`}
         >
-          Overview
+          <span className="font-bold">Overview</span>
         </a>
       </Link>
       {orderedTabs.map((tab) => {
@@ -56,10 +54,17 @@ const Tabs: FC<Props> = ({ queryParams, selectedTab, resultCounts }) => {
             key={tab}
           >
             <a
-              className={`block px-5 py-4 no-underline xl:inline xl:h-full ${
-                slugToTab[selectedTab] == tab ? 'bg-black text-white' : ''
+              className={`inline h-full border-yellow px-5 py-3 no-underline  ${
+                slugToTab[selectedTab] == tab ? 'border-b-4 ' : ''
               }`}
-            >{`${tab} (${formatNumber(resultCounts[tab])})`}</a>
+            >
+              <div>
+                <span className="font-bold">{tab}</span>
+                <span className="text-sm text-gray-700">{` (${formatNumber(
+                  resultCounts[tab]
+                )})`}</span>
+              </div>
+            </a>
           </Link>
         )
       })}

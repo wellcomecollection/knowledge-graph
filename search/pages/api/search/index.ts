@@ -1,16 +1,10 @@
 import { NextApiRequest, NextApiResponse } from 'next'
+import { Tab, orderedTabs, tabToSlug } from '../../../components/tabs'
 import {
   getClient,
   getResultCounts,
   search,
-  searchImages,
-  searchPeople,
-  searchStories,
-  searchSubjects,
-  searchWhatsOn,
-  searchWorks,
 } from '../../../services/elasticsearch'
-import { orderedTabs, slugToTab, tabToSlug } from '../../../components/new/tabs'
 
 export default async function searchEndpoint(
   req: NextApiRequest,
@@ -22,14 +16,15 @@ export default async function searchEndpoint(
       const client = getClient()
       const resultCounts = await getResultCounts(client, searchTerms as string)
 
-      const results = orderedTabs.reduce(
-        (acc, tab) => async () => {
-          acc[tab] = search(tab, searchTerms as string, client)
-          return acc
-        },
-        {}
-      )
-      console.log(results)
+      const results = {} as { [key in Tab]: any[] }
+      for (const tab of orderedTabs) {
+        results[tab] = await search(
+          tabToSlug[tab],
+          searchTerms as string,
+          client,
+          3
+        )
+      }
       res.status(200).json({
         results,
         resultCounts,

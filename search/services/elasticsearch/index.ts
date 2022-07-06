@@ -6,7 +6,11 @@ import { countWhatsOn, searchWhatsOn } from './whats-on'
 import { countWorks, searchWorks } from './work'
 
 import { Client } from '@elastic/elasticsearch'
-import { Tab } from '../../components/new/tabs'
+import { Image } from '../../types/image'
+import { Story } from '../../types/story'
+import { Tab } from '../../components/tabs'
+import { WhatsOn } from '../../types/whats-on'
+import { Work } from '../../types/work'
 
 const { ELASTIC_PASSWORD, ELASTIC_USERNAME, ELASTIC_CLOUD_ID } = process.env
 
@@ -37,20 +41,16 @@ export async function getResultCounts(
   searchTerms: string
 ): Promise<{ [key in Tab]: number }> {
   return {
-    Works: await countImages(searchTerms),
-    Images: await countWorks(client, searchTerms),
-    Stories: await countPeople(client, searchTerms),
-    Subjects: await countSubjects(client, searchTerms),
-    People: await countStories(client, searchTerms),
+    Images: await countImages(searchTerms),
+    Works: await countWorks(client, searchTerms),
+    Stories: await countStories(client, searchTerms),
     "What's on": await countWhatsOn(client, searchTerms),
   }
 }
 
 const searchServices = {
   images: searchImages,
-  people: searchPeople,
   stories: searchStories,
-  subjects: searchSubjects,
   'whats-on': searchWhatsOn,
   works: searchWorks,
 }
@@ -58,15 +58,22 @@ const searchServices = {
 export async function search(
   index: string,
   searchTerms: string,
-  client: Client
+  client: Client,
+  n: number
 ) {
-  return await searchServices[index](client, searchTerms)
+  return await searchServices[index](client, searchTerms, n)
 }
-export { getWorks, parseWork, searchWorks } from './work'
+
+export { getWorks, getWork, parseWork, searchWorks } from './work'
 export { parseImage, searchImages } from './image'
 export { searchPeople } from './person'
 export { searchWhatsOn } from './whats-on'
-export { getSubjects, parseConcept, searchSubjects } from './subject'
+export {
+  getSubjects,
+  getSubject,
+  parseConcept,
+  searchSubjects,
+} from './subject'
 
 export {
   getStories,

@@ -62,11 +62,13 @@ export function getRecentStories(client: Client, n: number): Promise<Story> {
 
 export async function searchStories(
   client: Client,
-  searchTerms: string
+  searchTerms: string,
+  n: number
 ): Promise<Story[]> {
   const response = await client.search({
     index,
     body: formatQuery(blankQuery, searchTerms),
+    size: n,
   })
   const results = response.body.hits.hits.map((doc: StoryHit) => {
     return parseStory(doc)

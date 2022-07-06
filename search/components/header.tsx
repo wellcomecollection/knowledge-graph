@@ -17,12 +17,12 @@ const Header: FC<Props> = ({ isHomePage }) => {
         searchSelected || menuSelected ? 'shadow-2xl' : null
       } ${menuSelected ? 'bg-red text-white' : 'bg-white'}`}
     >
-      <div className="mx-auto py-8 px-5 lg:w-3/4">
+      <div className="mx-auto py-6 px-5 lg:w-3/4">
         <header className="flex items-end justify-between">
           <img
             src="/images/logo.png"
             alt="Wellcome Collection"
-            className={`h-12 ${menuSelected ? 'invert filter' : ''}`}
+            className={`h-10 ${menuSelected ? 'invert filter' : ''}`}
           />
           <div className="flex items-center gap-8 text-lg">
             <Link href="/">
@@ -68,7 +68,7 @@ const Header: FC<Props> = ({ isHomePage }) => {
               <div>
                 Looking to search our collections?{' '}
                 <br className="block sm:hidden" />
-                <a href="/search/collections">
+                <a href="/search/works">
                   Go to our collections search
                   <ArrowRight className="inline-block w-4" />
                 </a>

@@ -1,30 +1,34 @@
 import { GetServerSideProps, NextPage } from 'next'
-import Tabs, { Tab, orderedTabs, slugToTab } from '../../components/new/tabs'
+import Tabs, { Tab, orderedTabs } from '../../components/tabs'
 
 import Head from 'next/head'
-import Layout from '../../components/new/layout'
-import OverviewResultsBlock from '../../components/new/results/overview'
-import SearchBox from '../../components/new/search-box'
+import { Image } from '../../types/image'
+import ImageResultsOverview from '../../components/results/overview/images'
+import Layout from '../../components/layout'
+import OverviewResultsBlock from '../../components/results/overview'
+import SearchBox from '../../components/search-box'
+import { Story } from '../../types/story'
+import StoryResultsOverview from '../../components/results/overview/stories'
+import { WhatsOn } from '../../types/whats-on'
+import WhatsOnResultsOverview from '../../components/results/overview/whats-on'
+import { Work } from '../../types/work'
+import WorkResultsOverview from '../../components/results/overview/works'
 
 type Props = {
   searchTerms: string
   resultCounts: { [key in Tab]: number }
+  results: { [key in Tab]: Image[] | Work[] | Story[] | WhatsOn[] }
 }
 
 export const getServerSideProps: GetServerSideProps = async ({ query }) => {
   const searchTerms = query.query ? query.query.toString() : ''
-  const resultCounts: { [key in Tab]?: number } = {
-    Works: 2065,
-    Images: 181,
-    Subjects: 0,
-    Stories: 5,
-    People: 5,
-    "What's on": 0,
-  }
-  return { props: { searchTerms, resultCounts } }
+  const { results, resultCounts } = await fetch(
+    `${process.env.VERCEL_URL}/api/search?query=${searchTerms}`
+  ).then((res) => res.json())
+  return { props: { searchTerms, results, resultCounts } }
 }
 
-const Search: NextPage<Props> = ({ searchTerms, resultCounts }) => {
+const Search: NextPage<Props> = ({ searchTerms, resultCounts, results }) => {
   return (
     <>
       <Head>
@@ -42,18 +46,44 @@ const Search: NextPage<Props> = ({ searchTerms, resultCounts }) => {
               />
             </div>
           </form>
-          <ul className="space-y-8 divide-y">
-            {orderedTabs.map((tab) =>
-              resultCounts[tab] ? (
-                <li key={tab} className="py-4">
-                  <OverviewResultsBlock
-                    name={tab}
-                    totalResults={resultCounts[tab]}
-                  />
-                </li>
-              ) : null
-            )}
-          </ul>
+          <ol className="divide-y">
+            {resultCounts["What's on"] > 0 ? (
+              <li className="pb-8 pt-2">
+                <WhatsOnResultsOverview
+                  results={results["What's on"] as WhatsOn[]}
+                  queryParams={{ query: searchTerms }}
+                  totalResults={resultCounts["What's on"]}
+                />
+              </li>
+            ) : null}
+            {resultCounts.Stories > 0 ? (
+              <li className="pb-8 pt-2">
+                <StoryResultsOverview
+                  results={results.Stories as Story[]}
+                  queryParams={{ query: searchTerms }}
+                  totalResults={resultCounts.Stories}
+                />
+              </li>
+            ) : null}
+            {resultCounts.Works > 0 ? (
+              <li className="pb-8 pt-2">
+                <WorkResultsOverview
+                  results={results.Works as Work[]}
+                  queryParams={{ query: searchTerms }}
+                  totalResults={resultCounts.Works}
+                />
+              </li>
+            ) : null}
+            {resultCounts.Images > 0 ? (
+              <li className="pb-8 pt-2">
+                <ImageResultsOverview
+                  results={results.Images as Image[]}
+                  queryParams={{ query: searchTerms }}
+                  totalResults={resultCounts.Images}
+                />
+              </li>
+            ) : null}
+          </ol>
         </div>
       </Layout>
     </>

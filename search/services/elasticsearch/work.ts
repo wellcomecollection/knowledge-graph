@@ -40,13 +40,22 @@ export function getWorks(client: Client, ids: string[]): Promise<Work[]> {
   })
 }
 
+export function getWork(client: Client, id: string): Promise<Work> {
+  const work = client.get({ index, id }).then((response) => {
+    return parseWork(response.body as WorkHit)
+  })
+  return work
+}
+
 export async function searchWorks(
   client: Client,
-  searchTerms: string
+  searchTerms: string,
+  n: number
 ): Promise<Work[]> {
   const response = await client.search({
     index,
     body: formatQuery(blankQuery, searchTerms),
+    size: n,
   })
   const results = response.body.hits.hits.map((doc: WorkHit) => {
     return parseWork(doc)

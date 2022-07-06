@@ -1,12 +1,12 @@
 import { FC } from 'react'
 import Link from 'next/link'
-import { Work } from '../../../types/work'
+import { Work } from '../../types/work'
 
 type Props = {
   results: Work[]
 }
 
-const WorkResults: FC<Props> = ({ results }) => {
+const WorksResults: FC<Props> = ({ results }) => {
   return (
     <ol className="divide-y">
       {results.map((work) => {
@@ -33,4 +33,4 @@ const WorkResults: FC<Props> = ({ results }) => {
     </ol>
   )
 }
-export default WorkResults
+export default WorksResults

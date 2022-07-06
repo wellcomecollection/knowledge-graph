@@ -1,5 +1,5 @@
-import CardBlock from '../components/new/card-block'
-import Layout from '../components/new/layout'
+import CardBlock from '../components/card-block'
+import Layout from '../components/layout'
 import { NextPage } from 'next'
 
 const Index: NextPage = () => {
