@@ -94,7 +94,7 @@ def index_stories(start_index=0):
             progress_bar.set_description(f"Indexing story {story.uid}")
             concepts_es_client.index(
                 index=os.environ["ELASTIC_STORIES_INDEX"],
-                id=story.uid,
+                id=story.wellcome_id,
                 document=format_story_for_elasticsearch(story),
             )
 
