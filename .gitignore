@@ -174,3 +174,5 @@ data/**/*
 !**/.gitkeep
 !**/README.md
 
+
+.vercel

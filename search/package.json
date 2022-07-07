@@ -1,5 +1,5 @@
 {
-  "name": "stories_search",
+  "name": "knowledge_graph_search",
   "private": true,
   "scripts": {
     "dev": "next dev",
