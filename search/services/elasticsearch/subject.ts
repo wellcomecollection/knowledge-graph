@@ -1,10 +1,13 @@
 import { Concept, ConceptHit } from '../../types/concept'
+import { Person, PersonHit } from '../../types/person'
 
 import { Client } from '@elastic/elasticsearch'
 import blankQuery from '../../data/queries/concepts-loose.json'
 import { formatQuery } from '.'
 
-export function parseConcept(conceptHit: ConceptHit): Concept {
+export function parseConcept(
+  conceptHit: ConceptHit | PersonHit
+): Concept | Person {
   const concept = conceptHit._source
   const works = concept.works.map((workTitle, index) => {
     return {
@@ -22,7 +25,7 @@ export function parseConcept(conceptHit: ConceptHit): Concept {
     ? concept.work_contributions.map((workTitle, index) => {
         return {
           name: workTitle,
-          id: concept.work_ids[index],
+          id: concept.work_contributions[index],
         }
       })
     : []
@@ -30,7 +33,7 @@ export function parseConcept(conceptHit: ConceptHit): Concept {
     ? concept.story_contributions.map((storyTitle, index) => {
         return {
           name: storyTitle,
-          id: concept.story_ids[index],
+          id: concept.story_contribution_ids[index],
         }
       })
     : []

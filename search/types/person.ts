@@ -5,13 +5,13 @@ export type PersonSource = ConceptSource & {
   date_labels: string[]
 }
 
-export type ConceptHit = {
+export type PersonHit = {
   _id: string
   _score: string
-  _source: ConceptSource | PersonSource
+  _source: PersonSource
 }
 
-export type Concept = {
+export type Person = {
   id: string
   lc_names_id: string
   lc_names_preferred_name: string
