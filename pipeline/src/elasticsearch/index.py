@@ -150,11 +150,13 @@ def index_concepts(start_index=0, create=False):
             mappings=concepts_mappings,
             settings=concepts_settings,
         )
-
+    concepts_to_index = (
+        Concept.nodes.filter(type="concept").has(works=True)
+    )
     log.info("Populating the subjects index")
     progress_bar = tqdm(
-        Concept.nodes.filter(type="concept"),
-        total=len(Concept.nodes.filter(type="concept")),
+        concepts_to_index,
+        total=len(concepts_to_index),
         unit="concepts",
     )
     for concept in progress_bar:

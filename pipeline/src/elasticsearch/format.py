@@ -160,8 +160,13 @@ def format_concept_for_elasticsearch(concept: Concept):
     ]
 
     concept_neighbours = concept.neighbours.all()
+    neighbours_with_works = [
+        neighbour
+        for neighbour in concept_neighbours
+        if len(neighbour.works)>0
+    ]
     neighbour_names = []
-    for concept in concept_neighbours:
+    for concept in neighbours_with_works:
         preferred_name = concept.name
         for source_type in ordered_source_preferences:
             source = concept.sources.get_or_none(source_type=source_type)
@@ -169,7 +174,7 @@ def format_concept_for_elasticsearch(concept: Concept):
                 preferred_name = source.preferred_name
                 break
         neighbour_names.append(preferred_name)
-    neighbour_ids = [neighbour.uid for neighbour in concept_neighbours]
+    neighbour_ids = [neighbour.uid for neighbour in neighbours_with_works]
 
     document = {
         "name": concept.name,
