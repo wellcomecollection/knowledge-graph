@@ -58,6 +58,13 @@ YIELD
   graphName AS graph, nodeQuery, nodeCount AS nodes, relationshipQuery, relationshipCount AS rels
 ```
 
+## Determine the degree of every node in the graph
+
+```
+CALL gds.degree.stats('concepts')
+YIELD centralityDistribution
+```
+
 ## Measure the centrality of nodes in a graph
 
 ```

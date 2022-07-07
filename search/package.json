@@ -1,5 +1,5 @@
 {
-  "name": "knowledge_graph_search",
+  "name": "knowledge-graph-search",
   "private": true,
   "scripts": {
     "dev": "next dev",

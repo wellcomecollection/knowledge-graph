@@ -22,9 +22,8 @@ type Props = {
 
 export const getServerSideProps: GetServerSideProps = async ({ query }) => {
   const searchTerms = query.query ? query.query.toString() : ''
-  const { results, resultCounts } = await fetch(
-    `${process.env.VERCEL_URL}/api/search?query=${searchTerms}`
-  ).then((res) => res.json())
+  const url = `${process.env.VERCEL_URL}/api/search?query=${searchTerms}`
+  const { results, resultCounts } = await fetch(url).then((res) => res.json())
   return { props: { searchTerms, results, resultCounts } }
 }
 

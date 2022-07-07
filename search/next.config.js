@@ -4,4 +4,3 @@ module.exports = {
     domains: ['images.prismic.io', 'upload.wikimedia.org'],
   },
 }
-

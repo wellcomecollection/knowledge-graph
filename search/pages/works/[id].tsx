@@ -87,7 +87,7 @@ const WorkPage: NextPage<Props> = ({ work }) => {
                 <li key={concept.id} className="pb-6">
                   <a
                     className="w-100 rounded-full border border-gray-400 py-2 px-3 text-sm capitalize no-underline"
-                    href={`/concepts/${concept.id}`}
+                    href={`/subjects/${concept.id}`}
                   >
                     {concept.name}
                   </a>

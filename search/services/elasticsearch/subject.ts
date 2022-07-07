@@ -42,26 +42,13 @@ export function parseConcept(conceptHit: ConceptHit): Concept {
   })
 
   return {
-    type: concept.type,
+    ...concept,
     id: conceptHit._id,
-    lc_subjects_id: concept.lc_subjects_id,
-    lc_subjects_preferred_name: concept.lc_subjects_preferred_name,
-    lc_names_id: concept.lc_names_id,
-    lc_names_preferred_name: concept.lc_names_preferred_name,
-    mesh_description: concept.mesh_description,
-    mesh_id: concept.mesh_id,
-    mesh_preferred_name: concept.mesh_preferred_name,
-    name: concept.name,
-    preferred_name: concept.preferred_name,
     neighbours,
     works,
     stories,
     work_contributions,
     story_contributions,
-    variants: concept.variants,
-    wikidata_description: concept.wikidata_description,
-    wikidata_id: concept.wikidata_id,
-    wikidata_preferred_name: concept.wikidata_preferred_name,
   }
 }
 const index = process.env.ELASTIC_SUBJECTS_INDEX as string

@@ -17,7 +17,7 @@ export const getServerSideProps: GetServerSideProps = async ({ query }) => {
   return { props: { concept } }
 }
 
-const ConceptPage: NextPage<Props> = ({ concept }) => {
+const SubjectPage: NextPage<Props> = ({ concept }) => {
   const description =
     concept.wikidata_description || concept.mesh_description || null
   const capitalisedDescription = description
@@ -26,12 +26,14 @@ const ConceptPage: NextPage<Props> = ({ concept }) => {
   return (
     <div className="">
       <Head>
-        <title>{concept.name}</title>
+        <title>{concept.preferred_name}</title>
       </Head>
       <Layout>
         <div className="space-y-8 bg-red py-8">
           <div className="mx-auto  px-5 lg:w-3/4">
-            <h1 className="font-sans text-5xl capitalize">{concept.name}</h1>
+            <h1 className="font-sans text-5xl capitalize">
+              {concept.preferred_name}
+            </h1>
           </div>
           <div className="mx-auto flex flex-col space-y-8 px-5 lg:w-3/4 lg:flex-row lg:space-y-0 lg:space-x-12">
             <div className="space-y-4 lg:w-2/3">
@@ -86,7 +88,7 @@ const ConceptPage: NextPage<Props> = ({ concept }) => {
                   <li key={neighbour.id} className="pb-6">
                     <a
                       className="w-100 rounded-full border border-black py-2 px-3 text-sm capitalize no-underline"
-                      href={`/concepts/${neighbour.id}`}
+                      href={`/subjects/${neighbour.id}`}
                     >
                       {neighbour.name}
                     </a>
@@ -96,19 +98,36 @@ const ConceptPage: NextPage<Props> = ({ concept }) => {
             </div>
           </div>
         </div>
-        <div className="mx-auto space-y-8 px-5 lg:w-3/4">
-          <h2 className="font-sans font-light">Related works</h2>
-          {concept.works.map((work: { id: string; name: string }) => (
-            <div className="flex flex-col space-y-2" key={work.id}>
-              <a href={`/work/${work.id}`}>
-                <h3 className="font-sans font-light">{work.name}</h3>
-              </a>
+        {concept.works.length > 0 && (
+          <div className="mx-auto space-y-4 px-5 lg:w-3/4">
+            <h2 className="font-sans font-light">Related stories</h2>
+            <div className="flex flex-col space-y-2">
+              {concept.works.map((work: { id: string; name: string }) => (
+                <a href={`/works/${work.id}`} key={work.id}>
+                  <h3 className="font-sans font-light">{work.name}</h3>
+                </a>
+              ))}
             </div>
-          ))}
-        </div>
+          </div>
+        )}
+        {concept.stories.length > 0 && (
+          <div className="mx-auto space-y-4 px-5 lg:w-3/4">
+            <h2 className="font-sans font-light">Related stories</h2>
+            <div className="flex flex-col space-y-2">
+              {concept.stories.map((story: { id: string; name: string }) => (
+                <a
+                  key={story.id}
+                  href={`https://wellcomecollection.org/articles/${story.id}`}
+                >
+                  <h3 className="font-sans font-light">{story.name}</h3>
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
       </Layout>
     </div>
   )
 }
 
-export default ConceptPage
+export default SubjectPage

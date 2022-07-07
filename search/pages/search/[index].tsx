@@ -23,9 +23,8 @@ type Props = {
 export const getServerSideProps: GetServerSideProps = async ({ query }) => {
   const selectedIndex = query.index as string
   const searchTerms = query.query ? query.query.toString() : ''
-  let { results, resultCounts } = await fetch(
-    `${process.env.VERCEL_URL}/api/search/${selectedIndex}?query=${searchTerms}`
-  ).then((res) => res.json())
+  const url = `${process.env.VERCEL_URL}/api/search/${selectedIndex}?query=${searchTerms}`
+  let { results, resultCounts } = await fetch(url).then((res) => res.json())
   results = results[slugToTab[selectedIndex]]
   return { props: { selectedIndex, searchTerms, resultCounts, results } }
 }

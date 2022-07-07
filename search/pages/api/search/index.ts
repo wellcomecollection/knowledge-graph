@@ -15,7 +15,6 @@ export default async function searchEndpoint(
       const { query: searchTerms } = req.query
       const client = getClient()
       const resultCounts = await getResultCounts(client, searchTerms as string)
-
       const results = {} as { [key in Tab]: any[] }
       for (const tab of orderedTabs) {
         results[tab] = await search(

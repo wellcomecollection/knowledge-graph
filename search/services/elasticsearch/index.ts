@@ -6,17 +6,21 @@ import { countWorks, searchWorks } from './work'
 
 import { Client } from '@elastic/elasticsearch'
 
-const { ELASTIC_PASSWORD, ELASTIC_USERNAME, ELASTIC_CLOUD_ID } = process.env
+const {
+  ELASTIC_CONCEPTS_PASSWORD,
+  ELASTIC_CONCEPTS_USERNAME,
+  ELASTIC_CONCEPTS_CLOUD_ID,
+} = process.env
 
 let client: Client
 export function getClient(): Client {
   client = new Client({
     cloud: {
-      id: ELASTIC_CLOUD_ID!,
+      id: ELASTIC_CONCEPTS_CLOUD_ID!,
     },
     auth: {
-      username: ELASTIC_USERNAME!,
-      password: ELASTIC_PASSWORD!,
+      username: ELASTIC_CONCEPTS_USERNAME!,
+      password: ELASTIC_CONCEPTS_PASSWORD!,
     },
   })
   return client
