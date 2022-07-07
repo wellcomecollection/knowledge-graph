@@ -21,10 +21,30 @@ type Props = {
 }
 
 export const getServerSideProps: GetServerSideProps = async ({ query }) => {
-  const searchTerms = query.query ? query.query.toString() : ''
-  const url = `${process.env.VERCEL_URL}/api/search?query=${searchTerms}`
-  const { results, resultCounts } = await fetch(url).then((res) => res.json())
-  return { props: { searchTerms, results, resultCounts } }
+  if (!query.query) {
+    return {
+      props: {
+        searchTerms: '',
+        resultCounts: {
+          images: 0,
+          works: 0,
+          stories: 0,
+          whatsOn: 0,
+        },
+        results: {
+          images: [],
+          works: [],
+          stories: [],
+          whatsOn: [],
+        },
+      },
+    }
+  } else {
+    const searchTerms = query.query.toString()
+    const url = `${process.env.VERCEL_URL}/api/search?query=${searchTerms}`
+    const { results, resultCounts } = await fetch(url).then((res) => res.json())
+    return { props: { searchTerms, results, resultCounts } }
+  }
 }
 
 const Search: NextPage<Props> = ({ searchTerms, resultCounts, results }) => {
