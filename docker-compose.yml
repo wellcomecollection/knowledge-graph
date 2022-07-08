@@ -121,3 +121,12 @@ services:
       - 3000:3000
     env_file: .env
     command: yarn dev
+
+  format-python:
+    image: python:3.8-slim
+    volumes: 
+      - type: bind
+        source: ./
+        target: /repo
+    working_dir: /repo
+    command: sh tasks/format.sh
