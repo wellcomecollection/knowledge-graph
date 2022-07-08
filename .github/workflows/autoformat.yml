@@ -1,0 +1,23 @@
+name: ci
+on: 
+  pull_request:
+  push:
+    branches: 
+      - main
+jobs:
+  autoformat:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+      - name: format python
+        run: docker compose run format-python
+      - name: Push changes if they exist
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            git config user.name github-actions
+            git config user.email github-actions@github.com
+            git commit -am "autoformat"
+            git push
+          fi
