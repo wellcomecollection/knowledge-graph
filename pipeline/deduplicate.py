@@ -1,7 +1,7 @@
 from string import ascii_letters
 
 from src.graph import get_neo4j_session
-from src.graph.models import Concept, SourceConcept
+from src.graph.models import SourceConcept
 from src.utils import get_logger
 
 log = get_logger(__name__)

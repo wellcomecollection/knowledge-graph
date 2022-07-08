@@ -1,22 +1,8 @@
-import json
 from dateutil.parser import parse
-import datetime
-from pathlib import Path
-
-import pandas as pd
-from src.elasticsearch import yield_popular_works
-from src.enrich.wikidata import (
-    get_contributor_wikidata_ids,
-    get_wikidata,
-    get_wikidata_description,
-    get_wikidata_id,
-    get_wikidata_preferred_name,
-    get_wikidata_variant_names,
-)
 from src.graph import get_neo4j_session
-from src.graph.models import Concept, SourceConcept, Work, Exhibition, Event
+from src.graph.models import Event, Exhibition
 from src.prismic import yield_events, yield_exhibitions
-from src.utils import clean, clean_csv, get_logger
+from src.utils import get_logger
 
 log = get_logger(__name__)
 
@@ -258,36 +244,36 @@ db = get_neo4j_session(clear=False)
 #             )
 
 
-
 # exhibitions
 log.info("Processing exhibitions")
 for exhibition in yield_exhibitions(size=100):
     try:
-        description = exhibition['promo'][0]['primary']['caption'][0]['text']
+        description = exhibition["promo"][0]["primary"]["caption"][0]["text"]
     except (KeyError, IndexError, TypeError):
         description = ""
     try:
-        image_url = exhibition['promo'][0]['primary']['image']['url']
+        image_url = exhibition["promo"][0]["primary"]["image"]["url"]
     except (KeyError, IndexError, TypeError):
         image_url = ""
     try:
-        image_alt = exhibition['promo'][0]['primary']['image']['alt']
+        image_alt = exhibition["promo"][0]["primary"]["image"]["alt"]
     except (KeyError, IndexError, TypeError):
         image_alt = ""
     try:
-        location = exhibition['place']['slug']
+        location = exhibition["place"]["slug"]
     except (KeyError, IndexError, TypeError):
         location = ""
 
     exhibition_data = {
-        "title": exhibition['title'][0]['text'],
+        "title": exhibition["title"][0]["text"],
         "format": (
-            'Permanent exhibition' if exhibition['isPermanent']
-            else 'Exhibition'
+            "Permanent exhibition"
+            if exhibition["isPermanent"]
+            else "Exhibition"
         ),
         "description": description,
-        "start_date": parse(exhibition['start']).date(),
-        "end_date": parse(exhibition['end']).date(),
+        "start_date": parse(exhibition["start"]).date(),
+        "end_date": parse(exhibition["end"]).date(),
         "image_url": image_url,
         "image_alt": image_alt,
         "location": location,
@@ -295,56 +281,50 @@ for exhibition in yield_exhibitions(size=100):
 
     existing_exhibition = Exhibition.nodes.first_or_none(**exhibition_data)
     if existing_exhibition:
-        log.debug(
-            "Found existing exhibition", uid=existing_exhibition.uid
-        )
+        log.debug("Found existing exhibition", uid=existing_exhibition.uid)
     else:
         log.debug("Creating exhibition", title=exhibition["title"][0]["text"])
         Exhibition(**exhibition_data).save()
-
 
 
 # events
 log.info("Processing events")
 for event in yield_events(size=100):
     try:
-        description = event['promo'][0]['primary']['caption'][0]['text']
+        description = event["promo"][0]["primary"]["caption"][0]["text"]
     except (KeyError, IndexError, TypeError):
         description = ""
     try:
-        image_url = event['promo'][0]['primary']['image']['url']
+        image_url = event["promo"][0]["primary"]["image"]["url"]
     except (KeyError, IndexError, TypeError):
         image_url = ""
     try:
-        image_alt = event['promo'][0]['primary']['image']['alt']
+        image_alt = event["promo"][0]["primary"]["image"]["alt"]
     except (KeyError, IndexError, TypeError):
         image_alt = ""
     try:
-        location = event['locations'][0]['location']['slug']
+        location = event["locations"][0]["location"]["slug"]
     except (KeyError, IndexError, TypeError):
         location = ""
     try:
-        format = event['format']['slug']
+        format = event["format"]["slug"]
     except (KeyError, IndexError, TypeError):
         format = ""
 
-
     event_data = {
-        "title": event['title'][0]['text'],
+        "title": event["title"][0]["text"],
         "format": format,
         "description": description,
-        "start_date": parse(event['times'][0]['startDateTime']).date(),
-        "end_date": parse(event['times'][0]['endDateTime']).date(),
+        "start_date": parse(event["times"][0]["startDateTime"]).date(),
+        "end_date": parse(event["times"][0]["endDateTime"]).date(),
         "image_url": image_url,
         "image_alt": image_alt,
-        "location": location
+        "location": location,
     }
 
     existing_event = Event.nodes.first_or_none(**event_data)
     if existing_event:
-        log.debug(
-            "Found existing event", uid=existing_event.uid
-        )
+        log.debug("Found existing event", uid=existing_event.uid)
     else:
         log.debug("Creating event", title=event["title"][0]["text"])
         Event(**event_data).save()

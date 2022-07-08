@@ -1,5 +1,4 @@
 from .utils import fetch_json
-import httpx
 
 
 def get_prismic_master_ref():
@@ -44,10 +43,11 @@ def get_story_standfirst(story_data):
 
 def get_story_image(story_data):
     try:
-        image_url = story_data["promo"][0]['primary']['image']['url']
+        image_url = story_data["promo"][0]["primary"]["image"]["url"]
     except (KeyError, IndexError, TypeError, ValueError):
-        image_url =None
+        image_url = None
     return image_url
+
 
 def yield_exhibitions(size=100):
     response = fetch_json(

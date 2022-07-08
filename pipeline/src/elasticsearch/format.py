@@ -10,7 +10,7 @@ from . import (
     get_story_standfirst,
     get_work_data,
     get_work_image,
-    get_story_image
+    get_story_image,
 )
 
 ordered_source_preferences = ["wikidata", "nlm-mesh", "lc-subjects", "lc-names"]
@@ -163,7 +163,7 @@ def format_concept_for_elasticsearch(concept: Concept):
     neighbours_with_works = [
         neighbour
         for neighbour in concept_neighbours
-        if len(neighbour.works)>0
+        if len(neighbour.works) > 0
     ]
     neighbour_names = []
     for concept in neighbours_with_works:
