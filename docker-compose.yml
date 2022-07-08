@@ -137,8 +137,4 @@ services:
       - type: bind
         source: ./
         target: /repo
-      - type: bind
-        source: ~/.aws
-        target: /root/.aws
-        read_only: true
     working_dir: /repo/terraform

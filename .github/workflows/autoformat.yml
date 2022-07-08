@@ -13,6 +13,8 @@ jobs:
           ref: ${{ github.head_ref }}
       - name: format python
         run: docker compose run format-python
+      - name: format terraform
+        run: docker compose run terraform fmt -recursive
       - name: Push changes if they exist
         run: |
           if [ -n "$(git status --porcelain)" ]; then
