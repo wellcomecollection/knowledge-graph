@@ -109,3 +109,15 @@ services:
         target: /data/cache
     command: >
       sh -c "python graph.py && python neighbours.py && python index.py"
+
+  search:
+    build:
+      context: .
+      dockerfile: search/Dockerfile
+    working_dir: /search
+    volumes:
+      - ./search:/search
+    ports:
+      - 3000:3000
+    env_file: .env
+    command: yarn dev

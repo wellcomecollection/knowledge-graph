@@ -100,7 +100,7 @@ const SubjectPage: NextPage<Props> = ({ concept }) => {
         </div>
         {concept.works.length > 0 && (
           <div className="mx-auto space-y-4 px-5 lg:w-3/4">
-            <h2 className="font-sans font-light">Related stories</h2>
+            <h2 className="font-sans font-light">Related works</h2>
             <div className="flex flex-col space-y-2">
               {concept.works.map((work: { id: string; name: string }) => (
                 <a href={`/works/${work.id}`} key={work.id}>
