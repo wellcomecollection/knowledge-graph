@@ -130,3 +130,15 @@ services:
         target: /repo
     working_dir: /repo
     command: sh tasks/format.sh
+
+  terraform:
+    image: hashicorp/terraform
+    volumes:
+      - type: bind
+        source: ./
+        target: /repo
+      - type: bind
+        source: ~/.aws
+        target: /root/.aws
+        read_only: true
+    working_dir: /repo/terraform
