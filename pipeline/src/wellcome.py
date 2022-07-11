@@ -35,11 +35,12 @@ def get_work_image(work_data):
         image = ""
     return image
 
+
 def get_work_dates(work_data):
     try:
         dates = [
-            date['label'] 
-            for production in work_data["production"] 
+            date["label"]
+            for production in work_data["production"]
             for date in production["dates"]
         ]
     except (KeyError, IndexError, TypeError, ValueError):
