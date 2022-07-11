@@ -32,8 +32,6 @@ log = get_logger(__name__)
 
 
 def get_neo4j_session(clear=False):
-    config.CONNECTION_TIMEOUT = 60 * 60 * 100
-    config.MAX_CONNECTION_LIFETIME = 60 * 60 * 100
     config.DATABASE_URL = os.environ["NEO4J_CONNECTION_URI"]
     db.set_connection(os.environ["NEO4J_CONNECTION_URI"])
     wait_until_neo4j_is_live()
@@ -44,11 +42,10 @@ def get_neo4j_session(clear=False):
 
 
 def wait_until_neo4j_is_live():
-    log.info("Connecting to neo4j...")
     while True:
         try:
             db.cypher_query("MATCH (n) RETURN n LIMIT 1")
             break
         except ServiceUnavailable:
-            sleep(5)
+            sleep(1)
             log.info("Connecting to neo4j...")

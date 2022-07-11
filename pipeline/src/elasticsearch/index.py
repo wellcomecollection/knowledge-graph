@@ -119,9 +119,9 @@ def index_people(client: Elasticsearch, index: str):
 
 def index_whats_on(client: Elasticsearch, index: str):
     log.info(f"Creating index: {index}")
-    with open(mappings_path / "people.json", "r", encoding="utf-8") as f:
+    with open(mappings_path / "whats-on.json", "r", encoding="utf-8") as f:
         mappings = json.load(f)
-    with open(settings_path / "people.json", "r", encoding="utf-8") as f:
+    with open(settings_path / "whats-on.json", "r", encoding="utf-8") as f:
         settings = json.load(f)
 
     delete_index(client, index)

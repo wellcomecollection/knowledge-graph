@@ -5,7 +5,7 @@ def get_work_data(id):
     try:
         data = fetch_json(
             f"https://api.wellcomecollection.org/catalogue/v2/works/{id}",
-            params={"include": "subjects,notes,genres"},
+            params={"include": "subjects,notes,genres,production"},
         )
     except (KeyError, IndexError, TypeError, ValueError):
         data = {}
@@ -18,7 +18,6 @@ def get_work_description(work_data):
     except (KeyError, IndexError, TypeError, ValueError):
         description = ""
     return description
-
 
 def get_work_notes(work_data):
     try:

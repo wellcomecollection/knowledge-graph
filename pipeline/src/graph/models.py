@@ -62,14 +62,13 @@ class Work(StructuredNode):
     title = StringProperty(required=True)
     concepts = RelationshipFrom("Concept", "HAS_CONCEPT")
     contributors = RelationshipFrom("Concept", "CONTRIBUTED_TO")
-    published = DateProperty()
     wikidata_id = StringProperty(unique_index=True)
     type = StringProperty(
         required=True,
         choices={c: c for c in ["story", "work"]},
     )
     format = StringProperty()
-    production_date = StringProperty()
+    published = StringProperty()
 
 
 class SourceConcept(StructuredNode):
