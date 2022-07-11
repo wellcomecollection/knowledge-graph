@@ -1,4 +1,3 @@
-from neo4j.exceptions import SessionExpired
 from datetime import datetime
 from pathlib import Path
 
@@ -45,11 +44,15 @@ for _, story_data in df.iterrows():
 
         if story.wikidata_id:
             story_wikidata = get_wikidata(story.wikidata_id)
-            contributor_wikidata_ids = get_contributor_wikidata_ids(story_wikidata)
+            contributor_wikidata_ids = get_contributor_wikidata_ids(
+                story_wikidata
+            )
 
             for contributor_wikidata_id in contributor_wikidata_ids:
-                existing_person_source_concept = SourceConcept.nodes.get_or_none(
-                    source_id=contributor_wikidata_id
+                existing_person_source_concept = (
+                    SourceConcept.nodes.get_or_none(
+                        source_id=contributor_wikidata_id
+                    )
                 )
                 if existing_person_source_concept:
                     log.debug(
@@ -62,7 +65,9 @@ for _, story_data in df.iterrows():
                     source_concept = SourceConcept(
                         source_id=contributor_wikidata_id,
                         source_type="wikidata",
-                        description=get_wikidata_description(contributor_wikidata),
+                        description=get_wikidata_description(
+                            contributor_wikidata
+                        ),
                         preferred_name=get_wikidata_preferred_name(
                             contributor_wikidata
                         ),
@@ -70,7 +75,9 @@ for _, story_data in df.iterrows():
                             contributor_wikidata
                         ),
                     ).save()
-                    log.debug("Creating person", name=source_concept.preferred_name)
+                    log.debug(
+                        "Creating person", name=source_concept.preferred_name
+                    )
                     person = Concept(
                         name=source_concept.preferred_name, type="person"
                     ).save()
@@ -82,8 +89,8 @@ for _, story_data in df.iterrows():
             ].split(",")
             for contributor in contributors:
                 contributor_name = clean(contributor)
-                existing_person_source_concept = SourceConcept.nodes.get_or_none(
-                    preferred_name=contributor
+                existing_person_source_concept = (
+                    SourceConcept.nodes.get_or_none(preferred_name=contributor)
                 )
                 if existing_person_source_concept:
                     log.debug(
@@ -93,16 +100,19 @@ for _, story_data in df.iterrows():
                     person = existing_person_source_concept.parent.all()[0]
                 else:
                     log.debug("Creating person", name=contributor_name)
-                    person = Concept(name=contributor_name, type="person").save()
+                    person = Concept(
+                        name=contributor_name, type="person"
+                    ).save()
                 story.contributors.connect(person)
-
 
         for concept_name in clean_csv(story_data["Keywords"]):
             clean_concept_name = clean(concept_name)
             concept_wikidata_id = get_wikidata_id(clean_concept_name)
             if concept_wikidata_id:
-                existing_concept_source_concept = SourceConcept.nodes.get_or_none(
-                    source_id=concept_wikidata_id
+                existing_concept_source_concept = (
+                    SourceConcept.nodes.get_or_none(
+                        source_id=concept_wikidata_id
+                    )
                 )
                 if existing_concept_source_concept:
                     log.debug(

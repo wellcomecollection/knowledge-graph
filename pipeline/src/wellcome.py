@@ -19,6 +19,7 @@ def get_work_description(work_data):
         description = ""
     return description
 
+
 def get_work_notes(work_data):
     try:
         notes = "\n".join([note["contents"] for note in work_data["notes"]])
