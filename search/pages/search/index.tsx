@@ -5,7 +5,6 @@ import Head from 'next/head'
 import { Image } from '../../types/image'
 import ImageResultsOverview from '../../components/results/overview/images'
 import Layout from '../../components/layout'
-import OverviewResultsBlock from '../../components/results/overview'
 import SearchBox from '../../components/search-box'
 import { Story } from '../../types/story'
 import StoryResultsOverview from '../../components/results/overview/stories'
@@ -41,7 +40,7 @@ export const getServerSideProps: GetServerSideProps = async ({ query }) => {
     }
   } else {
     const searchTerms = query.query.toString()
-    const url = `${process.env.VERCEL_URL}/api/search?query=${searchTerms}`
+    const url = process.env.VERCEL_URL + `/api/search?query=${searchTerms}`
     const { results, resultCounts } = await fetch(url).then((res) => res.json())
     return { props: { searchTerms, results, resultCounts } }
   }
@@ -55,16 +54,15 @@ const Search: NextPage<Props> = ({ searchTerms, resultCounts, results }) => {
       </Head>
       <Layout isHomePage>
         <div className="mx-auto px-5 lg:w-3/4">
-          <form>
-            <SearchBox searchTerms={searchTerms} />
-            <div className="py-6">
-              <Tabs
-                selectedTab={'overview'}
-                queryParams={{ query: searchTerms }}
-                resultCounts={resultCounts}
-              />
-            </div>
-          </form>
+          <SearchBox searchTerms={searchTerms} />
+          <div className="py-6">
+            <Tabs
+              selectedTab={'overview'}
+              queryParams={{ query: searchTerms }}
+              resultCounts={resultCounts}
+            />
+          </div>
+
           <ol className="divide-y">
             {resultCounts["What's on"] > 0 ? (
               <li className="pb-8 pt-2">

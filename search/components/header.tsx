@@ -61,9 +61,8 @@ const Header: FC<Props> = ({ isHomePage }) => {
         </header>
         {searchSelected ? (
           <div className="flex w-full flex-col gap-y-8 pt-10">
-            <form className="block w-full" action="/search">
-              <SearchBox />
-            </form>
+            <SearchBox />
+
             {isHomePage ? (
               <div>
                 Looking to search our collections?{' '}

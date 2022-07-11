@@ -40,7 +40,9 @@ export const getServerSideProps: GetServerSideProps = async ({ query }) => {
     }
   } else {
     const searchTerms = query.query.toString()
-    const url = `${process.env.VERCEL_URL}/api/search/${selectedIndex}?query=${searchTerms}`
+    const url =
+      process.env.VERCEL_URL +
+      `/api/search/${selectedIndex}?query=${searchTerms}`
     let { results, resultCounts } = await fetch(url).then((res) => res.json())
     results = results[slugToTab[selectedIndex]]
     return { props: { selectedIndex, searchTerms, resultCounts, results } }
@@ -60,16 +62,14 @@ const Search: NextPage<Props> = ({
       </Head>
       <Layout isHomePage>
         <div className="mx-auto px-5 lg:w-3/4">
-          <form>
-            <SearchBox searchTerms={searchTerms} />
-            <div className="py-6">
-              <Tabs
-                selectedTab={selectedIndex}
-                queryParams={{ query: searchTerms }}
-                resultCounts={resultCounts}
-              />
-            </div>
-          </form>
+          <SearchBox searchTerms={searchTerms} index={selectedIndex} />
+          <div className="py-6">
+            <Tabs
+              selectedTab={selectedIndex}
+              queryParams={{ query: searchTerms }}
+              resultCounts={resultCounts}
+            />
+          </div>
           {selectedIndex === 'works' ? (
             <WorksResults results={results as Work[]} />
           ) : null}
