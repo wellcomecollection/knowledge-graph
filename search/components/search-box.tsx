@@ -14,7 +14,7 @@ const SearchBox: FC<Props> = (props) => {
   return (
     <form
       className="block w-full"
-      action={`/search${props.index ? `/${props.index}` : null}`}
+      action={`/search${props.index ? `/${props.index}` : ''}`}
       method="GET"
     >
       <div className="mx-auto flex justify-between gap-1">
