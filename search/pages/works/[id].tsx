@@ -74,7 +74,7 @@ const WorkPage: NextPage<Props> = ({ work }) => {
           </div>
           <div>
             <p className="font-bold">Contributors</p>
-            <ul className="flex capitalize">
+            <ul className="capitalize">
               {work.contributors.map((contributor) => (
                 <li key={contributor.id}>
                   <a className="" href={`/people/${contributor.id}`}>
@@ -85,7 +85,7 @@ const WorkPage: NextPage<Props> = ({ work }) => {
             </ul>
           </div>
           <div>
-            <h2 className="font-sans font-light">Related subjects</h2>
+            <p className="font-bold">Subjects</p>
             <ul className="flex flex-wrap gap-x-2 pt-4">
               {work.concepts.map((concept) => (
                 <li key={concept.id} className="pb-6">
