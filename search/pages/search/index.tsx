@@ -1,5 +1,10 @@
 import { GetServerSideProps, NextPage } from 'next'
-import Tabs, { Tab, orderedTabs } from '../../components/tabs'
+import Tabs, { Tab, orderedTabs, tabToSlug } from '../../components/tabs'
+import {
+  getClient,
+  getResultCounts,
+  search,
+} from '../../services/elasticsearch'
 
 import Head from 'next/head'
 import { Image } from '../../types/image'
@@ -40,9 +45,17 @@ export const getServerSideProps: GetServerSideProps = async ({ query }) => {
     }
   } else {
     const searchTerms = query.query.toString()
-    const url =
-      process.env.NEXT_PUBLIC_VERCEL_URL + `/api/search?query=${searchTerms}`
-    const { results, resultCounts } = await fetch(url).then((res) => res.json())
+    const client = getClient()
+    const resultCounts = await getResultCounts(client, searchTerms as string)
+    const results = {} as { [key in Tab]: any[] }
+    for (const tab of orderedTabs) {
+      results[tab] = await search(
+        tabToSlug[tab],
+        searchTerms as string,
+        client,
+        3
+      )
+    }
     return { props: { searchTerms, results, resultCounts } }
   }
 }
