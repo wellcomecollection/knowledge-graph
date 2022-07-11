@@ -1,26 +1,3 @@
 # Environment variables
 
-Fill a `.env` file in the root level of this repo with the following variables:
-
-```
-ELASTIC_CONCEPTS_INDEX=
-ELASTIC_WORKS_INDEX=
-
-ELASTIC_CONCEPTS_HOST=
-ELASTIC_CONCEPTS_USERNAME=
-ELASTIC_CONCEPTS_PASSWORD=
-
-ELASTIC_PIPELINE_HOST=
-ELASTIC_PIPELINE_USERNAME=
-ELASTIC_PIPELINE_PASSWORD=
-ELASTIC_PIPELINE_WORKS_INDEX=
-
-ELASTIC_REPORTING_HOST=
-ELASTIC_REPORTING_USERNAME=
-ELASTIC_REPORTING_PASSWORD=
-
-NEO4J_CONNECTION_URI=neo4j+s://{USERNAME}:{PASSWORD}@{CONNECTION_URI_FROM_AURA_WITHOUT_PREFIX}:7687
-
-LOG_LEVEL=info
-CACHE_DIRECTORY=/data/cache
-```
+Environment variables for the project are stored remotely by the corresponding project in vercel. Run `vercel link` and `vercel env pull` from the root of this repo to sync them to the local environment.
