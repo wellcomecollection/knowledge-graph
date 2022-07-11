@@ -40,7 +40,8 @@ export const getServerSideProps: GetServerSideProps = async ({ query }) => {
     }
   } else {
     const searchTerms = query.query.toString()
-    const url = process.env.VERCEL_URL + `/api/search?query=${searchTerms}`
+    const url =
+      process.env.NEXT_PUBLIC_VERCEL_URL + `/api/search?query=${searchTerms}`
     const { results, resultCounts } = await fetch(url).then((res) => res.json())
     return { props: { searchTerms, results, resultCounts } }
   }

@@ -41,7 +41,7 @@ export const getServerSideProps: GetServerSideProps = async ({ query }) => {
   } else {
     const searchTerms = query.query.toString()
     const url =
-      process.env.VERCEL_URL +
+      process.env.NEXT_PUBLIC_VERCEL_URL +
       `/api/search/${selectedIndex}?query=${searchTerms}`
     let { results, resultCounts } = await fetch(url).then((res) => res.json())
     results = results[slugToTab[selectedIndex]]
