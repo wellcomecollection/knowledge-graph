@@ -9,7 +9,7 @@ export default async function searchEndpoint(
     try {
       const { id } = req.query
       const client = getClient()
-      const person = await getPerson(client, id)
+      const person = await getPerson(client, id as string)
       res.status(200).json({
         ...person,
       })
