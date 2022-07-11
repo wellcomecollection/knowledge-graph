@@ -28,6 +28,7 @@ export function parseWork(workHit: WorkHit): Work {
     description: work.description,
     notes: work.notes,
     title: work.title,
+    published: work.published,
   }
 }
 const index = process.env.ELASTIC_WORKS_INDEX as string

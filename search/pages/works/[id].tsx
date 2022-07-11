@@ -40,7 +40,11 @@ const WorkPage: NextPage<Props> = ({ work }) => {
             </div>
             <h1 className="font-sans">{work.title}</h1>
             <p className="py-2 text-sm capitalize">
-              2007 | {work.contributors.map((c) => c.name).join(', ')}
+              {work.published}
+              {work.contributors.length > 0 &&
+                work.published.length > 0 &&
+                ' | '}
+              {work.contributors.map((c) => c.name).join(', ')}
             </p>
 
             <ul className="flex divide-gray-400 border-b pt-4">

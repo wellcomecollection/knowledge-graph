@@ -20,11 +20,17 @@ const WorksResults: FC<Props> = ({ results }) => {
                   </span>
                 </div>
                 <div className="text-xl font-bold">{work.title}</div>
-                <p className="capitalize">
-                  {work.contributors
-                    .map((contributor) => contributor.name)
-                    .join(', ')}
-                </p>
+                <div className="space-x-3 divide-x text-sm">
+                  {work.published}
+                  {work.contributors.length > 0 &&
+                    work.published.length > 0 &&
+                    ' | '}
+                  <span className="capitalize">
+                    {work.contributors
+                      .map((contributor) => contributor.name)
+                      .join(', ')}
+                  </span>
+                </div>
               </a>
             </Link>
           </div>

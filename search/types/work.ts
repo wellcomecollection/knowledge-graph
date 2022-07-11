@@ -8,6 +8,7 @@ export type WorkSource = {
   notes: string
   title: string
   type: string
+  published: string[]
 }
 
 export type WorkHit = {
@@ -30,4 +31,5 @@ export type Work = {
   description: string
   notes: string
   title: string
+  published: string[]
 }

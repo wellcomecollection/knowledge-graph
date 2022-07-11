@@ -16,6 +16,7 @@ from ..wellcome import (
     get_work_notes,
     get_work_data,
     get_work_image,
+    get_work_dates,
 )
 
 ordered_source_preferences = ["wikidata", "nlm-mesh", "lc-subjects", "lc-names"]

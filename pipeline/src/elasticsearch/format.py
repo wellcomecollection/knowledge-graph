@@ -10,6 +10,7 @@ from . import (
     get_story_standfirst,
     get_work_data,
     get_work_image,
+    get_work_dates,
     get_story_image,
 )
 
@@ -57,6 +58,7 @@ def format_work_for_elasticsearch(work: Work):
     description = get_work_description(work_data)
     notes = get_work_notes(work_data)
     image_url = get_work_image(work_data)
+    published = get_work_dates(work_data)
 
     return {
         "concept_ids": concept_ids,
@@ -65,7 +67,7 @@ def format_work_for_elasticsearch(work: Work):
         "contributor_ids": contributor_ids,
         "contributor_variants": contributor_variants,
         "contributors": contributor_names,
-        "published": work.published,
+        "published": published,
         "title": work.title,
         "description": description,
         "notes": notes,

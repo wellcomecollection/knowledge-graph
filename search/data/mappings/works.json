@@ -107,6 +107,9 @@
         },
         "type": {
             "type": "keyword"
+        },
+        "published": {
+            "type": "text"
         }
     }
 }
