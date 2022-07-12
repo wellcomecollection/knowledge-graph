@@ -19,23 +19,19 @@ const Header: FC<Props> = ({ isHomePage }) => {
     >
       <div className="mx-auto py-6 px-5 lg:w-3/4">
         <header className="flex items-end justify-between">
-          <img
-            src="/images/logo.png"
-            alt="Wellcome Collection"
-            className={`h-10 ${menuSelected ? 'invert filter' : ''}`}
-          />
+          <a href="/">
+            <img
+              src="/images/logo.png"
+              alt="Wellcome Collection"
+              className={`h-10 ${menuSelected ? 'invert filter' : ''}`}
+            />
+          </a>
           <div className="flex items-center gap-8 text-lg">
-            <Link href="/">
-              <a className="hidden no-underline xl:inline">Plan your visit</a>
-            </Link>
-            <Link href="/">
-              <a className="hidden no-underline xl:inline">
-                Explore our collections
-              </a>
-            </Link>
-            <Link href="/">
-              <a className="hidden no-underline xl:inline">Read our stories</a>
-            </Link>
+            <a className="hidden no-underline xl:inline">Plan your visit</a>
+            <a className="hidden no-underline xl:inline" href="/search/works">
+              Explore our collections
+            </a>
+            <a className="hidden no-underline xl:inline">Read our stories</a>
             <button
               className="block"
               onClick={() => {

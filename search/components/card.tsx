@@ -1,13 +1,6 @@
 import { FC } from 'react'
 
-const cardTypes = [
-  'Story',
-  'Exhibition',
-  'Event',
-  'Permanent exhibition',
-  'Installation',
-  'Film',
-] as const
+const cardTypes = ['story', 'exhibition', 'event'] as const
 type CardType = typeof cardTypes[number]
 
 export type CardProps = {
