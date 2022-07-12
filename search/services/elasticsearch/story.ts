@@ -41,6 +41,12 @@ export function getStories(client: Client, ids: string[]): Promise<Story> {
   })
 }
 
+export function getStory(client: Client, id: string): Promise<Story> {
+  return client.get({ index, id }).then((response) => {
+    return parseStory(response.body as StoryHit)
+  })
+}
+
 export function getRecentStories(client: Client, n: number): Promise<Story> {
   return client
     .search({

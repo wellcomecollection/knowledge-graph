@@ -20,6 +20,20 @@ export function parseWhatsOn(whatsOnHit: WhatsOnHit): WhatsOn {
 
 const index = process.env.ELASTIC_WHATS_ON_INDEX as string
 
+export function getWhatsOns(client: Client, ids: string[]): Promise<WhatsOn[]> {
+  return client.mget({ index, body: { ids } }).then((response) => {
+    return response.body.docs.map((doc: WhatsOnHit) => {
+      return parseWhatsOn(doc)
+    })
+  })
+}
+
+export function getWhatsOn(client: Client, id: string): Promise<WhatsOn> {
+  return client.get({ index, id }).then((response) => {
+    return parseWhatsOn(response.body as WhatsOnHit)
+  })
+}
+
 export async function searchWhatsOn(
   client: Client,
   searchTerms: string,

@@ -66,7 +66,7 @@ export async function search(
 export { getWorks, getWork, parseWork, searchWorks } from './work'
 export { parseImage, searchImages } from './image'
 export { searchPeople, getPeople, getPerson } from './person'
-export { searchWhatsOn } from './whats-on'
+export { searchWhatsOn, getWhatsOn, getWhatsOns } from './whats-on'
 export {
   getSubjects,
   getSubject,
@@ -76,6 +76,7 @@ export {
 
 export {
   getStories,
+  getStory,
   getRecentStories,
   parseStory,
   searchStories,
