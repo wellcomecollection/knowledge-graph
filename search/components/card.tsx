@@ -1,15 +1,12 @@
 import { FC } from 'react'
 
-const cardTypes = ['story', 'exhibition', 'event'] as const
-type CardType = typeof cardTypes[number]
-
 export type CardProps = {
   imageURL: string
   imageAlt: string
   title: string
   description: string
   URL: string
-  type: CardType
+  type: string
 }
 
 const Card: FC<CardProps> = ({ imageURL, title, description, URL, type }) => {

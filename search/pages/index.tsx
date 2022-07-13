@@ -1,11 +1,11 @@
 import { GetServerSideProps, NextPage } from 'next'
+import { Story, StoryHit } from '../types/story'
+import { WhatsOn, WhatsOnHit } from '../types/whats-on'
 import { getClient, parseStory } from '../services/elasticsearch'
 
 import CardBlock from '../components/card-block'
 import { CardProps } from '../components/card'
 import Layout from '../components/layout'
-import { Story } from '../types/story'
-import { WhatsOn } from '../types/whats-on'
 import { parseWhatsOn } from '../services/elasticsearch/whats-on'
 
 type Props = {
@@ -26,7 +26,7 @@ export const getServerSideProps: GetServerSideProps = async () => {
       },
     })
     .then((res) => {
-      return res.body.hits.hits.map((hit) => parseWhatsOn(hit))
+      return res.body.hits.hits.map((hit: WhatsOnHit) => parseWhatsOn(hit))
     })
 
   const stories = await client
@@ -40,7 +40,7 @@ export const getServerSideProps: GetServerSideProps = async () => {
       },
     })
     .then((res) => {
-      return res.body.hits.hits.map((hit) => parseStory(hit))
+      return res.body.hits.hits.map((hit: StoryHit) => parseStory(hit))
     })
 
   return {
@@ -60,9 +60,9 @@ const Index: NextPage<Props> = ({ whatsOns, stories }) => {
 
   const storyCards: CardProps[] = stories.map((story) => ({
     title: story.title,
-    description: story.description,
-    imageURL: story.image_url,
-    imageAlt: story.image_alt,
+    description: '',
+    imageURL: '',
+    imageAlt: '',
     URL: `https://wellcomecollection.org/articles/${story.id}`,
     type: 'story',
   }))
