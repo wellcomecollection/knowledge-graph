@@ -21,5 +21,6 @@ n = len(first_order_concepts)
 log.info(f"Found {n} first order concepts")
 
 for i, concept in enumerate(first_order_concepts):
+    db = get_neo4j_session()
     log.info(f"{i+1}/{n}")
     concept.get_neighbours()

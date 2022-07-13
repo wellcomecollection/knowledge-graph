@@ -168,10 +168,10 @@ def format_concept_for_elasticsearch(concept: Concept):
         if len(neighbour.works) > 0
     ]
     neighbour_names = []
-    for concept in neighbours_with_works:
-        preferred_name = concept.name
+    for neighbour_concept in neighbours_with_works:
+        preferred_name = neighbour_concept.name
         for source_type in ordered_source_preferences:
-            source = concept.sources.get_or_none(source_type=source_type)
+            source = neighbour_concept.sources.get_or_none(source_type=source_type)
             if source:
                 preferred_name = source.preferred_name
                 break
