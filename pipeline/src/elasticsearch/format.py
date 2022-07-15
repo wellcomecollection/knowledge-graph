@@ -173,7 +173,9 @@ def format_concept_for_elasticsearch(concept: Concept):
     for neighbour_concept in neighbours_with_works:
         preferred_name = neighbour_concept.name
         for source_type in ordered_source_preferences:
-            source = neighbour_concept.sources.get_or_none(source_type=source_type)
+            source = neighbour_concept.sources.get_or_none(
+                source_type=source_type
+            )
             if source:
                 preferred_name = source.preferred_name
                 break
