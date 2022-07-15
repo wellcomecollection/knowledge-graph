@@ -20,6 +20,7 @@ ordered_source_preferences = ["wikidata", "nlm-mesh", "lc-subjects", "lc-names"]
 def format_work_for_elasticsearch(work: Work):
     work_concepts = work.concepts.all()
     concept_ids = [concept.uid for concept in work_concepts]
+    concept_types = [concept.type for concept in work_concepts]
     concept_names = []
     for concept in work_concepts:
         preferred_name = concept.name
@@ -64,6 +65,7 @@ def format_work_for_elasticsearch(work: Work):
         "concept_ids": concept_ids,
         "concept_variants": concept_variants,
         "concepts": concept_names,
+        "concept_types": concept_types,
         "contributor_ids": contributor_ids,
         "contributor_variants": contributor_variants,
         "contributors": contributor_names,

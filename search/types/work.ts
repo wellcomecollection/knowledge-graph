@@ -3,6 +3,7 @@ export type WorkSource = {
   contributor_ids: string[]
   concepts: string[]
   concept_ids: string[]
+  concept_types: string[]
   concept_variants: string[][]
   description: string
   notes: string
@@ -27,6 +28,7 @@ export type Work = {
   concepts: {
     id: string
     name: string
+    type: string
   }[]
   description: string
   notes: string

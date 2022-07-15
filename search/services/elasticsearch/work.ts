@@ -10,6 +10,7 @@ export function parseWork(workHit: WorkHit): Work {
     return {
       name: concept,
       id: work.concept_ids[index],
+      type: work.concept_types[index],
     }
   })
 

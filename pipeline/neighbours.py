@@ -8,7 +8,7 @@ db = get_neo4j_session()
 orphans = SourceConcept.nodes.has(parent=False)
 log.info(f"Found {len(orphans)} orphans")
 for orphan in orphans:
-    parent = Concept(name=orphan.preferred_name, type="concept").save()
+    parent = Concept(name=orphan.preferred_name, type="subject").save()
     parent.sources.connect(orphan)
 
 log.info("Getting second order concepts and connections")

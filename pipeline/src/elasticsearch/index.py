@@ -83,7 +83,7 @@ def index_subjects(client: Elasticsearch, index: str):
     create_index(client, index, mappings, settings)
 
     log.info(f"Populating index: {index}")
-    concepts = Concept.nodes.filter(type="concept").has(works=True)
+    concepts = Concept.nodes.filter(type="subject").has(works=True)
     progress_bar = tqdm(
         concepts,
         total=len(concepts),

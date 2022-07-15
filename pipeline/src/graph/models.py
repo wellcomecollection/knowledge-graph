@@ -94,8 +94,8 @@ class Concept(StructuredNode):
     neighbours = Relationship("Concept", "HAS_NEIGHBOUR")
     contributed_to_work = RelationshipTo("Work", "CONTRIBUTED_TO")
     type = StringProperty(
-        default="concept",
-        choices={c: c for c in ["concept", "person"]},
+        default="subject",
+        choices={c: c for c in ["subject", "person", "concept"]},
     )
 
     def collect_sources(self, source_id, source_type):

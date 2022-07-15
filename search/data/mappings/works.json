@@ -49,6 +49,9 @@
         "concept_ids": {
             "type": "keyword"
         },
+        "concept_types": {
+            "type": "keyword"
+        },
         "concept_variants": {
             "type": "text",
             "fields": {

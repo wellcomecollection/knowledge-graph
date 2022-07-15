@@ -13,8 +13,8 @@ concepts_es_client = get_concepts_es_client()
 
 
 progress_bar = tqdm(
-    Concept.nodes.filter(type="concept"),
-    total=len(Concept.nodes.filter(type="concept")),
+    Concept.nodes.filter(type="subject"),
+    total=len(Concept.nodes.filter(type="subject")),
     unit="concepts",
 )
 for concept in progress_bar:
