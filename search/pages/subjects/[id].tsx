@@ -4,20 +4,43 @@ import { getClient, getSubject } from '../../services/elasticsearch'
 import { ArrowUpRight } from 'react-feather'
 import { Concept } from '../../types/concept'
 import Head from 'next/head'
+import { Image, ImageSource } from '../../types/image'
+import ImageResults from '../../components/results/images'
 import Layout from '../../components/layout'
 
 type Props = {
   concept: Concept
+  images: Image[]
 }
 
 export const getServerSideProps: GetServerSideProps = async ({ query }) => {
   const conceptId = query.id as string
   const client = getClient()
   const concept = await getSubject(client, conceptId)
-  return { props: { concept } }
+
+  const capitalisedConceptName =(concept.name ? concept.name : '').replace(/(^\w{1})|(\s+\w{1})/g, letter => letter.toUpperCase());
+
+  const url = `https://api.wellcomecollection.org/catalogue/v2/images?source.subjects.label=${capitalisedConceptName}`
+
+  const images = await fetch(url)
+    .then((res) => res.json())
+    .then((res) =>
+      res.results.map((image: ImageSource) => {
+        return {
+          id: image.source.id,
+          url: image.thumbnail.url.replace(
+            'info.json',
+            'full/400,/0/default.jpg'
+          ),
+          title: image.source.title,
+        }
+      })
+    )
+
+  return { props: { concept, images } }
 }
 
-const SubjectPage: NextPage<Props> = ({ concept }) => {
+const SubjectPage: NextPage<Props> = ({ concept, images }) => {
   const description =
     concept.wikidata_description || concept.mesh_description || null
   const capitalisedDescription = description
@@ -123,6 +146,12 @@ const SubjectPage: NextPage<Props> = ({ concept }) => {
                 </a>
               ))}
             </div>
+          </div>
+        )}
+        {images.length > 0 && (
+          <div className="mx-auto space-y-4 px-5 lg:w-3/4">
+            <h2 className="font-sans font-light">Related images</h2>
+            <ImageResults results={images} />
           </div>
         )}
       </Layout>

@@ -25,7 +25,7 @@ export function parseConcept(
     ? concept.work_contributions.map((workTitle, index) => {
         return {
           name: workTitle,
-          id: concept.work_contributions[index],
+          id: concept.work_contribution_ids[index],
         }
       })
     : []

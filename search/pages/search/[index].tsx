@@ -92,7 +92,9 @@ const Search: NextPage<Props> = ({
       <div className="bg-gray-900">
         <div className="mx-auto lg:w-3/4">
           {selectedIndex === 'images' ? (
-            <ImageResults results={results as Image[]} />
+            <div className="p-5">
+              <ImageResults results={results as Image[]} />
+            </div>
           ) : null}
         </div>
       </div>
