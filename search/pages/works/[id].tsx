@@ -67,7 +67,6 @@ const WorkPage: NextPage<Props> = ({ work }) => {
         </div>
         <div className="mx-auto space-y-8 px-5 lg:w-3/4">
           <h2 className="font-sans font-light">About this work</h2>
-
           <div>
             <p className="font-bold">Description</p>
             <p>{work.description}</p>
@@ -75,7 +74,7 @@ const WorkPage: NextPage<Props> = ({ work }) => {
           <div>
             <p className="font-bold">Contributors</p>
             <ul className="capitalize">
-              {work.contributors.map((contributor) => (
+              {work.contributors&&work.contributors.map((contributor) => (
                 <li key={contributor.id}>
                   <a className="" href={`/people/${contributor.id}`}>
                     {contributor.name}

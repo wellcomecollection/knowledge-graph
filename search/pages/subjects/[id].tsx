@@ -5,12 +5,17 @@ import { ArrowUpRight } from 'react-feather'
 import { Concept } from '../../types/concept'
 import Head from 'next/head'
 import { Image, ImageSource } from '../../types/image'
-import ImageResults from '../../components/results/images'
 import Layout from '../../components/layout'
+import ImageResultsOverview from '../../components/results/overview/images'
+import WorkResultsOverview from '../../components/results/overview/works'
+import StoryResultsOverview from '../../components/results/overview/stories'
+import { Story } from '../../types/story'
+import { Work } from '../../types/work'
 
 type Props = {
   concept: Concept
   images: Image[]
+  totalImages: number
 }
 
 export const getServerSideProps: GetServerSideProps = async ({ query }) => {
@@ -18,36 +23,32 @@ export const getServerSideProps: GetServerSideProps = async ({ query }) => {
   const client = getClient()
   const concept = await getSubject(client, conceptId)
 
-  const capitalisedConceptName =(concept.name ? concept.name : '').replace(/(^\w{1})|(\s+\w{1})/g, letter => letter.toUpperCase());
+  const capitalisedConceptName = (concept.name ? concept.name : '').replace(
+    /(^\w{1})|(\s+\w{1})/g,
+    (letter) => letter.toUpperCase()
+  )
 
   const url = `https://api.wellcomecollection.org/catalogue/v2/images?source.subjects.label=${capitalisedConceptName}`
+  const imageResponse = await fetch(url).then((res) => res.json())
+  const images = imageResponse.results.map((image: ImageSource) => {
+    return {
+      id: image.source.id,
+      url: image.thumbnail.url.replace('info.json', 'full/400,/0/default.jpg'),
+      title: image.source.title,
+    }
+  })
 
-  const images = await fetch(url)
-    .then((res) => res.json())
-    .then((res) =>
-      res.results.map((image: ImageSource) => {
-        return {
-          id: image.source.id,
-          url: image.thumbnail.url.replace(
-            'info.json',
-            'full/400,/0/default.jpg'
-          ),
-          title: image.source.title,
-        }
-      })
-    )
-
-  return { props: { concept, images } }
+  return { props: { concept, images, totalImages: imageResponse.totalResults } }
 }
 
-const SubjectPage: NextPage<Props> = ({ concept, images }) => {
+const SubjectPage: NextPage<Props> = ({ concept, images, totalImages }) => {
   const description =
     concept.wikidata_description || concept.mesh_description || null
   const capitalisedDescription = description
     ? description?.charAt(0).toUpperCase() + description?.slice(1)
     : null
   return (
-    <div className="">
+    <div className="pb-8">
       <Head>
         <title>{concept.preferred_name}</title>
       </Head>
@@ -121,39 +122,44 @@ const SubjectPage: NextPage<Props> = ({ concept, images }) => {
             </div>
           </div>
         </div>
-        {concept.works.length > 0 && (
-          <div className="mx-auto space-y-4 px-5 lg:w-3/4">
-            <h2 className="font-sans font-light">Related works</h2>
-            <div className="flex flex-col space-y-2">
-              {concept.works.map((work: { id: string; name: string }) => (
-                <a href={`/works/${work.id}`} key={work.id}>
-                  <h3 className="font-sans font-light">{work.name}</h3>
-                </a>
-              ))}
+        <div className="space-y-16">
+          {concept.works.length > 0 && (
+            <div className="mx-auto px-5 lg:w-3/4">
+              <WorkResultsOverview
+                results={concept.works.slice(0, 3) as Work[]}
+                totalResults={0}
+                heading="Related works"
+                queryParams={{
+                  subject: concept.id,
+                }}
+              />
             </div>
-          </div>
-        )}
-        {concept.stories.length > 0 && (
-          <div className="mx-auto space-y-4 px-5 lg:w-3/4">
-            <h2 className="font-sans font-light">Related stories</h2>
-            <div className="flex flex-col space-y-2">
-              {concept.stories.map((story: { id: string; name: string }) => (
-                <a
-                  key={story.id}
-                  href={`https://wellcomecollection.org/articles/${story.id}`}
-                >
-                  <h3 className="font-sans font-light">{story.name}</h3>
-                </a>
-              ))}
+          )}
+          {concept.stories.length > 0 && (
+            <div className="mx-auto px-5 lg:w-3/4">
+              <StoryResultsOverview
+                queryParams={{
+                  subject: concept.id,
+                }}
+                results={concept.stories.slice(0, 3) as Story[]}
+                totalResults={0}
+                heading="Related stories"
+              />
             </div>
-          </div>
-        )}
-        {images.length > 0 && (
-          <div className="mx-auto space-y-4 px-5 lg:w-3/4">
-            <h2 className="font-sans font-light">Related images</h2>
-            <ImageResults results={images} />
-          </div>
-        )}
+          )}
+          {images.length > 0 && (
+            <div className="mx-auto px-5 lg:w-3/4">
+              <ImageResultsOverview
+                heading="Related images"
+                results={images.slice(0, 3)}
+                totalResults={totalImages}
+                queryParams={{
+                  subject: concept.id,
+                }}
+              />
+            </div>
+          )}
+        </div>
       </Layout>
     </div>
   )

@@ -16,19 +16,19 @@ const WorksResults: FC<Props> = ({ results }) => {
               <a className="no-underline">
                 <div className="pb-1">
                   <span className="bg-paper-2 px-1 py-0.5 text-xs font-semibold capitalize text-black">
-                    {work.type}
+                    {work.type ? work.type : 'Work'}
                   </span>
                 </div>
                 <div className="text-xl font-bold">{work.title}</div>
                 <div className="space-x-3 divide-x text-sm">
                   {work.published}
-                  {work.contributors.length > 0 &&
-                    work.published.length > 0 &&
-                    ' | '}
+                  {work.contributors && work.published.length > 0 && ' | '}
                   <span className="capitalize">
                     {work.contributors
-                      .map((contributor) => contributor.name)
-                      .join(', ')}
+                      ? work.contributors
+                          .map((contributor) => contributor.name)
+                          .join(', ')
+                      : null}
                   </span>
                 </div>
               </a>
