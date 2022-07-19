@@ -7,15 +7,18 @@ type Props = {
   totalResults: number
   queryParams: any
   results: Work[]
+  heading?: string
 }
 const WorkResultsOverview: FC<Props> = ({
   totalResults,
   queryParams,
   results,
+  heading,
 }) => {
   return (
     <OverviewResultsBlock
-      name="Works"
+      heading={heading ? heading : 'Works'}
+      index="works"
       totalResults={totalResults}
       queryParams={queryParams}
     >

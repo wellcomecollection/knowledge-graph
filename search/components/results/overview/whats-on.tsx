@@ -15,7 +15,8 @@ const WhatsOnResultsOverview: FC<Props> = ({
 }) => {
   return (
     <OverviewResultsBlock
-      name="What's On"
+      heading="What's On"
+      index="whats-on"
       totalResults={totalResults}
       queryParams={queryParams}
     >

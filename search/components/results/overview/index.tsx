@@ -1,36 +1,40 @@
-import { Tab, formatNumber, tabToSlug } from '../../tabs'
+import { Tab, formatNumber, tabToSlug, Slug } from '../../tabs'
 
 import { ArrowRight } from 'react-feather'
 import { FC } from 'react'
 import Link from 'next/link'
 
 type Props = {
-  name: string
+  index: string
+  heading: string
   totalResults: number
-  queryParams: { [key: string]: string }
+  queryParams?: { [key: string]: string }
 }
 
 const OverviewResultsBlock: FC<Props> = ({
-  name,
+  index,
+  heading,
   totalResults,
   queryParams,
   children,
 }) => {
   return (
     <>
-      <h2>{name}</h2>
-      <div className="py-4">{children}</div>
-      <Link
-        href={{
-          pathname: `/search/${tabToSlug[name as Tab]}`,
-          query: queryParams,
-        }}
-      >
-        <a className="bg-gray-200 py-2 px-3 no-underline">
-          All {name.toLowerCase()} ({formatNumber(totalResults)}){' '}
-          <ArrowRight className="inline-block w-4" />
-        </a>
-      </Link>
+      <h2 className="font-sans font-light">{heading}</h2>
+      <div>{children}</div>
+      <div className="pt-4">
+        <Link
+          href={{
+            pathname: `/search/${index as Slug}`,
+            query: queryParams,
+          }}
+        >
+          <a className="bg-gray-200 py-2 px-3 no-underline">
+            All {index.toLowerCase()} ({formatNumber(totalResults)}){' '}
+            <ArrowRight className="inline-block w-4" />
+          </a>
+        </Link>
+      </div>
     </>
   )
 }

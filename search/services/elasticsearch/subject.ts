@@ -11,20 +11,20 @@ export function parseConcept(
   const concept = conceptHit._source
   const works = concept.works.map((workTitle, index) => {
     return {
-      name: workTitle,
+      title: workTitle,
       id: concept.work_ids[index],
     }
   })
   const stories = concept.stories.map((storyTitle, index) => {
     return {
-      name: storyTitle,
+      title: storyTitle,
       id: concept.story_ids[index],
     }
   })
   const work_contributions = concept.work_contributions
     ? concept.work_contributions.map((workTitle, index) => {
         return {
-          name: workTitle,
+          title: workTitle,
           id: concept.work_contribution_ids[index],
         }
       })
@@ -32,7 +32,7 @@ export function parseConcept(
   const story_contributions = concept.story_contributions
     ? concept.story_contributions.map((storyTitle, index) => {
         return {
-          name: storyTitle,
+          title: storyTitle,
           id: concept.story_contribution_ids[index],
         }
       })

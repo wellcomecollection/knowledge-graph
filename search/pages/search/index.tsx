@@ -69,7 +69,7 @@ const Search: NextPage<Props> = ({ searchTerms, resultCounts, results }) => {
       <Layout isHomePage>
         <div className="mx-auto px-5 lg:w-3/4">
           <SearchBox searchTerms={searchTerms} />
-          <div className="py-6">
+          <div className="pt-6">
             <Tabs
               selectedTab={'overview'}
               queryParams={{ query: searchTerms }}
@@ -77,9 +77,9 @@ const Search: NextPage<Props> = ({ searchTerms, resultCounts, results }) => {
             />
           </div>
 
-          <ol className="divide-y">
+          <ol >
             {resultCounts["What's on"] > 0 ? (
-              <li className="pb-8 pt-2">
+              <li className="py-8">
                 <WhatsOnResultsOverview
                   results={results["What's on"] as WhatsOn[]}
                   queryParams={{ query: searchTerms }}
@@ -88,7 +88,7 @@ const Search: NextPage<Props> = ({ searchTerms, resultCounts, results }) => {
               </li>
             ) : null}
             {resultCounts.Stories > 0 ? (
-              <li className="pb-8 pt-2">
+              <li className="pt-8 pb-4">
                 <StoryResultsOverview
                   results={results.Stories as Story[]}
                   queryParams={{ query: searchTerms }}
@@ -97,7 +97,7 @@ const Search: NextPage<Props> = ({ searchTerms, resultCounts, results }) => {
               </li>
             ) : null}
             {resultCounts.Works > 0 ? (
-              <li className="pb-8 pt-2">
+              <li className="pt-8 pb-4">
                 <WorkResultsOverview
                   results={results.Works as Work[]}
                   queryParams={{ query: searchTerms }}
@@ -106,7 +106,7 @@ const Search: NextPage<Props> = ({ searchTerms, resultCounts, results }) => {
               </li>
             ) : null}
             {resultCounts.Images > 0 ? (
-              <li className="pb-8 pt-2">
+              <li className="pt-8 pb-4">
                 <ImageResultsOverview
                   results={results.Images as Image[]}
                   queryParams={{ query: searchTerms }}
