@@ -127,7 +127,7 @@ const SubjectPage: NextPage<Props> = ({ concept, images, totalImages }) => {
             <div className="mx-auto px-5 lg:w-3/4">
               <WorkResultsOverview
                 results={concept.works.slice(0, 3) as Work[]}
-                totalResults={0}
+                totalResults={concept.works.length}
                 heading="Related works"
                 queryParams={{
                   subject: concept.id,
@@ -142,7 +142,7 @@ const SubjectPage: NextPage<Props> = ({ concept, images, totalImages }) => {
                   subject: concept.id,
                 }}
                 results={concept.stories.slice(0, 3) as Story[]}
-                totalResults={0}
+                totalResults={concept.stories.length}
                 heading="Related stories"
               />
             </div>

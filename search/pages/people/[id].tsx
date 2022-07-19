@@ -5,19 +5,41 @@ import { ArrowUpRight } from 'react-feather'
 import Head from 'next/head'
 import Layout from '../../components/layout'
 import { Person } from '../../types/person'
+import WorkResultsOverview from '../../components/results/overview/works'
+import { Work } from '../../types/work'
+import StoryResultsOverview from '../../components/results/overview/stories'
+import { Story } from '../../types/story'
+import { Image, ImageSource } from '../../types/image'
+import ImageResultsOverview from '../../components/results/overview/images'
 
 type Props = {
   person: Person
+  images: Image[]
+  totalImages: number
 }
 
 export const getServerSideProps: GetServerSideProps = async ({ query }) => {
   const personId = query.id as string
   const client = getClient()
   const person = await getPerson(client, personId)
-  return { props: { person } }
+  const capitalisedPersonName = (person.name ? person.name : '').replace(
+    /(^\w{1})|(\s+\w{1})/g,
+    (letter) => letter.toUpperCase()
+  )
+  const url = `https://api.wellcomecollection.org/catalogue/v2/images?source.subjects.label=${capitalisedPersonName}`
+  const imageResponse = await fetch(url).then((res) => res.json())
+  const images = imageResponse.results.map((image: ImageSource) => {
+    return {
+      id: image.source.id,
+      url: image.thumbnail.url.replace('info.json', 'full/400,/0/default.jpg'),
+      title: image.source.title,
+    }
+  })
+  const totalImages = imageResponse.totalResults
+  return { props: { person, images, totalImages } }
 }
 
-const PersonPage: NextPage<Props> = ({ person }) => {
+const PersonPage: NextPage<Props> = ({ person, images, totalImages }) => {
   const description =
     person.wikidata_description || person.mesh_description || null
   const capitalisedDescription = description
@@ -98,77 +120,64 @@ const PersonPage: NextPage<Props> = ({ person }) => {
             </div>
           </div>
         </div>
-        {person.works.length > 0 && (
-          <div className="mx-auto space-y-4 px-5 lg:w-3/4">
-            <h2 className="font-sans font-light">Works about this person</h2>
-            <div className="flex flex-col space-y-2">
-              {person.works.map((work: { id: string; name: string }) => (
-                <a href={`/works/${work.id}`} key={work.id}>
-                  <h3 className="font-sans font-light">{work.name}</h3>
-                </a>
-              ))}
-            </div>
-          </div>
-        )}
         {person.work_contributions.length > 0 && (
-          <div className="mx-auto space-y-4 px-5 lg:w-3/4">
-            <h2 className="font-sans font-light">Works by this person</h2>
-            <div className="flex flex-col space-y-2">
-              {person.work_contributions.map(
-                (work: { id: string; name: string }) => (
-                  <a href={`/works/${work.id}`} key={work.id}>
-                    <h3 className="font-sans font-light">{work.name}</h3>
-                  </a>
-                )
-              )}
-            </div>
+          <div className="mx-auto px-5 lg:w-3/4">
+            <WorkResultsOverview
+              results={person.work_contributions.slice(0, 3) as Work[]}
+              totalResults={person.work_contributions.length}
+              heading="Works by this person"
+              queryParams={{
+                subject: person.id,
+              }}
+            />
           </div>
         )}
-        {person.stories.length > 0 && (
-          <div className="mx-auto space-y-4 px-5 lg:w-3/4">
-            <h2 className="font-sans font-light">Stories about this person</h2>
-            <div className="flex flex-col space-y-2">
-              {person.stories.map((story: { id: string; name: string }) => (
-                <a
-                  href={`https://wellcomecollection.org/articles/${story.id}`}
-                  key={story.id}
-                >
-                  <h3 className="font-sans font-light">{story.name}</h3>
-                </a>
-              ))}
-            </div>
+        {person.works.length > 0 && (
+          <div className="mx-auto px-5 lg:w-3/4">
+            <WorkResultsOverview
+              results={person.works.slice(0, 3) as Work[]}
+              totalResults={person.works.length}
+              heading="Works about this person"
+              queryParams={{
+                subject: person.id,
+              }}
+            />
           </div>
         )}
         {person.story_contributions.length > 0 && (
-          <div className="mx-auto space-y-4 px-5 lg:w-3/4">
-            <h2 className="font-sans font-light">Stories by this person</h2>
-            <div className="flex flex-col space-y-2">
-              {person.story_contributions.map(
-                (story: { id: string; name: string }) => (
-                  <a
-                    href={`https://wellcomecollection.org/articles/${story.id}`}
-                    key={story.id}
-                  >
-                    <h3 className="font-sans font-light">{story.name}</h3>
-                  </a>
-                )
-              )}
-            </div>
+          <div className="mx-auto px-5 lg:w-3/4">
+            <StoryResultsOverview
+              queryParams={{
+                subject: person.id,
+              }}
+              results={person.story_contributions.slice(0, 3) as Story[]}
+              totalResults={person.story_contributions.length}
+              heading="Stories by this person"
+            />
           </div>
         )}
         {person.stories.length > 0 && (
-          <div className="mx-auto space-y-4 px-5 lg:w-3/4">
-            <h2 className="font-sans font-light">Related stories</h2>
-            <div className="flex flex-col space-y-2">
-              {person.stories.map((story: { id: string; name: string }) => (
-                <a
-                  key={story.id}
-                  href={`https://wellcomecollection.org/articles/${story.id}`}
-                >
-                  <h3 className="font-sans font-light">{story.name}</h3>
-                </a>
-              ))}
-            </div>
+          <div className="mx-auto px-5 lg:w-3/4">
+            <StoryResultsOverview
+              queryParams={{
+                subject: person.id,
+              }}
+              results={person.stories.slice(0, 3) as Story[]}
+              totalResults={person.stories.length}
+              heading="Related stories"
+            />
+          </div>
+        )}
+        {images.length > 0 && (
+          <div className="mx-auto px-5 lg:w-3/4">
+            <ImageResultsOverview
+              heading="Related images"
+              results={images.slice(0, 3)}
+              totalResults={totalImages}
+              queryParams={{
+                subject: person.id,
+              }}
+            />
           </div>
         )}
       </Layout>

@@ -23,7 +23,7 @@ export type Person = {
   name: string
   preferred_name: string
   works: {
-    name: string
+    title: string
     id: string
   }[]
   neighbours: {
@@ -32,16 +32,16 @@ export type Person = {
   }[]
   type: string
   stories: {
-    name: string
+    title: string
     id: string
   }[]
   story_contributions: {
-    name: string
+    title: string
     id: string
   }[]
   variants: string[]
   work_contributions: {
-    name: string
+    title: string
     id: string
   }[]
   dates: {
