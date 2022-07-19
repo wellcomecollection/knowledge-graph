@@ -11,6 +11,7 @@ import StoryResultsOverview from '../../components/results/overview/stories'
 import { Story } from '../../types/story'
 import { Image, ImageSource } from '../../types/image'
 import ImageResultsOverview from '../../components/results/overview/images'
+import { capitalise } from '../../components/results'
 
 type Props = {
   person: Person
@@ -22,10 +23,7 @@ export const getServerSideProps: GetServerSideProps = async ({ query }) => {
   const personId = query.id as string
   const client = getClient()
   const person = await getPerson(client, personId)
-  const capitalisedPersonName = (person.name ? person.name : '').replace(
-    /(^\w{1})|(\s+\w{1})/g,
-    (letter) => letter.toUpperCase()
-  )
+  const capitalisedPersonName = capitalise(person.name)
   const url = `https://api.wellcomecollection.org/catalogue/v2/images?source.subjects.label=${capitalisedPersonName}`
   const imageResponse = await fetch(url).then((res) => res.json())
   const images = imageResponse.results.map((image: ImageSource) => {
@@ -127,7 +125,7 @@ const PersonPage: NextPage<Props> = ({ person, images, totalImages }) => {
               totalResults={person.work_contributions.length}
               heading="Works by this person"
               queryParams={{
-                subject: person.id,
+                person: person.id,
               }}
             />
           </div>
@@ -139,7 +137,7 @@ const PersonPage: NextPage<Props> = ({ person, images, totalImages }) => {
               totalResults={person.works.length}
               heading="Works about this person"
               queryParams={{
-                subject: person.id,
+                person: person.id,
               }}
             />
           </div>
@@ -148,7 +146,7 @@ const PersonPage: NextPage<Props> = ({ person, images, totalImages }) => {
           <div className="mx-auto px-5 lg:w-3/4">
             <StoryResultsOverview
               queryParams={{
-                subject: person.id,
+                person: person.id,
               }}
               results={person.story_contributions.slice(0, 3) as Story[]}
               totalResults={person.story_contributions.length}
@@ -160,7 +158,7 @@ const PersonPage: NextPage<Props> = ({ person, images, totalImages }) => {
           <div className="mx-auto px-5 lg:w-3/4">
             <StoryResultsOverview
               queryParams={{
-                subject: person.id,
+                person: person.id,
               }}
               results={person.stories.slice(0, 3) as Story[]}
               totalResults={person.stories.length}
@@ -175,7 +173,7 @@ const PersonPage: NextPage<Props> = ({ person, images, totalImages }) => {
               results={images.slice(0, 3)}
               totalResults={totalImages}
               queryParams={{
-                subject: person.id,
+                person: person.id,
               }}
             />
           </div>

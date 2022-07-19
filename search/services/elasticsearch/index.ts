@@ -1,8 +1,8 @@
-import { Slug, Tab, slugToTab } from '../../components/tabs'
-import { countImages, searchImages } from './image'
-import { countStories, searchStories } from './story'
-import { countWhatsOn, searchWhatsOn } from './whats-on'
-import { countWorks, searchWorks } from './work'
+import { Tab, slugToTab } from '../../components/tabs'
+import { countImages, filterImages, searchImages } from './image'
+import { countStories, filterStories, searchStories } from './story'
+import { countWhatsOn, filterWhatsOn, searchWhatsOn } from './whats-on'
+import { countWorks, filterWorks, searchWorks } from './work'
 
 import { Client } from '@elastic/elasticsearch'
 
@@ -61,6 +61,23 @@ export async function search(
 ) {
   const searchService = searchServices[slugToTab[index] as Tab]
   return await searchService(client, searchTerms, n)
+}
+
+const filterServices = {
+  Images: filterImages,
+  Works: filterWorks,
+  Stories: filterStories,
+  "What's on": filterWhatsOn,
+}
+
+export async function filter(
+  client: Client,
+  index: string,
+  subject?: string,
+  person?: string
+) {
+  const filterService = filterServices[slugToTab[index] as Tab]
+  return await filterService(client, subject, person)
 }
 
 export { getWorks, getWork, parseWork, searchWorks } from './work'

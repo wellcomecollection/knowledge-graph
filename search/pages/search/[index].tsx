@@ -1,6 +1,7 @@
 import { GetServerSideProps, NextPage } from 'next'
-import Tabs, { Tab, slugToTab } from '../../components/tabs'
+import Tabs, { Tab, slugToTab, Slug } from '../../components/tabs'
 import {
+  filter,
   getClient,
   getResultCounts,
   search,
@@ -20,8 +21,8 @@ import WorksResults from '../../components/results/works'
 
 type Props = {
   selectedIndex: string
-  searchTerms: string
-  resultCounts: any
+  query: any
+  resultCounts: { [key in Tab]: number }
   results: Image[] | Work[] | Story[] | WhatsOn[]
 }
 
@@ -29,21 +30,7 @@ export const getServerSideProps: GetServerSideProps = async ({ query }) => {
   const selectedIndex = query.index as string
 
   // if the user hasn't provided a search term, return an empty set of results
-  if (!query.query) {
-    return {
-      props: {
-        selectedIndex,
-        searchTerms: '',
-        resultCounts: {
-          images: 0,
-          works: 0,
-          stories: 0,
-          whatsOn: 0,
-        },
-        results: [],
-      },
-    }
-  } else {
+  if (query.query) {
     const searchTerms = query.query.toString()
     const client = getClient()
     const resultCounts = await getResultCounts(client, searchTerms as string)
@@ -53,28 +40,67 @@ export const getServerSideProps: GetServerSideProps = async ({ query }) => {
       client,
       10
     )
-    return { props: { selectedIndex, searchTerms, resultCounts, results } }
+    return { props: { selectedIndex, query, resultCounts, results } }
+  } // if they're filtering by a subject or person, use filter() instead
+  else if (query.subject || query.person) {
+    console.log
+    const subject = query.subject ? query.subject.toString() : null
+    const person = query.person ? query.person.toString() : null
+    const client = getClient()
+    const { results, resultCount } = await filter(
+      client,
+      selectedIndex as string,
+      subject as string,
+      person as string
+    )
+    let resultCounts = {
+      Images: 0,
+      Works: 0,
+      Stories: 0,
+      "What's on": 0,
+    }
+    resultCounts[slugToTab[selectedIndex] as Tab] = resultCount
+    return {
+      props: { selectedIndex, query, resultCounts, results },
+    }
+  } // if they're not searching, return an empty set of results
+  else {
+    return {
+      props: {
+        selectedIndex,
+        query: {},
+        resultCounts: {
+          Images: 0,
+          Works: 0,
+          Stories: 0,
+          "What's on": 0,
+        },
+        results: [],
+      },
+    }
   }
 }
 
 const Search: NextPage<Props> = ({
   selectedIndex,
-  searchTerms,
+  query,
   resultCounts,
   results,
 }) => {
   return (
     <>
       <Head>
-        <title>{`${slugToTab[selectedIndex]} | ${searchTerms}`}</title>
+        <title>{`${slugToTab[selectedIndex]}${
+          query.searchTerms ? ` | ${query.searchTerms}` : ''
+        }`}</title>
       </Head>
       <Layout isHomePage>
         <div className="mx-auto px-5 lg:w-3/4">
-          <SearchBox searchTerms={searchTerms} index={selectedIndex} />
+          <SearchBox searchTerms={query.searchTerms} index={selectedIndex} />
           <div className="py-6">
             <Tabs
               selectedTab={selectedIndex}
-              queryParams={{ query: searchTerms }}
+              queryParams={{ query: query.searchTerms }}
               resultCounts={resultCounts}
             />
           </div>

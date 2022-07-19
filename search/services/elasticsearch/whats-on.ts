@@ -61,3 +61,12 @@ export async function countWhatsOn(
   })
   return response.body.count
 }
+
+export async function filterWhatsOn(
+  client: Client,
+  subject?: string,
+  person?: string
+) {
+  return { results: [], resultCount: 0 }
+}
+
