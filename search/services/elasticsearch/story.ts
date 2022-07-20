@@ -92,3 +92,21 @@ export async function countStories(
   })
   return response.body.count
 }
+
+export async function filterStories(
+  client: Client,
+  subject?: string,
+  person?: string
+): Promise<Story[]> {
+  const field = subject ? 'concept_ids' : person ? 'contributor_ids' : null
+  const value = subject ? subject : person ? person : null
+  const response = await client.search({
+    index,
+    body: `{"query": {"bool": {"must": [{"match": {"${field}": "${value}"}}]}}}`,
+  })
+  const results = response.body.hits.hits.map((doc: StoryHit) => {
+    return parseStory(doc)
+  })
+  const resultCount = response.body.hits.total.value
+  return JSON.parse(JSON.stringify({ results, resultCount }))
+}

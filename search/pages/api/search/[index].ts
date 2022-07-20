@@ -1,18 +1,9 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-import {
-  Tab,
-  orderedTabs,
-  slugToTab,
-  tabToSlug,
-} from '../../../components/tabs'
+import { Tab, slugToTab } from '../../../components/tabs'
 import {
   getClient,
   getResultCounts,
   search,
-  searchImages,
-  searchStories,
-  searchWhatsOn,
-  searchWorks,
 } from '../../../services/elasticsearch'
 
 export default async function searchEndpoint(

@@ -5,7 +5,11 @@ import { WhatsOnResult } from '../whats-on'
 
 type Props = {
   totalResults: number
-  queryParams: any
+  queryParams: {
+    searchTerms?: string
+    subject?: string
+    person?: string
+  }
   results: WhatsOn[]
 }
 const WhatsOnResultsOverview: FC<Props> = ({

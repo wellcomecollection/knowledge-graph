@@ -2,6 +2,9 @@ import { Image, ImageSource } from '../../types/image'
 
 import { Client } from '@elastic/elasticsearch'
 import { URLSearchParams } from 'url'
+import { getSubject } from './subject'
+import { capitalise } from '../../components/results'
+import { getPerson } from './person'
 
 export function parseImage(imageSource: ImageSource): Image {
   return {
@@ -38,4 +41,30 @@ export async function countImages(searchTerms: string): Promise<number> {
     `https://api.wellcomecollection.org/catalogue/v2/images?${params}`
   ).then((res) => res.json())
   return response.totalResults
+}
+
+export async function filterImages(
+  client: Client,
+  subject?: string,
+  person?: string
+) {
+  const label = subject
+    ? (await getSubject(client, subject)).name
+    : person
+    ? (await getPerson(client, person)).name
+    : ''
+  const capitalisedLabel = capitalise(label)
+  const url = `https://api.wellcomecollection.org/catalogue/v2/images?source.subjects.label=${capitalisedLabel}`
+  const imageResponse = await fetch(url).then((res) => res.json())
+  const results = imageResponse.results.map((image: ImageSource) => {
+    return {
+      id: image.source.id,
+      url: image.thumbnail.url.replace('info.json', 'full/400,/0/default.jpg'),
+      title: image.source.title,
+    }
+  }) as Image[]
+
+  return JSON.parse(
+    JSON.stringify({ results, resultCount: imageResponse.totalResults })
+  )
 }

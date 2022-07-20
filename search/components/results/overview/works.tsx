@@ -5,7 +5,11 @@ import WorksResults from '../works'
 
 type Props = {
   totalResults: number
-  queryParams: any
+  queryParams: {
+    searchTerms?: string
+    subject?: string
+    person?: string
+  }
   results: Work[]
   heading?: string
 }

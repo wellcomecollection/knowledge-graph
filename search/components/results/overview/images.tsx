@@ -4,7 +4,11 @@ import OverviewResultsBlock from '.'
 
 type Props = {
   totalResults: number
-  queryParams?: any
+  queryParams?: {
+    searchTerms?: string
+    subject?: string
+    person?: string
+  }
   results: Image[]
   heading?: string
 }

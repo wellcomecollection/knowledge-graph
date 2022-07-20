@@ -2,19 +2,21 @@ import { FC, useState } from 'react'
 import { Search, X } from 'react-feather'
 
 type Props = {
-  searchTerms?: string
+  queryParams?: {
+    searchTerms?: string
+    subject?: string
+    person?: string
+  }
   index?: string
 }
 const SearchBox: FC<Props> = (props) => {
-  const [searchTerms, setSearchTerms] = useState(props.searchTerms)
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerms(e.target.value)
-  }
-
+  const [searchTerms, setSearchTerms] = useState(
+    props.queryParams?.searchTerms || ''
+  )
   return (
     <form
       className="block w-full"
-      action={`/search${props.index ? `/${props.index}` : ''}`}
+      action={`/search/${props.index ? `${props.index}` : ''}`}
       method="GET"
     >
       <div className="mx-auto flex justify-between gap-1">

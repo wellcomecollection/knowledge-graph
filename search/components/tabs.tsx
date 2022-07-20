@@ -28,12 +28,22 @@ type Props = {
 }
 
 const Tabs: FC<Props> = ({ queryParams, selectedTab, resultCounts }) => {
+  let paramsToPass = {}
+  if (queryParams.searchTerms) {
+    paramsToPass = { ...paramsToPass, query: queryParams.searchTerms }
+  }
+  if (queryParams.subject) {
+    paramsToPass = { ...paramsToPass, subject: queryParams.subject }
+  }
+  if (queryParams.person) {
+    paramsToPass = { ...paramsToPass, person: queryParams.person }
+  }
   return (
     <ul className="flex divide-gray-400 border-b">
       <Link
         href={{
           pathname: `/search`,
-          query: queryParams,
+          query: paramsToPass,
         }}
         key={'overview'}
       >
@@ -50,7 +60,7 @@ const Tabs: FC<Props> = ({ queryParams, selectedTab, resultCounts }) => {
           <Link
             href={{
               pathname: `/search/${tabToSlug[tab]}`,
-              query: queryParams,
+              query: paramsToPass,
             }}
             key={tab}
           >

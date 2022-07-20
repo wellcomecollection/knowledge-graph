@@ -19,7 +19,7 @@ import { Work } from '../../types/work'
 import WorkResultsOverview from '../../components/results/overview/works'
 
 type Props = {
-  searchTerms: string
+  queryParams: { searchTerms: string }
   resultCounts: { [key in Tab]: number }
   results: { [key in Tab]: Image[] | Work[] | Story[] | WhatsOn[] }
 }
@@ -28,7 +28,7 @@ export const getServerSideProps: GetServerSideProps = async ({ query }) => {
   if (!query.query) {
     return {
       props: {
-        searchTerms: '',
+        queryParams: { searchTerms: '' },
         resultCounts: {
           images: 0,
           works: 0,
@@ -56,33 +56,34 @@ export const getServerSideProps: GetServerSideProps = async ({ query }) => {
         3
       )
     }
-    return { props: { searchTerms, results, resultCounts } }
+    return { props: { queryParams: { searchTerms }, results, resultCounts } }
   }
 }
 
-const Search: NextPage<Props> = ({ searchTerms, resultCounts, results }) => {
+const Search: NextPage<Props> = ({ queryParams, resultCounts, results }) => {
   return (
     <>
       <Head>
-        <title>{`Search  ${searchTerms ? `| ${searchTerms}` : ''}`}</title>
+        <title>{`Search  ${
+          queryParams.searchTerms ? `| ${queryParams.searchTerms}` : ''
+        }`}</title>
       </Head>
       <Layout isHomePage>
         <div className="mx-auto px-5 lg:w-3/4">
-          <SearchBox searchTerms={searchTerms} />
+          <SearchBox queryParams={queryParams} />
           <div className="pt-6">
             <Tabs
               selectedTab={'overview'}
-              queryParams={{ query: searchTerms }}
+              queryParams={{ ...queryParams }}
               resultCounts={resultCounts}
             />
           </div>
-
-          <ol >
+          <ol>
             {resultCounts["What's on"] > 0 ? (
               <li className="py-8">
                 <WhatsOnResultsOverview
                   results={results["What's on"] as WhatsOn[]}
-                  queryParams={{ query: searchTerms }}
+                  queryParams={queryParams}
                   totalResults={resultCounts["What's on"]}
                 />
               </li>
@@ -91,7 +92,7 @@ const Search: NextPage<Props> = ({ searchTerms, resultCounts, results }) => {
               <li className="pt-8 pb-4">
                 <StoryResultsOverview
                   results={results.Stories as Story[]}
-                  queryParams={{ query: searchTerms }}
+                  queryParams={queryParams}
                   totalResults={resultCounts.Stories}
                 />
               </li>
@@ -100,7 +101,7 @@ const Search: NextPage<Props> = ({ searchTerms, resultCounts, results }) => {
               <li className="pt-8 pb-4">
                 <WorkResultsOverview
                   results={results.Works as Work[]}
-                  queryParams={{ query: searchTerms }}
+                  queryParams={queryParams}
                   totalResults={resultCounts.Works}
                 />
               </li>
@@ -109,7 +110,7 @@ const Search: NextPage<Props> = ({ searchTerms, resultCounts, results }) => {
               <li className="pt-8 pb-4">
                 <ImageResultsOverview
                   results={results.Images as Image[]}
-                  queryParams={{ query: searchTerms }}
+                  queryParams={queryParams}
                   totalResults={resultCounts.Images}
                 />
               </li>

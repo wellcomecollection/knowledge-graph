@@ -4,6 +4,8 @@ import { Client } from '@elastic/elasticsearch'
 import blankQuery from '../../data/queries/works.json'
 import { formatQuery } from '.'
 
+const index = process.env.ELASTIC_WORKS_INDEX as string
+
 export function parseWork(workHit: WorkHit): Work {
   const work = workHit._source
   const concepts = work.concepts.map((concept, index) => {
@@ -32,7 +34,6 @@ export function parseWork(workHit: WorkHit): Work {
     published: work.published,
   }
 }
-const index = process.env.ELASTIC_WORKS_INDEX as string
 
 export function getWorks(client: Client, ids: string[]): Promise<Work[]> {
   return client.mget({ index, body: { ids } }).then((response) => {
@@ -74,4 +75,22 @@ export async function countWorks(
     body: formatQuery(blankQuery, searchTerms),
   })
   return response.body.count
+}
+
+export async function filterWorks(
+  client: Client,
+  subject?: string,
+  person?: string
+): Promise<Work[]> {
+  const field = subject ? 'concept_ids' : person ? 'contributor_ids' : null
+  const value = subject ? subject : person ? person : null
+  const response = await client.search({
+    index,
+    body: `{"query": {"bool": {"must": [{"match": {"${field}": "${value}"}}]}}}`,
+  })
+  const results = response.body.hits.hits.map((doc: WorkHit) => {
+    return parseWork(doc)
+  })
+  const resultCount = response.body.hits.total.value
+  return JSON.parse(JSON.stringify({ results, resultCount }))
 }

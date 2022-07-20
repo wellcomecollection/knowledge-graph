@@ -19,19 +19,27 @@ const Header: FC<Props> = ({ isHomePage }) => {
     >
       <div className="mx-auto py-6 px-5 lg:w-3/4">
         <header className="flex items-end justify-between">
-          <a href="/">
-            <img
-              src="/images/logo.png"
-              alt="Wellcome Collection"
-              className={`h-10 ${menuSelected ? 'invert filter' : ''}`}
-            />
-          </a>
-          <div className="flex items-center gap-8 text-lg">
-            <a className="hidden no-underline xl:inline">Plan your visit</a>
-            <a className="hidden no-underline xl:inline" href="/search/works">
-              Explore our collections
+          <Link href="/">
+            <a>
+              <img
+                src="/images/logo.png"
+                alt="Wellcome Collection"
+                className={`h-10 ${menuSelected ? 'invert filter' : ''}`}
+              />
             </a>
-            <a className="hidden no-underline xl:inline">Read our stories</a>
+          </Link>
+          <div className="flex items-center gap-8 text-lg">
+            <Link href="/">
+              <a className="hidden no-underline xl:inline">Plan your visit</a>
+            </Link>
+            <Link href="/search/works">
+              <a className="hidden no-underline xl:inline">
+                Explore our collections
+              </a>
+            </Link>
+            <Link href={`/search/stories`}>
+              <a className="hidden no-underline xl:inline">Read our stories</a>
+            </Link>
             <button
               className="block"
               onClick={() => {
@@ -63,10 +71,12 @@ const Header: FC<Props> = ({ isHomePage }) => {
               <div>
                 Looking to search our collections?{' '}
                 <br className="block sm:hidden" />
-                <a href="/search/works">
-                  Go to our collections search
-                  <ArrowRight className="inline-block w-4" />
-                </a>
+                <Link href="/search/works">
+                  <a>
+                    Go to our collections search
+                    <ArrowRight className="inline-block w-4" />
+                  </a>
+                </Link>
               </div>
             ) : null}
           </div>
