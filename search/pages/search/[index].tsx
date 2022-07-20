@@ -21,7 +21,11 @@ import WorksResults from '../../components/results/works'
 
 type Props = {
   selectedIndex: string
-  query: any
+  queryParams?: {
+    searchTerms?: string
+    subject?: string
+    person?: string
+  }
   resultCounts: { [key in Tab]: number }
   results: Image[] | Work[] | Story[] | WhatsOn[]
 }
@@ -40,18 +44,21 @@ export const getServerSideProps: GetServerSideProps = async ({ query }) => {
       client,
       10
     )
-    return { props: { selectedIndex, query, resultCounts, results } }
+    return {
+      props: {
+        selectedIndex,
+        queryParams: { searchTerms },
+        resultCounts,
+        results,
+      },
+    }
   } // if they're filtering by a subject or person, use filter() instead
-  else if (query.subject || query.person) {
-    console.log
-    const subject = query.subject ? query.subject.toString() : null
-    const person = query.person ? query.person.toString() : null
+  else if (query.subject) {
     const client = getClient()
     const { results, resultCount } = await filter(
       client,
       selectedIndex as string,
-      subject as string,
-      person as string
+      query.subject as string
     )
     let resultCounts = {
       Images: 0,
@@ -61,14 +68,41 @@ export const getServerSideProps: GetServerSideProps = async ({ query }) => {
     }
     resultCounts[slugToTab[selectedIndex] as Tab] = resultCount
     return {
-      props: { selectedIndex, query, resultCounts, results },
+      props: {
+        selectedIndex,
+        queryParams: { subject: query.subject },
+        resultCounts,
+        results,
+      },
+    }
+  } else if (query.person) {
+    const client = getClient()
+    const { results, resultCount } = await filter(
+      client,
+      selectedIndex as string,
+      query.person as string
+    )
+    let resultCounts = {
+      Images: 0,
+      Works: 0,
+      Stories: 0,
+      "What's on": 0,
+    }
+    resultCounts[slugToTab[selectedIndex] as Tab] = resultCount
+    return {
+      props: {
+        selectedIndex,
+        queryParams: { person: query.person },
+        resultCounts,
+        results,
+      },
     }
   } // if they're not searching, return an empty set of results
   else {
     return {
       props: {
         selectedIndex,
-        query: {},
+        queryParams: {},
         resultCounts: {
           Images: 0,
           Works: 0,
@@ -83,7 +117,7 @@ export const getServerSideProps: GetServerSideProps = async ({ query }) => {
 
 const Search: NextPage<Props> = ({
   selectedIndex,
-  query,
+  queryParams,
   resultCounts,
   results,
 }) => {
@@ -91,16 +125,25 @@ const Search: NextPage<Props> = ({
     <>
       <Head>
         <title>{`${slugToTab[selectedIndex]}${
-          query.searchTerms ? ` | ${query.searchTerms}` : ''
+          queryParams
+            ? queryParams.searchTerms
+              ? ` | ${queryParams.searchTerms}`
+              : ''
+            : ''
         }`}</title>
       </Head>
       <Layout isHomePage>
         <div className="mx-auto px-5 lg:w-3/4">
-          <SearchBox searchTerms={query.searchTerms} index={selectedIndex} />
+          <SearchBox
+            queryParams={{
+              ...queryParams,
+            }}
+            index={selectedIndex}
+          />
           <div className="py-6">
             <Tabs
               selectedTab={selectedIndex}
-              queryParams={{ query: query.searchTerms }}
+              queryParams={{ ...queryParams }}
               resultCounts={resultCounts}
             />
           </div>

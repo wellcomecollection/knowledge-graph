@@ -5,7 +5,11 @@ import { Story } from '../../../types/story'
 
 type Props = {
   totalResults: number
-  queryParams: any
+  queryParams?: {
+    searchTerms?: string
+    subject?: string
+    person?: string
+  }
   results: Story[]
   heading?: string
 }
