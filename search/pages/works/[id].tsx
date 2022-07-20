@@ -9,19 +9,44 @@ import { useState } from 'react'
 
 type Props = {
   work: Work
+  originalWorkSubjects: {
+    label: string
+    id: string
+    type: string
+    concepts: {
+      label: string
+      type: string
+    }[]
+  }[]
+}
+
+export type wecoApiWork = {
+  subjects?: any[]
+  title: string
+  id: string
+  type: string
 }
 
 export const getServerSideProps: GetServerSideProps = async ({ query }) => {
   const workId = query.id as string
   const client = getClient()
   const work = await getWork(client, workId)
-  return { props: { work } }
+  const originalWork: wecoApiWork = await fetch(
+    `https://api.wellcomecollection.org/catalogue/v2/works/${workId}?include=subjects`
+  ).then((res) => res.json())
+  const originalWorkSubjects = originalWork.subjects
+  return {
+    props: {
+      work,
+      originalWorkSubjects,
+    },
+  }
 }
 
 const WorkPageTabs = ['Catalogue details', 'View', 'Related']
 type WorkPageTabType = typeof WorkPageTabs[number]
 
-const WorkPage: NextPage<Props> = ({ work }) => {
+const WorkPage: NextPage<Props> = ({ work, originalWorkSubjects }) => {
   const [selectedTab, setSelectedTab] = useState(
     'Catalogue details' as WorkPageTabType
   )
@@ -74,13 +99,14 @@ const WorkPage: NextPage<Props> = ({ work }) => {
           <div>
             <p className="font-bold">Contributors</p>
             <ul className="capitalize">
-              {work.contributors&&work.contributors.map((contributor) => (
-                <li key={contributor.id}>
-                  <a className="" href={`/people/${contributor.id}`}>
-                    {contributor.name}
-                  </a>
-                </li>
-              ))}
+              {work.contributors &&
+                work.contributors.map((contributor) => (
+                  <li key={contributor.id}>
+                    <a className="" href={`/people/${contributor.id}`}>
+                      {contributor.name}
+                    </a>
+                  </li>
+                ))}
             </ul>
           </div>
           <div>
@@ -96,6 +122,23 @@ const WorkPage: NextPage<Props> = ({ work }) => {
                   >
                     {concept.name}
                   </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <p className="font-bold">
+              Subjects on the{' '}
+              <a href={`https://wellcomecollection.org/works/${work.id}`}>
+                original work page
+              </a>
+            </p>
+            <ul className="flex flex-wrap gap-x-2 pt-4">
+              {originalWorkSubjects.map((subject) => (
+                <li key={subject.id} className="pb-6">
+                  <span className="w-100 rounded-full border border-gray-400 py-2 px-3 text-sm capitalize no-underline">
+                    {subject.label}
+                  </span>
                 </li>
               ))}
             </ul>
