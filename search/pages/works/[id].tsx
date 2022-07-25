@@ -40,10 +40,12 @@ export const getServerSideProps: GetServerSideProps = async ({ query }) => {
   const originalWorkSubjects = originalWork.subjects
     ? originalWork.subjects
     : []
+
   const subjectComparisonTable = originalWorkSubjects.map((originalSubject) => {
     const enrichedSubject = work.concepts.find(
       (enrichedSubject) =>
-        enrichedSubject.originalLabel === originalSubject.label
+        enrichedSubject.originalLabel.toLowerCase() ===
+        originalSubject.label.toLowerCase()
     )
     return {
       original: {
