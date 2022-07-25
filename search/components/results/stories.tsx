@@ -30,7 +30,7 @@ const StoryResults: FC<Props> = ({ results }) => {
                     ' | '}
                   {story.contributors
                     ? story.contributors
-                        .map((contributor) => contributor.name)
+                        .map((contributor) => contributor.label)
                         .join(', ')
                     : null}
                 </p>

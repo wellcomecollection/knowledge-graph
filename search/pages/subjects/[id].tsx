@@ -1,16 +1,16 @@
 import { GetServerSideProps, NextPage } from 'next'
+import { Image, ImageSource } from '../../types/image'
 import { getClient, getSubject } from '../../services/elasticsearch'
 
 import { ArrowUpRight } from 'react-feather'
 import { Concept } from '../../types/concept'
 import Head from 'next/head'
-import { Image, ImageSource } from '../../types/image'
-import Layout from '../../components/layout'
 import ImageResultsOverview from '../../components/results/overview/images'
-import WorkResultsOverview from '../../components/results/overview/works'
-import StoryResultsOverview from '../../components/results/overview/stories'
+import Layout from '../../components/layout'
 import { Story } from '../../types/story'
+import StoryResultsOverview from '../../components/results/overview/stories'
 import { Work } from '../../types/work'
+import WorkResultsOverview from '../../components/results/overview/works'
 
 type Props = {
   concept: Concept
@@ -23,7 +23,7 @@ export const getServerSideProps: GetServerSideProps = async ({ query }) => {
   const client = getClient()
   const concept = await getSubject(client, conceptId)
 
-  const capitalisedConceptName = (concept.name ? concept.name : '').replace(
+  const capitalisedConceptName = (concept.label ? concept.label : '').replace(
     /(^\w{1})|(\s+\w{1})/g,
     (letter) => letter.toUpperCase()
   )
@@ -50,13 +50,13 @@ const SubjectPage: NextPage<Props> = ({ concept, images, totalImages }) => {
   return (
     <div className="pb-8">
       <Head>
-        <title>{concept.preferred_name}</title>
+        <title>{concept.preferred_label}</title>
       </Head>
       <Layout>
         <div className="space-y-8 bg-red py-8">
           <div className="mx-auto  px-5 lg:w-3/4">
             <h1 className="font-sans text-5xl capitalize">
-              {concept.preferred_name}
+              {concept.preferred_label}
             </h1>
           </div>
           <div className="mx-auto flex flex-col space-y-8 px-5 lg:w-3/4 lg:flex-row lg:space-y-0 lg:space-x-12">
@@ -114,7 +114,7 @@ const SubjectPage: NextPage<Props> = ({ concept, images, totalImages }) => {
                       className="w-100 rounded-full border border-black py-2 px-3 text-sm capitalize no-underline"
                       href={`/subjects/${neighbour.id}`}
                     >
-                      {neighbour.name}
+                      {neighbour.label}
                     </a>
                   </li>
                 ))}

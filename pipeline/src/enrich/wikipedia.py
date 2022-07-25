@@ -1,21 +1,21 @@
 from . import clean, fetch_json
 
 
-def get_wikipedia_name_from_wikidata(wikidata):
+def get_wikipedia_label_from_wikidata(wikidata):
     try:
-        wikipedia_name = wikidata["claims"]["sitelinks"]["enwiki"]["name"]
+        wikipedia_label = wikidata["claims"]["sitelinks"]["enwiki"]["name"]
     except (IndexError, KeyError, TypeError):
-        wikipedia_name = None
-    return wikipedia_name
+        wikipedia_label = None
+    return wikipedia_label
 
 
-def get_wikipedia_data(wikipedia_name):
+def get_wikipedia_data(wikipedia_label):
     url = "https://en.wikipedia.org/w/api.php"
     params = {
         "action": "query",
         "prop": "|".join(["pageprops", "pageterms", "categories"]),
         "format": "json",
-        "titles": wikipedia_name,
+        "titles": wikipedia_label,
         "cllimit": 500,
         "clshow": "!hidden",
     }
@@ -24,18 +24,18 @@ def get_wikipedia_data(wikipedia_name):
         data = list(response["query"]["pages"].values())[0]
         return data
     except Exception:
-        raise ValueError(f"'{wikipedia_name}' is not a valid name")
+        raise ValueError(f"'{wikipedia_label}' is not a valid label")
 
 
 def get_wikipedia_neighbours(wikipedia_data):
-    page_names = [
-        category_name["title"].replace("Category:", "")
-        for category_name in wikipedia_data["categories"]
+    page_labels = [
+        category_label["title"].replace("Category:", "")
+        for category_label in wikipedia_data["categories"]
     ]
-    return page_names
+    return page_labels
 
 
-def get_wikipedia_variant_names(wikipedia_data):
+def get_wikipedia_variant_labels(wikipedia_data):
     variants = []
     try:
         variants.extend(wikipedia_data["terms"]["alias"])
@@ -48,12 +48,12 @@ def get_wikipedia_variant_names(wikipedia_data):
     return variants
 
 
-def get_wikipedia_preferred_name(wikipedia_data):
+def get_wikipedia_preferred_label(wikipedia_data):
     try:
-        preferred_name = clean(wikipedia_data["title"])
+        preferred_label = clean(wikipedia_data["title"])
     except (KeyError, TypeError):
-        preferred_name = ""
-    return preferred_name
+        preferred_label = ""
+    return preferred_label
 
 
 def get_wikipedia_descriptions(wikipedia_data):

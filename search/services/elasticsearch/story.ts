@@ -10,13 +10,13 @@ export function parseStory(storyHit: StoryHit): Story {
   const story = storyHit._source
   const concepts = story.concepts.map((concept, index) => {
     return {
-      name: concept,
+      label: concept,
       id: story.concept_ids[index],
     }
   })
   const contributors = story.contributors.map((contributor, index) => {
     return {
-      name: contributor,
+      label: contributor,
       id: story.contributor_ids[index],
     }
   })

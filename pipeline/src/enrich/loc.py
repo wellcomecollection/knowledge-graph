@@ -24,7 +24,7 @@ def get_loc_data(source_id):
         raise ValueError(f"'{url}' is not a valid library of congress URL")
 
 
-def get_loc_variant_names(loc_data):
+def get_loc_variant_labels(loc_data):
     key = "http://www.w3.org/2004/02/skos/core#altLabel"
     if key in loc_data:
         variants = [clean(label["@value"]) for label in loc_data[key]]
@@ -33,13 +33,13 @@ def get_loc_variant_names(loc_data):
     return variants
 
 
-def get_loc_preferred_name(loc_data):
+def get_loc_preferred_label(loc_data):
     key = "http://www.w3.org/2004/02/skos/core#prefLabel"
     if key in loc_data:
-        preferred_name = clean(loc_data[key][0]["@value"])
+        preferred_label = clean(loc_data[key][0]["@value"])
     else:
-        preferred_name = ""
-    return preferred_name
+        preferred_label = ""
+    return preferred_label
 
 
 def get_wikidata_id_from_loc_data(loc_data):

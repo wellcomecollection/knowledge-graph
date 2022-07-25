@@ -4,6 +4,7 @@ export type WorkSource = {
   concepts: string[]
   concept_ids: string[]
   concept_types: string[]
+  concept_original_labels: string[]
   concept_variants: string[][]
   description: string
   notes: string
@@ -23,11 +24,12 @@ export type Work = {
   type: string
   contributors: {
     id: string
-    name: string
+    label: string
   }[]
   concepts: {
     id: string
-    name: string
+    originalLabel: string
+    label: string
     type: string
   }[]
   description: string

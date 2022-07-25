@@ -30,12 +30,12 @@ def get_mesh_preferred_concept_data(mesh_data):
     return preferred_concept_data
 
 
-def get_mesh_preferred_name(mesh_data):
+def get_mesh_preferred_label(mesh_data):
     try:
-        preferred_name = clean(mesh_data["label"]["@value"])
+        preferred_label = clean(mesh_data["label"]["@value"])
     except (KeyError, TypeError):
-        preferred_name = ""
-    return preferred_name
+        preferred_label = ""
+    return preferred_label
 
 
 def get_mesh_description(mesh_data):

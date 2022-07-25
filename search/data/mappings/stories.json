@@ -30,7 +30,7 @@
             }
         },
         "published": {
-            "type": "date"
+            "type": "text"
         },
         "concepts": {
             "type": "text",

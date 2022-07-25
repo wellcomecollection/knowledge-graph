@@ -10,15 +10,16 @@ export function parseWork(workHit: WorkHit): Work {
   const work = workHit._source
   const concepts = work.concepts.map((concept, index) => {
     return {
-      name: concept,
+      label: concept,
       id: work.concept_ids[index],
       type: work.concept_types[index],
+      originalLabel: work.concept_original_labels[index],
     }
   })
 
   const contributors = work.contributors.map((contributor, index) => {
     return {
-      name: contributor,
+      label: contributor,
       id: work.contributor_ids[index],
     }
   })

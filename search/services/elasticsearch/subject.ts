@@ -40,7 +40,7 @@ export function parseConcept(
   const neighbours = concept.neighbour_ids.map((id, index) => {
     return {
       id,
-      name: concept.neighbour_names[index],
+      label: concept.neighbour_labels[index],
     }
   })
 
