@@ -1,6 +1,6 @@
 from httpx import ConnectError, RemoteProtocolError
 
-from . import clean, fetch_json
+from . import fetch_json
 
 
 def get_wikidata_id(concept_label):

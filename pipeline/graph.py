@@ -1,21 +1,12 @@
 from datetime import datetime
-from pathlib import Path
 
 import pandas as pd
 from dateutil.parser import parse
 from src.elasticsearch import yield_popular_works
-from src.enrich.wikidata import (
-    get_contributor_wikidata_ids,
-    get_wikidata,
-    get_wikidata_description,
-    get_wikidata_id,
-    get_wikidata_preferred_label,
-    get_wikidata_variant_labels,
-)
 from src.graph import get_neo4j_session
 from src.graph.models import Concept, Event, Exhibition, SourceConcept, Work
 from src.prismic import yield_events, yield_exhibitions
-from src.utils import clean, clean_csv, get_logger
+from src.utils import get_logger
 
 log = get_logger(__name__)
 db = get_neo4j_session(
@@ -159,7 +150,11 @@ for document in yield_popular_works(size=1_000):
     ).save()
 
     for contributor in work_data["contributors"]:
-        wellcome_id = contributor["agent"]["id"]['canonicalId'] if 'canonicalId' in contributor["agent"]["id"] else None
+        wellcome_id = (
+            contributor["agent"]["id"]["canonicalId"]
+            if "canonicalId" in contributor["agent"]["id"]
+            else None
+        )
         try:
             source_identifier = contributor["agent"]["id"]["sourceIdentifier"]
         except KeyError:
@@ -168,17 +163,17 @@ for document in yield_popular_works(size=1_000):
                 contributor=contributor["agent"]["label"],
             )
             existing_person = Concept.nodes.first_or_none(
-                label=contributor["agent"]["label"], 
-                type="person", 
-                wellcome_id=wellcome_id
+                label=contributor["agent"]["label"],
+                type="person",
+                wellcome_id=wellcome_id,
             )
             if existing_person:
                 person = existing_person
             else:
                 person = Concept(
-                    label=contributor["agent"]["label"], 
-                    type="person", 
-                    wellcome_id=wellcome_id
+                    label=contributor["agent"]["label"],
+                    type="person",
+                    wellcome_id=wellcome_id,
                 ).save()
         else:
             source_id = source_identifier["value"]
@@ -209,9 +204,9 @@ for document in yield_popular_works(size=1_000):
                     source_id=source_id,
                 )
                 person = Concept(
-                    label=contributor["agent"]["label"], 
+                    label=contributor["agent"]["label"],
                     type="person",
-                    wellcome_id=wellcome_id
+                    wellcome_id=wellcome_id,
                 ).save()
                 person.collect_sources(
                     source_id=source_id,
@@ -228,21 +223,25 @@ for document in yield_popular_works(size=1_000):
             )
 
     for concept in work_data["subjects"]:
-        wellcome_id = concept["id"]['canonicalId'] if 'canonicalId' in concept["id"] else None
+        wellcome_id = (
+            concept["id"]["canonicalId"]
+            if "canonicalId" in concept["id"]
+            else None
+        )
         try:
             source_identifier = concept["id"]["sourceIdentifier"]
         except KeyError:
-            log.debug("Concept has no source identifier", concept=concept["label"])
+            log.debug(
+                "Concept has no source identifier", concept=concept["label"]
+            )
             existing_concept = Concept.nodes.first_or_none(
-                label=concept["label"],
-                wellcome_id=wellcome_id
+                label=concept["label"], wellcome_id=wellcome_id
             )
             if existing_concept:
                 concept = existing_concept
             else:
                 concept = Concept(
-                    label=concept['label'],
-                    wellcome_id=wellcome_id
+                    label=concept["label"], wellcome_id=wellcome_id
                 ).save()
         else:
             source_id = source_identifier["value"]
@@ -269,7 +268,7 @@ for document in yield_popular_works(size=1_000):
             else:
                 log.debug("Creating concept", label=concept["label"])
                 concept = Concept(
-                    label=concept["label"], 
+                    label=concept["label"],
                     wellcome_id=wellcome_id,
                 ).save()
                 concept.collect_sources(
