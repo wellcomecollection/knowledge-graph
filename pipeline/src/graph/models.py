@@ -14,19 +14,19 @@ from neomodel import (
 from . import (
     get_loc_data,
     get_loc_id_from_wikidata,
-    get_loc_preferred_name,
-    get_loc_variant_names,
+    get_loc_preferred_label,
+    get_loc_variant_labels,
     get_logger,
     get_mesh_data,
     get_mesh_description,
     get_mesh_id_from_wikidata,
     get_mesh_preferred_concept_data,
-    get_mesh_preferred_name,
+    get_mesh_preferred_label,
     get_wikidata,
     get_wikidata_description,
     get_wikidata_id_from_loc_data,
-    get_wikidata_preferred_name,
-    get_wikidata_variant_names,
+    get_wikidata_preferred_label,
+    get_wikidata_variant_labels,
 )
 
 log = get_logger(__name__)
@@ -81,21 +81,22 @@ class SourceConcept(StructuredNode):
         },
     )
     description = StringProperty()
-    preferred_name = StringProperty()
-    variant_names = ArrayProperty(StringProperty())
+    preferred_label = StringProperty()
+    variant_labels = ArrayProperty(StringProperty())
     parent = RelationshipFrom("Concept", "HAS_SOURCE_CONCEPT")
 
 
 class Concept(StructuredNode):
-    name = StringProperty(required=True)
+    label = StringProperty(required=True)
     uid = UniqueIdProperty()
+    wellcome_id = StringProperty(unique_index=True)
     sources = RelationshipTo("SourceConcept", "HAS_SOURCE_CONCEPT")
     works = RelationshipTo("Work", "HAS_CONCEPT")
     neighbours = Relationship("Concept", "HAS_NEIGHBOUR")
     contributed_to_work = RelationshipTo("Work", "CONTRIBUTED_TO")
     type = StringProperty(
         default="subject",
-        choices={c: c for c in ["subject", "person", "concept"]},
+        choices={c: c for c in ["subject", "person"]},
     )
 
     def collect_sources(self, source_id, source_type):
@@ -126,13 +127,13 @@ class Concept(StructuredNode):
                 source_id=wikidata_id,
                 source_type="wikidata",
                 description=get_wikidata_description(source_data),
-                preferred_name=get_wikidata_preferred_name(source_data),
-                variant_names=get_wikidata_variant_names(source_data),
+                preferred_label=get_wikidata_preferred_label(source_data),
+                variant_labels=get_wikidata_variant_labels(source_data),
             ).save()
         if not self.sources.is_connected(source_concept):
             log.debug(
                 "Connecting wikidata source concept",
-                concept=self.name,
+                concept=self.label,
                 wikidata_id=wikidata_id,
             )
             self.sources.connect(source_concept)
@@ -173,13 +174,13 @@ class Concept(StructuredNode):
                 source_concept = SourceConcept(
                     source_id=source_id,
                     source_type=source_type,
-                    preferred_name=get_loc_preferred_name(loc_data),
-                    variant_names=get_loc_variant_names(loc_data),
+                    preferred_label=get_loc_preferred_label(loc_data),
+                    variant_labels=get_loc_variant_labels(loc_data),
                 ).save()
             if not self.sources.is_connected(source_concept):
                 log.debug(
                     "Connecting source concept",
-                    concept=self.name,
+                    concept=self.label,
                     source_id=source_id,
                     source_type=source_type,
                 )
@@ -194,7 +195,7 @@ class Concept(StructuredNode):
         except (ValueError) as e:
             log.exception(
                 f"Error connecting {source_type} source concept",
-                concept=self.name,
+                concept=self.label,
                 loc_id=source_id,
                 error=e,
             )
@@ -212,26 +213,26 @@ class Concept(StructuredNode):
                     source_id=mesh_id,
                     source_type="nlm-mesh",
                     description=get_mesh_description(source_data),
-                    preferred_name=get_mesh_preferred_name(source_data),
-                    variant_names=[],
+                    preferred_label=get_mesh_preferred_label(source_data),
+                    variant_labels=[],
                 ).save()
             if not self.sources.is_connected(source_concept):
                 log.debug(
                     "Connecting mesh source concept",
-                    concept=self.name,
+                    concept=self.label,
                     mesh_id=mesh_id,
                 )
                 self.sources.connect(source_concept)
         except (ValueError) as e:
             log.exception(
                 "Error connecting mesh source concept",
-                concept=self.name,
+                concept=self.label,
                 loc_id=mesh_id,
                 error=e,
             )
 
     def get_neighbours(self):
-        log.info("Getting neighbours for concept", concept=self.name)
+        log.info("Getting neighbours for concept", concept=self.label)
         for source_concept in self.sources.all():
             if source_concept.source_type == "wikidata":
                 self._get_wikidata_neighbours(
@@ -292,15 +293,15 @@ class Concept(StructuredNode):
                     neighbour_concept_wikidata = get_wikidata(
                         neighbour_wikidata_id
                     )
-                    name = get_wikidata_preferred_name(
+                    label = get_wikidata_preferred_label(
                         neighbour_concept_wikidata
                     )
                     log.info(
                         "Creating neighbour concept",
                         wikidata_id=neighbour_wikidata_id,
-                        name=name,
+                        label=label,
                     )
-                    neighbour_concept = Concept(name=name).save()
+                    neighbour_concept = Concept(label=label).save()
                     neighbour_concept.collect_sources(
                         source_id=neighbour_wikidata_id, source_type="wikidata"
                     )
@@ -315,15 +316,15 @@ class Concept(StructuredNode):
             if neighbour_concept == self:
                 log.debug(
                     "Skipping neighbour, concept is the same",
-                    concept_name=self.name,
-                    neighbour_name=neighbour_concept.name,
+                    concept_label=self.label,
+                    neighbour_label=neighbour_concept.label,
                 )
                 continue
             else:
                 log.debug(
                     "Connecting neighbour",
-                    concept_name=self.name,
-                    neighbour_name=neighbour_concept.name,
+                    concept_label=self.label,
+                    neighbour_label=neighbour_concept.label,
                 )
                 self.neighbours.connect(neighbour_concept)
 
@@ -363,13 +364,13 @@ class Concept(StructuredNode):
             else:
                 try:
                     neighbour_concept_loc_data = get_loc_data(neighbour_loc_id)
-                    name = get_loc_preferred_name(neighbour_concept_loc_data)
+                    label = get_loc_preferred_label(neighbour_concept_loc_data)
                     log.info(
                         "Creating neighbour concept",
                         loc_id=neighbour_loc_id,
-                        name=name,
+                        label=label,
                     )
-                    neighbour_concept = Concept(name=name).save()
+                    neighbour_concept = Concept(label=label).save()
                     neighbour_concept.collect_sources(
                         source_id=neighbour_loc_id,
                         source_type=(
@@ -389,15 +390,15 @@ class Concept(StructuredNode):
             if neighbour_concept == self:
                 log.debug(
                     "Skipping neighbour, concept is the same",
-                    concept_name=self.name,
-                    neighbour_name=neighbour_concept.name,
+                    concept_label=self.label,
+                    neighbour_label=neighbour_concept.label,
                 )
                 continue
             else:
                 log.debug(
                     "Connecting neighbour",
-                    concept_name=self.name,
-                    neighbour_name=neighbour_concept.name,
+                    concept_label=self.label,
+                    neighbour_label=neighbour_concept.label,
                 )
                 self.neighbours.connect(neighbour_concept)
 
@@ -437,15 +438,15 @@ class Concept(StructuredNode):
                         neighbour_concept_mesh_data = get_mesh_data(
                             neighbour_mesh_id
                         )
-                        name = get_mesh_preferred_name(
+                        label = get_mesh_preferred_label(
                             neighbour_concept_mesh_data
                         )
                         log.info(
                             "Creating neighbour concept",
                             mesh_id=neighbour_mesh_id,
-                            name=name,
+                            label=label,
                         )
-                        neighbour_concept = Concept(name=name).save()
+                        neighbour_concept = Concept(label=label).save()
                         neighbour_concept.collect_sources(
                             source_id=neighbour_mesh_id, source_type="nlm-mesh"
                         )
@@ -460,15 +461,15 @@ class Concept(StructuredNode):
                 if neighbour_concept == self:
                     log.debug(
                         "Skipping neighbour, concept is the same",
-                        concept_name=self.name,
-                        neighbour_name=neighbour_concept.name,
+                        concept_label=self.label,
+                        neighbour_label=neighbour_concept.label,
                     )
                     continue
                 else:
                     log.debug(
                         "Connecting neighbour",
-                        concept_name=self.name,
-                        neighbour_name=neighbour_concept.name,
+                        concept_label=self.label,
+                        neighbour_label=neighbour_concept.label,
                     )
                     self.neighbours.connect(neighbour_concept)
         except TypeError as e:

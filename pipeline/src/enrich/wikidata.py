@@ -3,14 +3,14 @@ from httpx import ConnectError, RemoteProtocolError
 from . import clean, fetch_json
 
 
-def get_wikidata_id(concept_name):
+def get_wikidata_id(concept_label):
     response = fetch_json(
         "https://www.wikidata.org/w/api.php",
         params={
             "action": "wbsearchentities",
             "language": "en",
             "format": "json",
-            "search": concept_name,
+            "search": concept_label,
         },
     )
 
@@ -32,15 +32,15 @@ def get_wikidata(wikidata_id):
         return None
 
 
-def get_wikidata_preferred_name(wikidata):
+def get_wikidata_preferred_label(wikidata):
     try:
-        preferred_name = clean(wikidata["labels"]["en"]["value"])
+        preferred_label = wikidata["labels"]["en"]["value"]
     except (IndexError, KeyError, TypeError):
-        preferred_name = ""
-    return preferred_name
+        preferred_label = ""
+    return preferred_label
 
 
-def get_wikidata_variant_names(
+def get_wikidata_variant_labels(
     wikidata, languages=["en", "en-gb", "en-ca", "en-us", "en-simple"]
 ):
     try:
@@ -55,12 +55,12 @@ def get_wikidata_variant_names(
             for alias in group
             if alias["language"] in languages
         ]
-        variant_names = list(set([clean(name) for name in labels + aliases]))
+        variant_labels = list(set(labels + aliases))
 
     except (IndexError, KeyError, TypeError):
-        variant_names = []
+        variant_labels = []
 
-    return variant_names
+    return variant_labels
 
 
 def get_wikidata_description(wikidata):

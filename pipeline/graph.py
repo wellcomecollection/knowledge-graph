@@ -9,8 +9,8 @@ from src.enrich.wikidata import (
     get_wikidata,
     get_wikidata_description,
     get_wikidata_id,
-    get_wikidata_preferred_name,
-    get_wikidata_variant_names,
+    get_wikidata_preferred_label,
+    get_wikidata_variant_labels,
 )
 from src.graph import get_neo4j_session
 from src.graph.models import Concept, Event, Exhibition, SourceConcept, Work
@@ -18,7 +18,9 @@ from src.prismic import yield_events, yield_exhibitions
 from src.utils import clean, clean_csv, get_logger
 
 log = get_logger(__name__)
-db = get_neo4j_session(clear=True)
+db = get_neo4j_session(
+    # clear=True
+)
 
 log.info("Loading stories dataset")
 df = pd.read_excel(
@@ -28,111 +30,110 @@ df = pd.read_excel(
 ).fillna("")
 
 
-# stories
-log.info("Processing stories")
-for _, story_data in df.iterrows():
-    try:
-        db = get_neo4j_session()
-        log.info("Processing story", title=story_data["Title"])
-        story = Work(
-            type="story",
-            wellcome_id=Path(story_data["URL"]).name,
-            title=story_data["Title"],
-            published=story_data["Date published"].date(),
-            wikidata_id=story_data["Wikidata ID"],
-        ).save()
+# # stories
+# log.info("Processing stories")
+# for _, story_data in df.iterrows():
+#     try:
+#         db = get_neo4j_session()
+#         log.info("Processing story", title=story_data["Title"])
+#         story = Work(
+#             type="story",
+#             wellcome_id=Path(story_data["URL"]).name,
+#             title=story_data["Title"],
+#             published=story_data["Date published"].date(),
+#             wikidata_id=story_data["Wikidata ID"],
+#         ).save()
 
-        if story.wikidata_id:
-            story_wikidata = get_wikidata(story.wikidata_id)
-            contributor_wikidata_ids = get_contributor_wikidata_ids(
-                story_wikidata
-            )
+#         if story.wikidata_id:
+#             story_wikidata = get_wikidata(story.wikidata_id)
+#             contributor_wikidata_ids = get_contributor_wikidata_ids(
+#                 story_wikidata
+#             )
 
-            for contributor_wikidata_id in contributor_wikidata_ids:
-                existing_person_source_concept = (
-                    SourceConcept.nodes.get_or_none(
-                        source_id=contributor_wikidata_id
-                    )
-                )
-                if existing_person_source_concept:
-                    log.debug(
-                        "Found existing person source concept",
-                        wikidata_id=contributor_wikidata_id,
-                    )
-                    person = existing_person_source_concept.parent.all()[0]
-                else:
-                    contributor_wikidata = get_wikidata(contributor_wikidata_id)
-                    source_concept = SourceConcept(
-                        source_id=contributor_wikidata_id,
-                        source_type="wikidata",
-                        description=get_wikidata_description(
-                            contributor_wikidata
-                        ),
-                        preferred_name=get_wikidata_preferred_name(
-                            contributor_wikidata
-                        ),
-                        variant_names=get_wikidata_variant_names(
-                            contributor_wikidata
-                        ),
-                    ).save()
-                    log.debug(
-                        "Creating person", name=source_concept.preferred_name
-                    )
-                    person = Concept(
-                        name=source_concept.preferred_name, type="person"
-                    ).save()
-                    person.sources.connect(source_concept)
-                story.contributors.connect(person)
-        else:
-            contributors = story_data["Author"].split(",") + story_data[
-                "Images by"
-            ].split(",")
-            for contributor in contributors:
-                contributor_name = clean(contributor)
-                existing_person_source_concept = (
-                    SourceConcept.nodes.get_or_none(preferred_name=contributor)
-                )
-                if existing_person_source_concept:
-                    log.debug(
-                        "Found existing person source concept",
-                        source_id=existing_person_source_concept.source_id,
-                    )
-                    person = existing_person_source_concept.parent.all()[0]
-                else:
-                    log.debug("Creating person", name=contributor_name)
-                    person = Concept(
-                        name=contributor_name, type="person"
-                    ).save()
-                story.contributors.connect(person)
+#             for contributor_wikidata_id in contributor_wikidata_ids:
+#                 existing_person_source_concept = (
+#                     SourceConcept.nodes.get_or_none(
+#                         source_id=contributor_wikidata_id
+#                     )
+#                 )
+#                 if existing_person_source_concept:
+#                     log.debug(
+#                         "Found existing person source concept",
+#                         wikidata_id=contributor_wikidata_id,
+#                     )
+#                     person = existing_person_source_concept.parent.all()[0]
+#                 else:
+#                     contributor_wikidata = get_wikidata(contributor_wikidata_id)
+#                     source_concept = SourceConcept(
+#                         source_id=contributor_wikidata_id,
+#                         source_type="wikidata",
+#                         description=get_wikidata_description(
+#                             contributor_wikidata
+#                         ),
+#                         preferred_label=get_wikidata_preferred_label(
+#                             contributor_wikidata
+#                         ),
+#                         variant_labels=get_wikidata_variant_labels(
+#                             contributor_wikidata
+#                         ),
+#                     ).save()
+#                     log.debug(
+#                         "Creating person", label=source_concept.preferred_label
+#                     )
+#                     person = Concept(
+#                         label=source_concept.preferred_label, type="person"
+#                     ).save()
+#                     person.sources.connect(source_concept)
+#                 story.contributors.connect(person)
+#         else:
+#             contributors = story_data["Author"].split(",") + story_data[
+#                 "Images by"
+#             ].split(",")
+#             for contributor in contributors:
+#                 existing_person_source_concept = (
+#                     SourceConcept.nodes.get_or_none(preferred_label=contributor)
+#                 )
+#                 if existing_person_source_concept:
+#                     log.debug(
+#                         "Found existing person source concept",
+#                         source_id=existing_person_source_concept.source_id,
+#                     )
+#                     person = existing_person_source_concept.parent.all()[0]
+#                 else:
+#                     log.debug("Creating person", label=contributor)
+#                     person = Concept(
+#                         label=contributor, type="person"
+#                     ).save()
+#                 story.contributors.connect(person)
 
-        for concept_name in clean_csv(story_data["Keywords"]):
-            clean_concept_name = clean(concept_name)
-            concept_wikidata_id = get_wikidata_id(clean_concept_name)
-            if concept_wikidata_id:
-                existing_concept_source_concept = (
-                    SourceConcept.nodes.get_or_none(
-                        source_id=concept_wikidata_id
-                    )
-                )
-                if existing_concept_source_concept:
-                    log.debug(
-                        "Found existing source concept",
-                        wikidata_id=concept_wikidata_id,
-                    )
-                    concept = existing_concept_source_concept.parent.all()[0]
-                else:
-                    log.debug("Creating concept", name=clean_concept_name)
-                    concept = Concept(name=clean_concept_name).save()
-                    concept.collect_sources(
-                        source_id=concept_wikidata_id, source_type="wikidata"
-                    )
-            else:
-                concept = Concept.nodes.first_or_none(name=clean_concept_name)
-                if not concept:
-                    concept = Concept(name=clean_concept_name).save()
-            story.concepts.connect(concept)
-    except:
-        log.exception("Error processing story", title=story_data["Title"])
+#         for concept_label in clean_csv(story_data["Keywords"]):
+#             clean_concept_label = clean(concept_label)
+#             concept_wikidata_id = get_wikidata_id(clean_concept_label)
+#             if concept_wikidata_id:
+#                 existing_concept_source_concept = (
+#                     SourceConcept.nodes.get_or_none(
+#                         source_id=concept_wikidata_id
+#                     )
+#                 )
+#                 if existing_concept_source_concept:
+#                     log.debug(
+#                         "Found existing source concept",
+#                         wikidata_id=concept_wikidata_id,
+#                     )
+#                     concept = existing_concept_source_concept.parent.all()[0]
+#                 else:
+#                     log.debug("Creating concept", label=clean_concept_label)
+#                     concept = Concept(label=clean_concept_label).save()
+#                     concept.collect_sources(
+#                         source_id=concept_wikidata_id, source_type="wikidata"
+#                     )
+#             else:
+#                 concept = Concept.nodes.first_or_none(label=clean_concept_label)
+#                 if not concept:
+#                     concept = Concept(label=clean_concept_label).save()
+#             story.concepts.connect(concept)
+#     except:
+#         log.exception("Error processing story", title=story_data["Title"])
 
 # works
 log.info("Processing works")
@@ -158,21 +159,27 @@ for document in yield_popular_works(size=1_000):
     ).save()
 
     for contributor in work_data["contributors"]:
+        wellcome_id = contributor["agent"]["id"]['canonicalId'] if 'canonicalId' in contributor["agent"]["id"] else None
         try:
             source_identifier = contributor["agent"]["id"]["sourceIdentifier"]
         except KeyError:
-            clean_name = clean(contributor["agent"]["label"])
             log.debug(
                 "Contributor has no source identifier",
-                contributor=clean_name,
+                contributor=contributor["agent"]["label"],
             )
             existing_person = Concept.nodes.first_or_none(
-                name=clean_name, type="person"
+                label=contributor["agent"]["label"], 
+                type="person", 
+                wellcome_id=wellcome_id
             )
             if existing_person:
                 person = existing_person
             else:
-                person = Concept(name=clean_name, type="person").save()
+                person = Concept(
+                    label=contributor["agent"]["label"], 
+                    type="person", 
+                    wellcome_id=wellcome_id
+                ).save()
         else:
             source_id = source_identifier["value"]
             source_type = source_identifier["identifierType"]["id"]
@@ -198,11 +205,13 @@ for document in yield_popular_works(size=1_000):
             else:
                 log.debug(
                     "Creating new person",
-                    name=contributor["agent"]["label"],
+                    label=contributor["agent"]["label"],
                     source_id=source_id,
                 )
                 person = Concept(
-                    name=clean(contributor["agent"]["label"]), type="person"
+                    label=contributor["agent"]["label"], 
+                    type="person",
+                    wellcome_id=wellcome_id
                 ).save()
                 person.collect_sources(
                     source_id=source_id,
@@ -213,22 +222,28 @@ for document in yield_popular_works(size=1_000):
         except Exception as e:
             log.exception(
                 "Error connecting contributor to work",
-                contributor=person.name,
+                contributor=person.label,
                 work=work.title,
                 error=e,
             )
 
     for concept in work_data["subjects"]:
+        wellcome_id = concept["id"]['canonicalId'] if 'canonicalId' in concept["id"] else None
         try:
             source_identifier = concept["id"]["sourceIdentifier"]
         except KeyError:
-            clean_name = clean(concept["label"])
-            log.debug("Concept has no source identifier", concept=clean_name)
-            existing_concept = Concept.nodes.first_or_none(name=clean_name)
+            log.debug("Concept has no source identifier", concept=concept["label"])
+            existing_concept = Concept.nodes.first_or_none(
+                label=concept["label"],
+                wellcome_id=wellcome_id
+            )
             if existing_concept:
                 concept = existing_concept
             else:
-                concept = Concept(name=clean_name).save()
+                concept = Concept(
+                    label=concept['label'],
+                    wellcome_id=wellcome_id
+                ).save()
         else:
             source_id = source_identifier["value"]
             source_type = source_identifier["identifierType"]["id"]
@@ -252,9 +267,11 @@ for document in yield_popular_works(size=1_000):
                 )
                 concept = existing_concept_source_concept.parent.all()[0]
             else:
-                clean_concept_name = clean(concept["label"])
-                log.debug("Creating concept", name=clean_concept_name)
-                concept = Concept(name=clean_concept_name).save()
+                log.debug("Creating concept", label=concept["label"])
+                concept = Concept(
+                    label=concept["label"], 
+                    wellcome_id=wellcome_id,
+                ).save()
                 concept.collect_sources(
                     source_id=source_id, source_type=source_type
                 )
@@ -263,7 +280,7 @@ for document in yield_popular_works(size=1_000):
         except Exception as e:
             log.exception(
                 "Error connecting concept to work",
-                concept=concept.name,
+                concept=concept.label,
                 work=work.title,
                 error=e,
             )

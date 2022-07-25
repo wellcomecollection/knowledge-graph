@@ -21,38 +21,39 @@ def format_work_for_elasticsearch(work: Work):
     work_concepts = work.concepts.all()
     concept_ids = [concept.uid for concept in work_concepts]
     concept_types = [concept.type for concept in work_concepts]
-    concept_names = []
+    concept_original_labels = [concept.label for concept in work_concepts]
+    concept_labels = []
     for concept in work_concepts:
-        preferred_name = concept.name
+        preferred_label = concept.label
         for source_type in ordered_source_preferences:
             source = concept.sources.get_or_none(source_type=source_type)
             if source:
-                preferred_name = source.preferred_name
+                preferred_label = source.preferred_label
                 break
-        concept_names.append(preferred_name)
+        concept_labels.append(preferred_label)
     concept_variants = [
         variant
         for concept in work_concepts
         for source_concept in concept.sources.all()
-        for variant in source_concept.variant_names
+        for variant in source_concept.variant_labels
     ]
 
     work_contributors = work.contributors.all()
     contributor_ids = [contributor.uid for contributor in work_contributors]
-    contributor_names = []
+    contributor_labels = []
     for contributor in work_contributors:
-        preferred_name = contributor.name
+        preferred_label = contributor.label
         for source_type in ordered_source_preferences:
             source = contributor.sources.get_or_none(source_type=source_type)
             if source:
-                preferred_name = source.preferred_name
+                preferred_label = source.preferred_label
                 break
-        contributor_names.append(preferred_name)
+        contributor_labels.append(preferred_label)
     contributor_variants = [
         variant
         for contributor in work_contributors
         for source_contributor in contributor.sources.all()
-        for variant in source_contributor.variant_names
+        for variant in source_contributor.variant_labels
     ]
 
     work_data = get_work_data(work.wellcome_id)
@@ -64,11 +65,12 @@ def format_work_for_elasticsearch(work: Work):
     return {
         "concept_ids": concept_ids,
         "concept_variants": concept_variants,
-        "concepts": concept_names,
+        "concepts": concept_labels,
+        "concept_original_labels": concept_original_labels,
         "concept_types": concept_types,
         "contributor_ids": contributor_ids,
         "contributor_variants": contributor_variants,
-        "contributors": contributor_names,
+        "contributors": contributor_labels,
         "published": published,
         "title": work.title,
         "description": description,
@@ -80,38 +82,38 @@ def format_work_for_elasticsearch(work: Work):
 def format_story_for_elasticsearch(story: Work):
     story_concepts = story.concepts.all()
     concept_ids = [concept.uid for concept in story_concepts]
-    concept_names = []
+    concept_labels = []
     for concept in story_concepts:
-        preferred_name = concept.name
+        preferred_label = concept.label
         for source_type in ordered_source_preferences:
             source = concept.sources.get_or_none(source_type=source_type)
             if source:
-                preferred_name = source.preferred_name
+                preferred_label = source.preferred_label
                 break
-        concept_names.append(preferred_name)
+        concept_labels.append(preferred_label)
     concept_variants = [
         variant
         for concept in story_concepts
         for source_concept in concept.sources.all()
-        for variant in source_concept.variant_names
+        for variant in source_concept.variant_labels
     ]
 
     story_contributors = story.contributors.all()
     contributor_ids = [contributor.uid for contributor in story_contributors]
-    contributor_names = []
+    contributor_labels = []
     for contributor in story_contributors:
-        preferred_name = contributor.name
+        preferred_label = contributor.label
         for source_type in ordered_source_preferences:
             source = contributor.sources.get_or_none(source_type=source_type)
             if source:
-                preferred_name = source.preferred_name
+                preferred_label = source.preferred_label
                 break
-        contributor_names.append(preferred_name)
+        contributor_labels.append(preferred_label)
     contributor_variants = [
         variant
         for contributor in story_contributors
         for source_contributor in contributor.sources.all()
-        for variant in source_contributor.variant_names
+        for variant in source_contributor.variant_labels
     ]
 
     story_data = get_story_data(story.wellcome_id)
@@ -122,9 +124,9 @@ def format_story_for_elasticsearch(story: Work):
     return {
         "concept_ids": concept_ids,
         "concept_variants": concept_variants,
-        "concepts": concept_names,
+        "concepts": concept_labels,
         "contributor_ids": contributor_ids,
-        "contributors": contributor_names,
+        "contributors": contributor_labels,
         "contributor_variants": contributor_variants,
         "full_text": full_text,
         "published": story.published,
@@ -160,7 +162,7 @@ def format_concept_for_elasticsearch(concept: Concept):
     variants = [
         variant
         for source_concept in concept.sources.all()
-        for variant in source_concept.variant_names
+        for variant in source_concept.variant_labels
     ]
 
     concept_neighbours = concept.neighbours.all()
@@ -169,26 +171,26 @@ def format_concept_for_elasticsearch(concept: Concept):
         for neighbour in concept_neighbours
         if len(neighbour.works) > 0
     ]
-    neighbour_names = []
+    neighbour_labels = []
     for neighbour_concept in neighbours_with_works:
-        preferred_name = neighbour_concept.name
+        preferred_label = neighbour_concept.label
         for source_type in ordered_source_preferences:
             source = neighbour_concept.sources.get_or_none(
                 source_type=source_type
             )
             if source:
-                preferred_name = source.preferred_name
+                preferred_label = source.preferred_label
                 break
-        neighbour_names.append(preferred_name)
+        neighbour_labels.append(preferred_label)
     neighbour_ids = [neighbour.uid for neighbour in neighbours_with_works]
 
     document = {
-        "name": concept.name,
-        "preferred_name": concept.name,
+        "label": concept.label,
+        "preferred_label": concept.label,
         "type": concept.type,
         "works": works,
         "work_ids": work_ids,
-        "neighbour_names": neighbour_names,
+        "neighbour_labels": neighbour_labels,
         "neighbour_ids": neighbour_ids,
         "stories": stories,
         "story_ids": story_ids,
@@ -209,24 +211,24 @@ def format_concept_for_elasticsearch(concept: Concept):
             {
                 "mesh_description": mesh_source.description,
                 "mesh_id": mesh_source.source_id,
-                "mesh_preferred_name": mesh_source.preferred_name,
-                "preferred_name": mesh_source.preferred_name,
+                "mesh_preferred_label": mesh_source.preferred_label,
+                "preferred_label": mesh_source.preferred_label,
             }
         )
     if lc_names_source:
         document.update(
             {
                 "lc_names_id": lc_names_source.source_id,
-                "lc_names_preferred_name": lc_names_source.preferred_name,
-                "preferred_name": lc_names_source.preferred_name,
+                "lc_names_preferred_label": lc_names_source.preferred_label,
+                "preferred_label": lc_names_source.preferred_label,
             }
         )
     if lc_subjects_source:
         document.update(
             {
                 "lc_subjects_id": lc_subjects_source.source_id,
-                "lc_subjects_preferred_name": lc_subjects_source.preferred_name,
-                "preferred_name": lc_subjects_source.preferred_name,
+                "lc_subjects_preferred_label": lc_subjects_source.preferred_label,
+                "preferred_label": lc_subjects_source.preferred_label,
             }
         )
     if wikidata_source:
@@ -234,8 +236,8 @@ def format_concept_for_elasticsearch(concept: Concept):
             {
                 "wikidata_description": wikidata_source.description,
                 "wikidata_id": wikidata_source.source_id,
-                "wikidata_preferred_name": wikidata_source.preferred_name,
-                "preferred_name": wikidata_source.preferred_name,
+                "wikidata_preferred_label": wikidata_source.preferred_label,
+                "preferred_label": wikidata_source.preferred_label,
             }
         )
 
