@@ -1,16 +1,16 @@
 import { GetServerSideProps, NextPage } from 'next'
+import { Image, ImageSource } from '../../types/image'
 import { getClient, getPerson } from '../../services/elasticsearch'
 
 import { ArrowUpRight } from 'react-feather'
 import Head from 'next/head'
+import ImageResultsOverview from '../../components/results/overview/images'
 import Layout from '../../components/layout'
 import { Person } from '../../types/person'
-import WorkResultsOverview from '../../components/results/overview/works'
-import { Work } from '../../types/work'
-import StoryResultsOverview from '../../components/results/overview/stories'
 import { Story } from '../../types/story'
-import { Image, ImageSource } from '../../types/image'
-import ImageResultsOverview from '../../components/results/overview/images'
+import StoryResultsOverview from '../../components/results/overview/stories'
+import { Work } from '../../types/work'
+import WorkResultsOverview from '../../components/results/overview/works'
 import { capitalise } from '../../components/results'
 
 type Props = {
@@ -23,7 +23,7 @@ export const getServerSideProps: GetServerSideProps = async ({ query }) => {
   const personId = query.id as string
   const client = getClient()
   const person = await getPerson(client, personId)
-  const capitalisedPersonName = capitalise(person.name)
+  const capitalisedPersonName = capitalise(person.label)
   const url = `https://api.wellcomecollection.org/catalogue/v2/images?source.subjects.label=${capitalisedPersonName}`
   const imageResponse = await fetch(url).then((res) => res.json())
   const images = imageResponse.results.map((image: ImageSource) => {
@@ -46,13 +46,13 @@ const PersonPage: NextPage<Props> = ({ person, images, totalImages }) => {
   return (
     <div className="">
       <Head>
-        <title>{person.preferred_name}</title>
+        <title>{person.preferred_label}</title>
       </Head>
       <Layout>
         <div className="space-y-8 bg-red py-8">
           <div className="mx-auto  px-5 lg:w-3/4">
             <h1 className="font-sans text-5xl capitalize">
-              {person.preferred_name}
+              {person.preferred_label}
             </h1>
           </div>
           <div className="mx-auto flex flex-col space-y-8 px-5 lg:w-3/4 lg:flex-row lg:space-y-0 lg:space-x-12">
@@ -110,7 +110,7 @@ const PersonPage: NextPage<Props> = ({ person, images, totalImages }) => {
                       className="w-100 rounded-full border border-black py-2 px-3 text-sm capitalize no-underline"
                       href={`/people/${neighbour.id}`}
                     >
-                      {neighbour.name}
+                      {neighbour.label}
                     </a>
                   </li>
                 ))}

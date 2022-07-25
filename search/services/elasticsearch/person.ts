@@ -1,5 +1,5 @@
 import { Concept, ConceptHit } from '../../types/concept'
-import { Person, PersonHit, PersonSource } from '../../types/person'
+import { Person, PersonHit } from '../../types/person'
 
 import { Client } from '@elastic/elasticsearch'
 import blankQuery from '../../data/queries/concepts-loose.json'

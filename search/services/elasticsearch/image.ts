@@ -2,9 +2,9 @@ import { Image, ImageSource } from '../../types/image'
 
 import { Client } from '@elastic/elasticsearch'
 import { URLSearchParams } from 'url'
-import { getSubject } from './subject'
 import { capitalise } from '../../components/results'
 import { getPerson } from './person'
+import { getSubject } from './subject'
 
 export function parseImage(imageSource: ImageSource): Image {
   return {
@@ -49,9 +49,9 @@ export async function filterImages(
   person?: string
 ) {
   const label = subject
-    ? (await getSubject(client, subject)).name
+    ? (await getSubject(client, subject)).label
     : person
-    ? (await getPerson(client, person)).name
+    ? (await getPerson(client, person)).label
     : ''
   const capitalisedLabel = capitalise(label)
   const url = `https://api.wellcomecollection.org/catalogue/v2/images?source.subjects.label=${capitalisedLabel}`

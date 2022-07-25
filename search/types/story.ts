@@ -22,11 +22,11 @@ export type Story = {
   type: string
   contributors: {
     id: string
-    name: string
+    label: string
   }[]
   concepts: {
     id: string
-    name: string
+    label: string
   }[]
   published: Date
   standfirst: string

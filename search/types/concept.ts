@@ -1,17 +1,17 @@
 export type ConceptSource = {
   lc_names_id?: string
-  lc_names_preferred_name?: string
+  lc_names_preferred_label?: string
   lc_subjects_id?: string
-  lc_subjects_preferred_name?: string
+  lc_subjects_preferred_label?: string
   mesh_description?: string
   mesh_id?: string
-  mesh_preferred_name?: string
-  name?: string
-  preferred_name?: string
+  mesh_preferred_label?: string
+  label?: string
+  preferred_label?: string
   works: string[]
   work_ids: string[]
   neighbour_ids: string[]
-  neighbour_names: string[]
+  neighbour_labels: string[]
   stories: string[]
   story_contribution_ids: string[]
   story_contributions: string[]
@@ -20,7 +20,7 @@ export type ConceptSource = {
   variants: string[]
   wikidata_description?: string
   wikidata_id?: string
-  wikidata_preferred_name?: string
+  wikidata_preferred_label?: string
   work_contribution_ids: string[]
   work_contributions: string[]
 }
@@ -34,21 +34,21 @@ export type ConceptHit = {
 export type Concept = {
   id: string
   lc_names_id?: string
-  lc_names_preferred_name?: string
+  lc_names_preferred_label?: string
   lc_subjects_id?: string
-  lc_subjects_preferred_name?: string
+  lc_subjects_preferred_label?: string
   mesh_description?: string
   mesh_id?: string
-  mesh_preferred_name?: string
-  name?: string
-  preferred_name?: string
+  mesh_preferred_label?: string
+  label?: string
+  preferred_label?: string
   works: {
     title: string
     id: string
   }[]
   neighbours: {
     id: string
-    name: string
+    label: string
   }[]
   type?: string
   stories: {
@@ -66,5 +66,5 @@ export type Concept = {
   }[]
   wikidata_description?: string
   wikidata_id?: string
-  wikidata_preferred_name?: string
+  wikidata_preferred_label?: string
 }

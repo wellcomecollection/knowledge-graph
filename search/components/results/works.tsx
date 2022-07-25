@@ -26,7 +26,7 @@ const WorksResults: FC<Props> = ({ results }) => {
                   <span className="capitalize">
                     {work.contributors
                       ? work.contributors
-                          .map((contributor) => contributor.name)
+                          .map((contributor) => contributor.label)
                           .join(', ')
                       : null}
                   </span>
