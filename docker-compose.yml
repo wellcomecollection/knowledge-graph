@@ -47,7 +47,10 @@ services:
       - NEO4JLABS_PLUGINS=["graph-data-science", "apoc"]
       - NEO4J_dbms_security_procedures_whitelist=gds.*, apoc.*
       - NEO4J_dbms_security_procedures_unrestricted=gds.*, apoc.*
-    entrypoint: ./entrypoint.sh
+      - NEO4J_dbms_security_auth__enabled=false
+    # # uncomment to load db from dump.
+    # # dump file should be saved at data/neo4j/dump/neo4j.dump
+    # entrypoint: ./entrypoint.sh 
 
   graph:
     build: pipeline
