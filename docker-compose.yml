@@ -52,7 +52,7 @@ services:
     # # dump file should be saved at data/neo4j/dump/neo4j.dump
     # entrypoint: ./entrypoint.sh 
 
-  graph:
+  ingest:
     build: pipeline
     env_file: .env
     volumes:
@@ -62,9 +62,9 @@ services:
       - type: bind
         source: ./data/cache
         target: /data/cache
-    command: python graph.py
+    command: python ingest.py --all
 
-  neighbours:
+  add-neighbours:
     build: pipeline
     env_file: .env
     volumes:
@@ -74,19 +74,7 @@ services:
       - type: bind
         source: ./data/cache
         target: /data/cache
-    command: python neighbours.py
-
-  index:
-    build: pipeline
-    env_file: .env
-    volumes:
-      - type: bind
-        source: ./search/data
-        target: /data
-      - type: bind
-        source: ./data/cache
-        target: /data/cache
-    command: python index.py
+    command: python add_neighbours.py
 
   deduplicate:
     build: pipeline
@@ -100,7 +88,7 @@ services:
         target: /data/cache
     command: python deduplicate.py
 
-  pipeline:
+  index:
     build: pipeline
     env_file: .env
     volumes:
@@ -110,8 +98,7 @@ services:
       - type: bind
         source: ./data/cache
         target: /data/cache
-    command: >
-      sh -c "python graph.py && python neighbours.py && python index.py"
+    command: python index.py
 
   search:
     build:
@@ -130,8 +117,8 @@ services:
     volumes: 
       - type: bind
         source: ./
-        target: /repo
-    working_dir: /repo
+        target: /repo/pipeline
+    working_dir: /repo/pipeline
     command: sh tasks/format.sh
 
   terraform:

@@ -1,25 +1,28 @@
 import os
+from pydoc import doc
 
 from elasticsearch import Elasticsearch
 from elasticsearch.helpers import scan
 
-from ..graph.models import Concept, Work, Exhibition, Event
+from ..graph.models import Concept, Event, Exhibition, Work
 from ..prismic import (
-    get_story_fulltext,
     get_story_data,
-    get_story_standfirst,
+    get_story_fulltext,
     get_story_image,
+    get_story_standfirst,
 )
 from ..utils import get_logger
 from ..wellcome import (
-    get_work_description,
-    get_work_notes,
     get_work_data,
-    get_work_image,
     get_work_dates,
+    get_work_description,
+    get_work_image,
+    get_work_notes,
 )
 
 ordered_source_preferences = ["wikidata", "nlm-mesh", "lc-subjects", "lc-names"]
+
+log = get_logger(__name__)
 
 
 def get_concepts_es_client():
@@ -109,4 +112,11 @@ def yield_popular_works(size=10_000):
         scroll="30m",
         preserve_order=True,
     )
-    return works_generator
+    for document in works_generator:
+        try:
+            work = document["_source"]["data"]
+            work["_id"] = document["_id"]
+            yield work
+        except KeyError as e:
+            log.error("No data found in document", error=e)
+            continue

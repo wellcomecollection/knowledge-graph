@@ -77,7 +77,14 @@ class SourceConcept(StructuredNode):
     source_type = StringProperty(
         required=True,
         choices={
-            c: c for c in ["wikidata", "lc-subjects", "lc-names", "nlm-mesh"]
+            c: c
+            for c in [
+                "wikidata",
+                "lc-subjects",
+                "lc-names",
+                "nlm-mesh",
+                "label-derived",
+            ]
         },
     )
     description = StringProperty()
@@ -113,6 +120,41 @@ class Concept(StructuredNode):
             )
         if source_type == "nlm-mesh":
             self._connect_mesh_source(source_id)
+        if source_type == "label-derived":
+            self._connect_label_derived_source(source_id)
+
+    def _connect_label_derived_source(self, source_id):
+        try:
+            source_concept = SourceConcept.nodes.get_or_none(
+                source_id=source_id, source_type="label-derived"
+            )
+            if not source_concept:
+                log.debug(
+                    "Creating source concept",
+                    source_id=source_id,
+                    source_type="label-derived",
+                )
+                source_concept = SourceConcept(
+                    source_id=source_id,
+                    source_type="label-derived",
+                    preferred_label=self.label,
+                    variant_labels=[]
+                ).save()
+            if not self.sources.is_connected(source_concept):
+                log.debug(
+                    "Connecting source concept",
+                    concept=self.label,
+                    source_id=source_id,
+                    source_type="label-derived",
+                )
+                self.sources.connect(source_concept)
+        except (ValueError) as e:
+            log.exception(
+                f"Error connecting label-derived source concept",
+                concept=self.label,
+                loc_id=source_id,
+                error=e,
+            )
 
     def _connect_wikidata_source(self, wikidata_id, get_linked_schemes=[]):
         source_data = get_wikidata(wikidata_id)
@@ -377,7 +419,7 @@ class Concept(StructuredNode):
                             "lc-subjects"
                             if neighbour_loc_id.startswith("s")
                             else "lc-names"
-                        ),
+                        )
                     )
                 except (ValueError) as e:
                     log.exception(

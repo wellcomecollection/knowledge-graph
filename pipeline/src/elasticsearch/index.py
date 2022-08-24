@@ -1,20 +1,20 @@
 import json
 from pathlib import Path
-from elasticsearch import Elasticsearch
+
 from tqdm import tqdm
 
+from elasticsearch import Elasticsearch
 from src.graph import get_neo4j_session
 
 from ..elasticsearch.manage import create_index, delete_index
-
-from ..graph.models import Concept, Exhibition, Work, Event
+from ..graph.models import Concept, Event, Exhibition, Work
 from ..utils import get_logger
 from .format import (
     format_concept_for_elasticsearch,
+    format_event_for_elasticsearch,
+    format_exhibition_for_elasticsearch,
     format_story_for_elasticsearch,
     format_work_for_elasticsearch,
-    format_exhibition_for_elasticsearch,
-    format_event_for_elasticsearch,
 )
 
 data_path = Path("/data")
@@ -63,7 +63,6 @@ def index_works(client: Elasticsearch, index: str):
         unit="works",
     )
     for work in progress_bar:
-        db = get_neo4j_session()
         progress_bar.set_description(f"Indexing work {work.wellcome_id}")
         client.index(
             index=index,

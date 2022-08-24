@@ -1,7 +1,9 @@
-from time import sleep
-from ..utils import get_logger
 from pathlib import Path
+from time import sleep
+
 from elasticsearch import Elasticsearch, NotFoundError
+
+from ..utils import get_logger
 
 data_path = Path("/data")
 mappings_path = data_path / "mappings"
