@@ -39,7 +39,9 @@ def format_work_for_elasticsearch(work: Work):
     ]
 
     work_contributors = work.contributors.all()
-    contributor_ids = [contributor.wellcome_id for contributor in work_contributors]
+    contributor_ids = [
+        contributor.wellcome_id for contributor in work_contributors
+    ]
     contributor_labels = []
     for contributor in work_contributors:
         preferred_label = contributor.label

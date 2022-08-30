@@ -1,4 +1,3 @@
-
 from . import Concept, SourceConcept, Work, get_logger
 
 log = get_logger(__name__)
@@ -159,4 +158,3 @@ def ingest_work(work_data):
                     work=work.title,
                     error=error,
                 )
-

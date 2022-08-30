@@ -6,13 +6,12 @@ from src.utils import get_logger
 log = get_logger(__name__)
 get_neo4j_session()
 
+
 def connect_concept_neighbours(concept):
     try:
         concept.get_neighbours()
     except SessionExpired as error:
-        log.exception(
-            "Session expired. Reconnecting...", error=error
-        )
+        log.exception("Session expired. Reconnecting...", error=error)
         get_neo4j_session()
         connect_concept_neighbours(concept)
 

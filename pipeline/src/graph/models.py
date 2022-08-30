@@ -138,7 +138,7 @@ class Concept(StructuredNode):
                     source_id=source_id,
                     source_type="label-derived",
                     preferred_label=self.label,
-                    variant_labels=[]
+                    variant_labels=[],
                 ).save()
             if not self.sources.is_connected(source_concept):
                 log.debug(
@@ -419,7 +419,7 @@ class Concept(StructuredNode):
                             "lc-subjects"
                             if neighbour_loc_id.startswith("s")
                             else "lc-names"
-                        )
+                        ),
                     )
                 except (ValueError) as error:
                     log.exception(
