@@ -18,12 +18,21 @@ type Props = {
       label: string
       type: string
       id: string
-    }
+    }[]
   }[]
 }
 
 export type wecoApiWork = {
-  subjects?: any[]
+  subjects: {
+    id: string
+    label: string
+    type: string
+    concepts: {
+      id: string
+      label: string
+      type: string
+    }[]
+  }[]
   title: string
   id: string
   type: string
@@ -41,24 +50,17 @@ export const getServerSideProps: GetServerSideProps = async ({ query }) => {
     ? originalWork.subjects
     : []
 
-  const subjectComparisonTable = originalWorkSubjects.map((originalSubject) => {
-    const enrichedSubject = work.concepts.find(
-      (enrichedSubject) =>
-        enrichedSubject.originalLabel.toLowerCase() ===
-        originalSubject.label.toLowerCase()
-    )
-    return {
+  const subjectComparisonTable = originalWorkSubjects.map(
+    (originalSubject) => ({
       original: {
         label: originalSubject.label ? originalSubject.label : '',
         id: originalSubject.id ? originalSubject.id : '',
       },
-      enriched: {
-        label: enrichedSubject ? enrichedSubject.label : '',
-        id: enrichedSubject ? enrichedSubject.id : '',
-        type: enrichedSubject ? enrichedSubject.type : '',
-      },
-    }
-  })
+      enriched: work.concepts.filter((x) =>
+        originalSubject.concepts.map((c) => c.id).includes(x.id)
+      ),
+    })
+  )
 
   return {
     props: {
@@ -177,15 +179,20 @@ const WorkPage: NextPage<Props> = ({ work, subjectComparisonTable }) => {
                     >
                       <td className="pl-1 pr-3">{subject.original.label}</td>
                       <td className="pl-1 pr-3 capitalize">
-                        <a
-                          href={`/${
-                            subject.enriched.type == 'subject'
-                              ? 'subjects'
-                              : 'people'
-                          }/${subject.enriched.id}`}
-                        >
-                          {subject.enriched.label}
-                        </a>
+                        {subject.enriched.map((concept) => (
+                          <li key={concept.id}>
+                            <a
+                              href={`/${
+                                concept.type == 'subject'
+                                  ? 'subjects'
+                                  : 'people'
+                              }/${concept.id}`}
+                            >
+                              {concept.label}
+                            </a>
+                            <br />
+                          </li>
+                        ))}
                       </td>
                     </tr>
                   ))}
