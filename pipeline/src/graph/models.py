@@ -148,12 +148,12 @@ class Concept(StructuredNode):
                     source_type="label-derived",
                 )
                 self.sources.connect(source_concept)
-        except (ValueError) as e:
+        except (ValueError) as error:
             log.exception(
                 f"Error connecting label-derived source concept",
                 concept=self.label,
                 loc_id=source_id,
-                error=e,
+                error=error,
             )
 
     def _connect_wikidata_source(self, wikidata_id, get_linked_schemes=[]):
@@ -234,12 +234,12 @@ class Concept(StructuredNode):
                     self._connect_wikidata_source(
                         wikidata_id, get_linked_schemes=["nlm-mesh"]
                     )
-        except (ValueError) as e:
+        except (ValueError) as error:
             log.exception(
                 f"Error connecting {source_type} source concept",
                 concept=self.label,
                 loc_id=source_id,
-                error=e,
+                error=error,
             )
 
     def _connect_mesh_source(self, mesh_id):
@@ -265,12 +265,12 @@ class Concept(StructuredNode):
                     mesh_id=mesh_id,
                 )
                 self.sources.connect(source_concept)
-        except (ValueError) as e:
+        except (ValueError) as error:
             log.exception(
                 "Error connecting mesh source concept",
                 concept=self.label,
                 loc_id=mesh_id,
-                error=e,
+                error=error,
             )
 
     def get_neighbours(self):
@@ -347,11 +347,11 @@ class Concept(StructuredNode):
                     neighbour_concept.collect_sources(
                         source_id=neighbour_wikidata_id, source_type="wikidata"
                     )
-                except (ValueError) as e:
+                except ValueError as error:
                     log.exception(
                         "Skipping neighbour, no data found",
                         wikidata_id=neighbour_wikidata_id,
-                        message=e,
+                        message=error,
                     )
                     continue
 
@@ -421,11 +421,11 @@ class Concept(StructuredNode):
                             else "lc-names"
                         )
                     )
-                except (ValueError) as e:
+                except (ValueError) as error:
                     log.exception(
                         "Skipping neighbour, no data found",
                         neighbour_loc_id=neighbour_loc_id,
-                        message=e,
+                        message=error,
                     )
                     continue
 
@@ -492,11 +492,11 @@ class Concept(StructuredNode):
                         neighbour_concept.collect_sources(
                             source_id=neighbour_mesh_id, source_type="nlm-mesh"
                         )
-                    except (ValueError) as e:
+                    except ValueError as error:
                         log.exception(
                             "Skipping neighbour, no data found",
                             neighbour_mesh_id=neighbour_mesh_id,
-                            message=e,
+                            message=error,
                         )
                         continue
 
@@ -514,9 +514,9 @@ class Concept(StructuredNode):
                         neighbour_label=neighbour_concept.label,
                     )
                     self.neighbours.connect(neighbour_concept)
-        except TypeError as e:
+        except TypeError as error:
             log.error(
                 "Error getting mesh neighbours",
                 mesh_id=mesh_id,
-                error=e,
+                error=error,
             )

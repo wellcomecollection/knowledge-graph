@@ -21,13 +21,13 @@ def index_exists(client: Elasticsearch, index: str):
 
 
 def delete_index(client: Elasticsearch, index: str):
-    log.info(f"Deleting index: {index}")
-    client.indices.delete(index=index, ignore=404)
+    if index_exists(client, index):
+        log.info(f"Deleting index: {index}")
+        client.indices.delete(index=index)
 
 
 def create_index(client: Elasticsearch, index: str, mappings, settings):
     log.info(f"Creating index: {index}")
-    client.indices.delete(index=index, ignore=404)
     client.indices.create(
         index=index,
         mappings=mappings,

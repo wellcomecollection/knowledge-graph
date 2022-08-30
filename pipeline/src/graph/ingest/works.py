@@ -1,3 +1,4 @@
+
 from . import Concept, SourceConcept, Work, get_logger
 
 log = get_logger(__name__)
@@ -95,66 +96,67 @@ def ingest_work(work_data):
                 error=error,
             )
 
-    for concept in work_data["subjects"]:
-        wellcome_id = (
-            concept["id"]["canonicalId"]
-            if "canonicalId" in concept["id"]
-            else None
-        )
-        try:
-            source_identifier = concept["id"]["sourceIdentifier"]
-        except KeyError:
-            log.debug(
-                "Concept has no source identifier", concept=concept["label"]
+    for subject in work_data["subjects"]:
+        for concept in subject["concepts"]:
+            wellcome_id = (
+                concept["id"]["canonicalId"]
+                if "canonicalId" in concept["id"]
+                else None
             )
-            existing_concept = Concept.nodes.first_or_none(
-                label=concept["label"], wellcome_id=wellcome_id
-            )
-            if existing_concept:
-                concept = existing_concept
-            else:
-                concept = Concept(
-                    label=concept["label"], wellcome_id=wellcome_id
-                ).save()
-        else:
-            source_id = source_identifier["value"]
-            source_type = source_identifier["identifierType"]["id"]
             try:
-                existing_concept_source_concept = (
-                    SourceConcept.nodes.first_or_none(
+                source_identifier = concept["id"]["sourceIdentifier"]
+            except KeyError:
+                log.debug(
+                    "Concept has no source identifier", concept=concept["label"]
+                )
+                existing_concept = Concept.nodes.first_or_none(
+                    label=concept["label"], wellcome_id=wellcome_id
+                )
+                if existing_concept:
+                    concept = existing_concept
+                else:
+                    concept = Concept(
+                        label=concept["label"], wellcome_id=wellcome_id
+                    ).save()
+            else:
+                source_id = source_identifier["value"]
+                source_type = source_identifier["identifierType"]["id"]
+                try:
+                    existing_concept_source_concept = (
+                        SourceConcept.nodes.first_or_none(
+                            source_id=source_id, source_type=source_type
+                        )
+                    )
+                except ValueError as error:
+                    log.exception(
+                        "Error finding source concept",
+                        source_id=source_id,
+                        source_type=source_type,
+                        error=error,
+                    )
+                    existing_concept_source_concept = None
+                if existing_concept_source_concept:
+                    log.debug(
+                        "Found existing source concept",
+                        source_id=existing_concept_source_concept.source_id,
+                    )
+                    concept = existing_concept_source_concept.parent.all()[0]
+                else:
+                    log.debug("Creating concept", label=concept["label"])
+                    concept = Concept(
+                        label=concept["label"],
+                        wellcome_id=wellcome_id,
+                    ).save()
+                    concept.collect_sources(
                         source_id=source_id, source_type=source_type
                     )
-                )
-            except ValueError as error:
+            try:
+                work.concepts.connect(concept)
+            except Exception as error:
                 log.exception(
-                    "Error finding source concept",
-                    source_id=source_id,
-                    source_type=source_type,
+                    "Error connecting concept to work",
+                    concept=concept.label,
+                    work=work.title,
                     error=error,
                 )
-                existing_concept_source_concept = None
-            if existing_concept_source_concept:
-                log.debug(
-                    "Found existing source concept",
-                    source_id=existing_concept_source_concept.source_id,
-                )
-                concept = existing_concept_source_concept.parent.all()[0]
-            else:
-                log.debug("Creating concept", label=concept["label"])
-                concept = Concept(
-                    label=concept["label"],
-                    wellcome_id=wellcome_id,
-                ).save()
-                concept.collect_sources(
-                    source_id=source_id, source_type=source_type
-                )
-        try:
-            work.concepts.connect(concept)
-        except Exception as error:
-            log.exception(
-                "Error connecting concept to work",
-                concept=concept.label,
-                work=work.title,
-                error=error,
-            )
 

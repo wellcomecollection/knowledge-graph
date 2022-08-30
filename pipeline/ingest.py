@@ -27,8 +27,8 @@ from src.utils import get_logger
 log = get_logger(__name__)
 app = typer.Typer()
 
-N_STORIES = 200
-N_WORKS = 200
+N_STORIES = 100
+N_WORKS = 1000
 N_WHATS_ON = 100
 
 

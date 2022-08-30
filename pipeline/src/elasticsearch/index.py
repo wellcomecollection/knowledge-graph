@@ -25,7 +25,6 @@ log = get_logger(__name__)
 
 
 def index_stories(client: Elasticsearch, index: str):
-    log.info(f"Creating the stories index: {index}")
     with open(mappings_path / "stories.json", "r", encoding="utf-8") as f:
         mappings = json.load(f)
     with open(settings_path / "stories.json", "r", encoding="utf-8") as f:
@@ -47,7 +46,6 @@ def index_stories(client: Elasticsearch, index: str):
 
 
 def index_works(client: Elasticsearch, index: str):
-    log.info(f"Creating the works index: {index}")
     with open(mappings_path / "works.json", "r", encoding="utf-8") as f:
         mappings = json.load(f)
     with open(settings_path / "works.json", "r", encoding="utf-8") as f:
@@ -72,7 +70,6 @@ def index_works(client: Elasticsearch, index: str):
 
 
 def index_subjects(client: Elasticsearch, index: str):
-    log.info(f"Creating the subjects index: {index}")
     with open(mappings_path / "subjects.json", "r", encoding="utf-8") as f:
         mappings = json.load(f)
     with open(settings_path / "subjects.json", "r", encoding="utf-8") as f:
@@ -92,13 +89,12 @@ def index_subjects(client: Elasticsearch, index: str):
         progress_bar.set_description(f"Indexing concept {concept.uid}")
         client.index(
             index=index,
-            id=concept.uid,
+            id=concept.wellcome_id,
             document=format_concept_for_elasticsearch(concept),
         )
 
 
 def index_people(client: Elasticsearch, index: str):
-    log.info(f"Creating index: {index}")
     with open(mappings_path / "people.json", "r", encoding="utf-8") as f:
         mappings = json.load(f)
     with open(settings_path / "people.json", "r", encoding="utf-8") as f:
@@ -120,7 +116,6 @@ def index_people(client: Elasticsearch, index: str):
 
 
 def index_whats_on(client: Elasticsearch, index: str):
-    log.info(f"Creating index: {index}")
     with open(mappings_path / "whats-on.json", "r", encoding="utf-8") as f:
         mappings = json.load(f)
     with open(settings_path / "whats-on.json", "r", encoding="utf-8") as f:
