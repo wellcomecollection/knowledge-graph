@@ -5,30 +5,49 @@ from neo4j.exceptions import ServiceUnavailable
 from neomodel import config, db
 from neomodel.util import clear_neo4j_database
 
-from ..enrich.loc import (
+from ..utils import clean, clean_csv, get_logger
+from .enrich import (
+    get_contributor_wikidata_ids,
     get_loc_data,
     get_loc_id_from_wikidata,
     get_loc_preferred_label,
     get_loc_variant_labels,
-    get_wikidata_id_from_loc_data,
-)
-from ..enrich.mesh import (
     get_mesh_data,
     get_mesh_description,
     get_mesh_id_from_wikidata,
     get_mesh_preferred_concept_data,
     get_mesh_preferred_label,
-)
-from ..enrich.wikidata import (
-    get_contributor_wikidata_ids,
     get_wikidata,
     get_wikidata_description,
     get_wikidata_id,
+    get_wikidata_id_from_loc_data,
     get_wikidata_preferred_label,
     get_wikidata_variant_labels,
+    get_wikipedia_data,
 )
-from ..utils import clean, clean_csv, get_logger
 from .ingest import ingest_event, ingest_exhibition, ingest_story, ingest_work
+from .models import (
+    Concept,
+    Event,
+    Exhibition,
+    Person,
+    SourceConcept,
+    SourceType,
+    Work,
+)
+from .neighbours import (
+    get_loc_neighbours,
+    get_mesh_neighbours,
+    get_wikidata_neighbours,
+    get_wikipedia_neighbours,
+)
+from .sources import (
+    connect_label_derived_source,
+    connect_loc_source,
+    connect_mesh_source,
+    connect_wikidata_source,
+    connect_wikipedia_source,
+)
 
 log = get_logger(__name__)
 
