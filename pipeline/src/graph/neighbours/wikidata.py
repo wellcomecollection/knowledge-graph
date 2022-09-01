@@ -1,5 +1,6 @@
 from . import (
-    Concept, SourceConcept,
+    Concept,
+    SourceConcept,
     get_logger,
     get_wikidata,
     get_wikidata_preferred_label,
@@ -80,4 +81,6 @@ def get_wikidata_neighbours(target_concept: Concept, wikidata_id):
                 concept_label=target_concept.label,
                 neighbour_label=neighbour_concept.label,
             )
-            target_concept.neighbours.connect(neighbour_concept, {"source": "wikidata"})
+            target_concept.neighbours.connect(
+                neighbour_concept, {"source": "wikidata"}
+            )

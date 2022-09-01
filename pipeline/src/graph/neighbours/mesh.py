@@ -1,8 +1,8 @@
 from pathlib import Path
 
-
 from . import (
-    Concept, SourceConcept,
+    Concept,
+    SourceConcept,
     get_logger,
     get_mesh_data,
     get_mesh_preferred_label,

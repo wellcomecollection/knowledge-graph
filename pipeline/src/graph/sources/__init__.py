@@ -22,6 +22,7 @@ from ..models import Concept, SourceConcept, SourceType
 
 log = get_logger(__name__)
 
+
 def collect_sources(target_concept: Concept, source_id, source_type):
     if source_type == "wikidata":
         connect_wikidata_source(
@@ -42,6 +43,7 @@ def collect_sources(target_concept: Concept, source_id, source_type):
         connect_label_derived_source(
             target_concept=target_concept, source_id=source_id
         )
+
 
 def connect_label_derived_source(target_concept: Concept, source_id: str):
     try:

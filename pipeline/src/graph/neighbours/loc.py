@@ -1,11 +1,11 @@
 from pathlib import Path
 
-
 from . import (
-    Concept, SourceConcept,
-    get_logger,
+    Concept,
+    SourceConcept,
     get_loc_data,
     get_loc_preferred_label,
+    get_logger,
 )
 
 log = get_logger(__name__)
