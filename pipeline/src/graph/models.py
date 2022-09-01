@@ -8,6 +8,7 @@ from neomodel import (
     RelationshipTo,
     StringProperty,
     StructuredNode,
+    StructuredRel,
     UniqueIdProperty,
 )
 
@@ -93,13 +94,17 @@ class SourceConcept(StructuredNode):
     parent = RelationshipFrom("Concept", "HAS_SOURCE_CONCEPT")
 
 
+class NeighbourRel(StructuredRel):
+    source = StringProperty(required=True)
+
+
 class Concept(StructuredNode):
     label = StringProperty(required=True)
     uid = UniqueIdProperty()
     wellcome_id = StringProperty(unique_index=True)
     sources = RelationshipTo("SourceConcept", "HAS_SOURCE_CONCEPT")
     works = RelationshipTo("Work", "HAS_CONCEPT")
-    neighbours = Relationship("Concept", "HAS_NEIGHBOUR")
+    neighbours = Relationship("Concept", "HAS_NEIGHBOUR", model=NeighbourRel)
     contributed_to_work = RelationshipTo("Work", "CONTRIBUTED_TO")
     type = StringProperty(
         default="subject",
@@ -138,7 +143,7 @@ class Concept(StructuredNode):
                     source_id=source_id,
                     source_type="label-derived",
                     preferred_label=self.label,
-                    variant_labels=[]
+                    variant_labels=[],
                 ).save()
             if not self.sources.is_connected(source_concept):
                 log.debug(
@@ -368,7 +373,9 @@ class Concept(StructuredNode):
                     concept_label=self.label,
                     neighbour_label=neighbour_concept.label,
                 )
-                self.neighbours.connect(neighbour_concept)
+                self.neighbours.connect(
+                    neighbour_concept, {"source": "wikidata"}
+                )
 
     def _get_loc_neighbours(self, source_id):
         loc_data = get_loc_data(source_id)
@@ -419,7 +426,7 @@ class Concept(StructuredNode):
                             "lc-subjects"
                             if neighbour_loc_id.startswith("s")
                             else "lc-names"
-                        )
+                        ),
                     )
                 except (ValueError) as error:
                     log.exception(
@@ -442,7 +449,14 @@ class Concept(StructuredNode):
                     concept_label=self.label,
                     neighbour_label=neighbour_concept.label,
                 )
-                self.neighbours.connect(neighbour_concept)
+                self.neighbours.connect(
+                    neighbour_concept,
+                    {
+                        "source": "lc-subjects"
+                        if neighbour_loc_id.startswith("s")
+                        else "lc-names"
+                    },
+                )
 
     def _get_mesh_neighbours(self, mesh_id):
         try:
@@ -513,7 +527,9 @@ class Concept(StructuredNode):
                         concept_label=self.label,
                         neighbour_label=neighbour_concept.label,
                     )
-                    self.neighbours.connect(neighbour_concept)
+                    self.neighbours.connect(
+                        neighbour_concept, {"source": "nlm-mesh"}
+                    )
         except TypeError as error:
             log.error(
                 "Error getting mesh neighbours",

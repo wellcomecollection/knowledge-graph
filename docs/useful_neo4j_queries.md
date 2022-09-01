@@ -79,3 +79,15 @@ YIELD nodeId, score
 RETURN gds.util.asNode(nodeId).name AS name, score
 ORDER BY score DESC, name ASC
 ```
+
+## concepts graph with only work-attached concepts
+
+```
+MATCH (w:Work)-[]-(c:Concept)-[r:HAS_NEIGHBOUR]-(:Concept) RETURN c
+```
+
+which only come from wikidata
+
+```
+MATCH (w:Work)-[]-(c:Concept)-[r:HAS_NEIGHBOUR {source:"wikidata"}]-(:Concept) RETURN c
+```

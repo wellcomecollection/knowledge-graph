@@ -1,7 +1,5 @@
 from pathlib import Path
 
-from dateutil.parser import parse
-
 from .. import (
     clean,
     clean_csv,

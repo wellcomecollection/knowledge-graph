@@ -39,7 +39,9 @@ def format_work_for_elasticsearch(work: Work):
     ]
 
     work_contributors = work.contributors.all()
-    contributor_ids = [contributor.wellcome_id for contributor in work_contributors]
+    contributor_ids = [
+        contributor.wellcome_id for contributor in work_contributors
+    ]
     contributor_labels = []
     for contributor in work_contributors:
         preferred_label = contributor.label
@@ -81,7 +83,7 @@ def format_work_for_elasticsearch(work: Work):
 
 def format_story_for_elasticsearch(story: Work):
     story_concepts = story.concepts.all()
-    concept_ids = [concept.uid for concept in story_concepts]
+    concept_ids = [concept.wellcome_id for concept in story_concepts]
     concept_labels = []
     for concept in story_concepts:
         preferred_label = concept.label
@@ -99,7 +101,9 @@ def format_story_for_elasticsearch(story: Work):
     ]
 
     story_contributors = story.contributors.all()
-    contributor_ids = [contributor.uid for contributor in story_contributors]
+    contributor_ids = [
+        contributor.wellcome_id for contributor in story_contributors
+    ]
     contributor_labels = []
     for contributor in story_contributors:
         preferred_label = contributor.label
@@ -165,7 +169,7 @@ def format_concept_for_elasticsearch(concept: Concept):
         for variant in source_concept.variant_labels
     ]
 
-    concept_neighbours = concept.neighbours.all()
+    concept_neighbours = concept.neighbours.match(source="wikidata")
     neighbours_with_works = [
         neighbour
         for neighbour in concept_neighbours
@@ -182,7 +186,9 @@ def format_concept_for_elasticsearch(concept: Concept):
                 preferred_label = source.preferred_label
                 break
         neighbour_labels.append(preferred_label)
-    neighbour_ids = [neighbour.uid for neighbour in neighbours_with_works]
+    neighbour_ids = [
+        neighbour.wellcome_id for neighbour in neighbours_with_works
+    ]
 
     document = {
         "label": concept.label,
