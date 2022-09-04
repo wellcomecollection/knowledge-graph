@@ -1,6 +1,6 @@
 from typing import List
 
-from .. import (
+from . import (
     get_loc_data,
     get_loc_id_from_wikidata,
     get_loc_preferred_label,
@@ -18,12 +18,14 @@ from .. import (
     get_wikidata_variant_labels,
     get_wikipedia_data,
 )
-from ..models import Concept, SourceConcept, SourceType
+from .models import Concept, SourceConcept, SourceType
 
 log = get_logger(__name__)
 
 
-def collect_sources(target_concept: Concept, source_id, source_type):
+def collect_sources(
+    target_concept: Concept, source_id: str, source_type: SourceType
+):
     if source_type == "wikidata":
         connect_wikidata_source(
             target_concept=target_concept,
@@ -72,7 +74,7 @@ def connect_label_derived_source(target_concept: Concept, source_id: str):
             target_concept.sources.connect(source_concept)
     except (ValueError) as error:
         log.exception(
-            f"Error connecting label-derived source concept",
+            "Error connecting label-derived source concept",
             concept=target_concept.label,
             loc_id=source_id,
             error=error,
@@ -109,17 +111,27 @@ def connect_wikidata_source(
         loc_id = get_loc_id_from_wikidata(source_data)
         if loc_id:
             if loc_id.startswith("n"):
-                target_concept._connect_loc_source(
-                    source_id=loc_id, source_type="lc-names"
+                connect_loc_source(
+                    target_concept=target_concept,
+                    source_id=loc_id,
+                    source_type="lc-names",
                 )
-            if loc_id.startswith("s"):
-                target_concept._connect_loc_source(
-                    source_id=loc_id, source_type="lc-subjects"
+            elif loc_id.startswith("s"):
+                connect_loc_source(
+                    target_concept=target_concept,
+                    source_id=loc_id,
+                    source_type="lc-subjects",
+                )
+            else:
+                log.exception(
+                    "LoC ID does not start with 's' or 'n'", id=loc_id
                 )
     if "nlm-mesh" in get_linked_schemes:
         mesh_id = get_mesh_id_from_wikidata(source_data)
         if mesh_id:
-            target_concept._connect_mesh_source(mesh_id)
+            connect_mesh_source(
+                target_concept=target_concept, source_id=mesh_id
+            )
 
 
 def connect_wikipedia_source(
@@ -127,7 +139,7 @@ def connect_wikipedia_source(
     wikipedia_id: str,
     get_linked_schemes: List[SourceType] = [],
 ):
-    source_data = get_wikipedia_data(wikipedia_id)
+    # source_data = get_wikipedia_data(wikipedia_id)
     pass
 
 
@@ -166,8 +178,10 @@ def connect_loc_source(
         if "wikidata" in get_linked_schemes:
             wikidata_id = get_wikidata_id_from_loc_data(loc_data)
             if wikidata_id:
-                target_concept._connect_wikidata_source(
-                    wikidata_id, get_linked_schemes=["nlm-mesh"]
+                connect_wikidata_source(
+                    target_concept=target_concept,
+                    source_id=wikidata_id,
+                    get_linked_schemes=["nlm-mesh"],
                 )
     except (ValueError) as error:
         log.exception(

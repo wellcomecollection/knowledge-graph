@@ -1,10 +1,12 @@
 from dateutil.parser import parse
 
 from . import Exhibition, get_logger
+from .decorators import handle_neo4j_session_timeout
 
 log = get_logger(__name__)
 
 
+@handle_neo4j_session_timeout
 def ingest_exhibition(exhibition):
     """
     Add a new exhibition node to the graph.

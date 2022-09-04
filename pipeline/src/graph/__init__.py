@@ -2,7 +2,7 @@ import os
 from time import sleep
 
 from neo4j.exceptions import ServiceUnavailable
-from neomodel import config, db
+from neomodel import config, db, install_all_labels
 from neomodel.util import clear_neo4j_database
 
 from ..utils import clean, clean_csv, get_logger
@@ -53,12 +53,14 @@ log = get_logger(__name__)
 
 
 def get_neo4j_session(clear=False):
+    config.AUTO_INSTALL_LABELS = True
     config.DATABASE_URL = os.environ["NEO4J_CONNECTION_URI"]
     db.set_connection(os.environ["NEO4J_CONNECTION_URI"])
     wait_until_neo4j_is_live()
     if clear:
         log.info("Clearing neo4j database")
         clear_neo4j_database(db)
+    install_all_labels()
     return db
 
 

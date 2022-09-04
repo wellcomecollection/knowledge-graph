@@ -3,7 +3,7 @@ from datetime import datetime
 import pandas as pd
 import typer
 
-from src.elasticsearch import yield_popular_works
+from src.elasticsearch import yield_popular_works, yield_works
 from src.graph import (
     get_neo4j_session,
     ingest_event,
@@ -17,7 +17,7 @@ from src.utils import get_logger
 log = get_logger(__name__)
 app = typer.Typer()
 
-N_STORIES = 100
+N_STORIES = 0
 N_WORKS = 1000
 N_WHATS_ON = 100
 
@@ -58,7 +58,7 @@ def main(
 
     if works:
         log.info("Processing works")
-        for work in yield_popular_works(size=N_WORKS):
+        for work in yield_works(size=N_WORKS):
             ingest_work(work)
 
     if whats_on:
