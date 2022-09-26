@@ -63,9 +63,10 @@ def get_wikipedia_description(wikipedia_data):
         pass
     return description
 
+
 def get_wikidata_id_from_wikipedia_data(wikipedia_data):
     try:
-        wikidata_id = wikipedia_data["pageprops"]['wikibase_item']
+        wikidata_id = wikipedia_data["pageprops"]["wikibase_item"]
     except (KeyError, TypeError):
         wikidata_id = ""
     return wikidata_id

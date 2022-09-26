@@ -28,7 +28,7 @@ from .enrich import (
     get_wikipedia_description,
     get_wikipedia_preferred_label,
     get_wikipedia_variant_labels,
-    get_wikidata_id_from_wikipedia_data
+    get_wikidata_id_from_wikipedia_data,
 )
 from .ingest import ingest_event, ingest_exhibition, ingest_story, ingest_work
 from .models import (

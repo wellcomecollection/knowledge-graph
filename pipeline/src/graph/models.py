@@ -61,7 +61,6 @@ class Person(Concept):
     contributions = RelationshipTo("Work", "CONTRIBUTED_TO")
 
 
-
 class Work(StructuredNode):
     uid = UniqueIdProperty()
     wellcome_id = StringProperty(required=True)

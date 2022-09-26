@@ -1,8 +1,8 @@
-from tqdm import tqdm
 from src.graph import get_neo4j_session
 from src.graph.models import SourceConcept, Subject
 from src.graph.neighbours import get_neighbours
 from src.utils import get_logger
+from tqdm import tqdm
 
 log = get_logger(__name__)
 get_neo4j_session()

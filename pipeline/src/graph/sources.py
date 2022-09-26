@@ -22,7 +22,7 @@ from . import (
     get_wikipedia_variant_labels,
     get_wikipedia_preferred_label,
     get_wikipedia_description,
-    get_wikidata_id_from_wikipedia_data
+    get_wikidata_id_from_wikipedia_data,
 )
 from .models import Concept, SourceConcept, SourceType
 
@@ -37,7 +37,10 @@ def collect_sources(
             target_concept=target_concept,
             source_id=source_id,
             get_linked_schemes=[
-                "lc-subjects", "lc-names", "nlm-mesh", "wikipedia"
+                "lc-subjects",
+                "lc-names",
+                "nlm-mesh",
+                "wikipedia",
             ],
         )
     if source_type.startswith("lc-"):
@@ -51,7 +54,7 @@ def collect_sources(
         connect_mesh_source(
             target_concept=target_concept,
             source_id=source_id,
-            get_linked_schemes=["wikidata"]
+            get_linked_schemes=["wikidata"],
         )
     if source_type == "label-derived":
         connect_label_derived_source(
@@ -59,9 +62,9 @@ def collect_sources(
         )
     if source_type == "wikipedia":
         connect_wikipedia_source(
-            target_concept=target_concept, 
+            target_concept=target_concept,
             source_label=source_id,
-            get_linked_schemes=["wikidata"]
+            get_linked_schemes=["wikidata"],
         )
 
 
@@ -158,6 +161,7 @@ def connect_wikidata_source(
                 source_label=wikipedia_label,
             )
 
+
 def connect_wikipedia_source(
     target_concept: Concept,
     source_label: str,
@@ -205,6 +209,7 @@ def connect_wikipedia_source(
             error=error,
         )
 
+
 def connect_loc_source(
     target_concept: Concept,
     source_id: str,
@@ -243,10 +248,10 @@ def connect_loc_source(
                 wikidata_id = search_wikidata(source_id)
             if wikidata_id:
                 connect_wikidata_source(
-                target_concept=target_concept,
-                source_id=wikidata_id,
-                get_linked_schemes=["wikipedia", 'nlm-mesh'],
-            )
+                    target_concept=target_concept,
+                    source_id=wikidata_id,
+                    get_linked_schemes=["wikipedia", "nlm-mesh"],
+                )
 
     except (ValueError) as error:
         log.exception(
@@ -258,7 +263,7 @@ def connect_loc_source(
 
 
 def connect_mesh_source(
-    target_concept: Concept, 
+    target_concept: Concept,
     source_id: str,
     get_linked_schemes: List[SourceType] = [],
 ):
@@ -291,7 +296,7 @@ def connect_mesh_source(
                 connect_wikidata_source(
                     target_concept=target_concept,
                     source_id=wikidata_id,
-                    get_linked_schemes=["wikipedia", 'lc-names', 'lc-subjects'],
+                    get_linked_schemes=["wikipedia", "lc-names", "lc-subjects"],
                 )
     except (ValueError) as error:
         log.exception(

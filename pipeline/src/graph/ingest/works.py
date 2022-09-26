@@ -32,7 +32,9 @@ def ingest_work(work_data):
     for contributor in work_data["contributors"]:
         try:
             if "sourceIdentifier" in contributor["agent"]["id"]:
-                source_identifier = contributor["agent"]["id"]["sourceIdentifier"]
+                source_identifier = contributor["agent"]["id"][
+                    "sourceIdentifier"
+                ]
                 source_id = source_identifier["value"]
                 source_type = source_identifier["identifierType"]["id"]
                 existing_source_concept = SourceConcept.nodes.first_or_none(
@@ -95,17 +97,19 @@ def ingest_work(work_data):
                     concept=work_concept["label"],
                 )
                 existing_subject = Subject.nodes.first_or_none(
-                    label=work_concept["label"], wellcome_id=wellcome_id, 
-                    wellcome_parent_id=work_subject["id"], 
-                    wellcome_parent_label=work_subject["label"]
+                    label=work_concept["label"],
+                    wellcome_id=wellcome_id,
+                    wellcome_parent_id=work_subject["id"],
+                    wellcome_parent_label=work_subject["label"],
                 )
                 if existing_subject:
                     subject = existing_subject
                 else:
                     subject = Subject(
-                        label=work_concept["label"], wellcome_id=wellcome_id,
-                        wellcome_parent_id=work_subject["id"], 
-                        wellcome_parent_label=work_subject["label"]
+                        label=work_concept["label"],
+                        wellcome_id=wellcome_id,
+                        wellcome_parent_id=work_subject["id"],
+                        wellcome_parent_label=work_subject["label"],
                     ).save()
             else:
                 source_id = source_identifier["value"]
@@ -140,8 +144,8 @@ def ingest_work(work_data):
                         subject = Subject(
                             label=work_concept["label"],
                             wellcome_id=wellcome_id,
-                            wellcome_parent_id=work_subject["id"], 
-                            wellcome_parent_label=work_subject["label"]
+                            wellcome_parent_id=work_subject["id"],
+                            wellcome_parent_label=work_subject["label"],
                         ).save()
 
                     collect_sources(
