@@ -7,10 +7,11 @@ from elasticsearch import Elasticsearch
 from src.graph import get_neo4j_session
 
 from ..elasticsearch.manage import create_index, delete_index
-from ..graph.models import Concept, Event, Exhibition, Work
+from ..graph.models import Concept, Event, Exhibition, Person, Work, Subject
 from ..utils import get_logger
 from .format import (
-    format_concept_for_elasticsearch,
+    format_subject_for_elasticsearch,
+    format_person_for_elasticsearch,
     format_event_for_elasticsearch,
     format_exhibition_for_elasticsearch,
     format_story_for_elasticsearch,
@@ -79,7 +80,7 @@ def index_subjects(client: Elasticsearch, index: str):
     create_index(client, index, mappings, settings)
 
     log.info(f"Populating index: {index}")
-    concepts = Concept.nodes.filter(type="subject").has(works=True)
+    concepts = Subject.nodes.has(works=True)
     progress_bar = tqdm(
         concepts,
         total=len(concepts),
@@ -89,8 +90,8 @@ def index_subjects(client: Elasticsearch, index: str):
         progress_bar.set_description(f"Indexing concept {concept.uid}")
         client.index(
             index=index,
-            id=concept.wellcome_id,
-            document=format_concept_for_elasticsearch(concept),
+            id=concept.uid,
+            document=format_subject_for_elasticsearch(concept),
         )
 
 
@@ -104,14 +105,14 @@ def index_people(client: Elasticsearch, index: str):
     create_index(client, index, mappings, settings)
 
     log.info(f"Populating index: {index}")
-    people = Concept.nodes.filter(type="person")
+    people = Person.nodes.all()
     progress_bar = tqdm(people, total=len(people), unit="people")
     for person in progress_bar:
         progress_bar.set_description(f"Indexing person {person.uid}")
         client.index(
             index=index,
             id=person.uid,
-            document=format_concept_for_elasticsearch(person),
+            document=format_person_for_elasticsearch(person),
         )
 
 

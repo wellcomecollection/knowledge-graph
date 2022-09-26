@@ -1,6 +1,8 @@
 from . import (
     Concept,
     SourceConcept,
+    Subject,
+    collect_sources,
     get_logger,
     get_wikidata,
     get_wikidata_preferred_label,
@@ -9,7 +11,7 @@ from . import (
 log = get_logger(__name__)
 
 
-def get_wikidata_neighbours(target_concept: Concept, wikidata_id):
+def get_wikidata_neighbours(target_concept: Concept, wikidata_id: str):
     log.debug("Getting neighbours from wikidata", source_id=wikidata_id)
     wikidata = get_wikidata(wikidata_id)
     claims = [
@@ -56,9 +58,11 @@ def get_wikidata_neighbours(target_concept: Concept, wikidata_id):
                     wikidata_id=neighbour_wikidata_id,
                     label=label,
                 )
-                neighbour_concept = Concept(label=label).save()
-                neighbour_concept.collect_sources(
-                    source_id=neighbour_wikidata_id, source_type="wikidata"
+                neighbour_concept = Subject(label=label).save()
+                collect_sources(
+                    target_concept=neighbour_concept,
+                    source_id=neighbour_wikidata_id,
+                    source_type="wikidata",
                 )
             except ValueError as error:
                 log.exception(

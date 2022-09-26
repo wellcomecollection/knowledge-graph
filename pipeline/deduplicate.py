@@ -22,8 +22,8 @@ source_concepts_with_duplicate_parents = [
 
 for source_concept in source_concepts_with_duplicate_parents:
     parents = source_concept.parent.all()
-    parent_names = [parent.name for parent in parents]
-    uids = [(parent.uid) for i, parent in enumerate(parents)]
+    parent_labels = [parent.label for parent in parents]
+    uids = [parent.uid for parent in parents]
     formatted_matches = [
         f"({ascii_letters[i]}:Concept {{uid:'{uid}'}})"
         for i, uid in enumerate(uids)
@@ -33,8 +33,8 @@ for source_concept in source_concepts_with_duplicate_parents:
         "Found duplicate source concept",
         uid=source_concept.uid,
         type=source_concept.source_type,
-        name=source_concept.preferred_name,
-        parents=parent_names,
+        label=source_concept.preferred_label,
+        parents=parent_labels,
     )
 
     query = f"""

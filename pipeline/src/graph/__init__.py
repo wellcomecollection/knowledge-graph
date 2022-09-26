@@ -5,7 +5,7 @@ from neo4j.exceptions import ServiceUnavailable
 from neomodel import config, db, install_all_labels
 from neomodel.util import clear_neo4j_database
 
-from ..utils import clean, clean_csv, get_logger
+from ..utils import clean, clean_csv, get_logger, fetch_json
 from .enrich import (
     get_contributor_wikidata_ids,
     get_loc_data,
@@ -19,11 +19,16 @@ from .enrich import (
     get_mesh_preferred_label,
     get_wikidata,
     get_wikidata_description,
-    get_wikidata_id,
+    search_wikidata,
     get_wikidata_id_from_loc_data,
     get_wikidata_preferred_label,
     get_wikidata_variant_labels,
     get_wikipedia_data,
+    get_wikipedia_label_from_wikidata,
+    get_wikipedia_description,
+    get_wikipedia_preferred_label,
+    get_wikipedia_variant_labels,
+    get_wikidata_id_from_wikipedia_data
 )
 from .ingest import ingest_event, ingest_exhibition, ingest_story, ingest_work
 from .models import (
@@ -57,10 +62,13 @@ def get_neo4j_session(clear=False):
     config.DATABASE_URL = os.environ["NEO4J_CONNECTION_URI"]
     db.set_connection(os.environ["NEO4J_CONNECTION_URI"])
     wait_until_neo4j_is_live()
+
     if clear:
         log.info("Clearing neo4j database")
         clear_neo4j_database(db)
-    install_all_labels()
+
+    dev_null = open(os.devnull, "w")
+    install_all_labels(stdout=dev_null)
     return db
 
 

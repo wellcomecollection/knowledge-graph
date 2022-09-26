@@ -6,7 +6,7 @@ from .. import (
     get_contributor_wikidata_ids,
     get_wikidata,
     get_wikidata_description,
-    get_wikidata_id,
+    search_wikidata,
     get_wikidata_preferred_label,
     get_wikidata_variant_labels,
 )
@@ -23,7 +23,7 @@ def ingest_story(story_data):
     Add a new story node to the graph.
     """
     try:
-        log.info("Processing story", title=story_data["Title"])
+        log.info(f'Processing story title: "{story_data["Title"]}"')
         work = Work(
             type="story",
             wellcome_id=Path(story_data["URL"]).name,
@@ -55,8 +55,8 @@ def ingest_story(story_data):
                 )
                 if existing_person_source_concept:
                     log.debug(
-                        "Found existing person source concept",
-                        source_id=existing_person_source_concept.source_id,
+                        "Found existing person source concept. "
+                        f"source_id: {existing_person_source_concept.source_id}"
                     )
                     person = existing_person_source_concept.parent.all()[0]
                 else:
@@ -66,7 +66,7 @@ def ingest_story(story_data):
 
         for subject_label in clean_csv(story_data["Keywords"]):
             clean_subject_label = clean(subject_label)
-            subject_wikidata_id = get_wikidata_id(clean_subject_label)
+            subject_wikidata_id = search_wikidata(clean_subject_label)
             if subject_wikidata_id:
                 existing_subject_source_concept = (
                     SourceConcept.nodes.get_or_none(
@@ -75,12 +75,12 @@ def ingest_story(story_data):
                 )
                 if existing_subject_source_concept:
                     log.debug(
-                        "Found existing source concept",
-                        wikidata_id=subject_wikidata_id,
+                        "Found existing source concept. "
+                        f"wikidata_id: {subject_wikidata_id}",
                     )
                     subject = existing_subject_source_concept.parent.all()[0]
                 else:
-                    log.debug("Creating subject", label=clean_subject_label)
+                    log.debug(f"Creating subject. label: {clean_subject_label}")
                     subject = Subject(label=clean_subject_label).save()
                     collect_sources(
                         target_concept=subject,
@@ -94,7 +94,9 @@ def ingest_story(story_data):
             work.concepts.connect(subject)
     except Exception as error:
         log.exception(
-            "Error processing story", title=story_data["Title"], error=error
+            'Error processing story. '
+            f'title: "{story_data["Title"]}" '
+            f'error: "{error}"'
         )
 
 
@@ -104,8 +106,8 @@ def get_or_create_person(work: Work, person_wikidata_id: str = None):
     )
     if existing_person_source_concept:
         log.debug(
-            "Found existing person source concept",
-            wikidata_id=person_wikidata_id,
+            "Found existing preson source concept. "
+            f"wikidata_id: {person_wikidata_id}",
         )
         person = existing_person_source_concept.parent.all()[0]
     else:
@@ -117,7 +119,7 @@ def get_or_create_person(work: Work, person_wikidata_id: str = None):
             preferred_label=get_wikidata_preferred_label(person_wikidata),
             variant_labels=get_wikidata_variant_labels(person_wikidata),
         ).save()
-        log.debug("Creating person", label=source_concept.preferred_label)
+        log.debug(f"Creating person. label: {source_concept.preferred_label}")
         person = Person(
             label=source_concept.preferred_label, type="person"
         ).save()

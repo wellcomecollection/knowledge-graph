@@ -1,10 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import { Tab, orderedTabs, tabToSlug } from '../../../components/tabs'
-import {
-  getClient,
-  getResultCounts,
-  search,
-} from '../../../services/elasticsearch'
+import { getClient, getResultCounts, search } from '../../../services'
 
 export default async function searchEndpoint(
   req: NextApiRequest,

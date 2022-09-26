@@ -1,4 +1,4 @@
-export type ConceptSource = {
+export type SubjectSource = {
   lc_names_id?: string
   lc_names_preferred_label?: string
   lc_subjects_id?: string
@@ -8,6 +8,7 @@ export type ConceptSource = {
   mesh_preferred_label?: string
   label?: string
   preferred_label?: string
+  preferred_label_source?: string
   works: string[]
   work_ids: string[]
   neighbour_ids: string[]
@@ -25,13 +26,13 @@ export type ConceptSource = {
   work_contributions: string[]
 }
 
-export type ConceptHit = {
+export type SubjectHit = {
   _id: string
   _score: string
-  _source: ConceptSource
+  _source: SubjectSource
 }
 
-export type Concept = {
+export type Subject = {
   id: string
   lc_names_id?: string
   lc_names_preferred_label?: string
@@ -42,6 +43,7 @@ export type Concept = {
   mesh_preferred_label?: string
   label?: string
   preferred_label?: string
+  preferred_label_source?: string
   works: {
     title: string
     id: string

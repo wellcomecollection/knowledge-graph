@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-import { getClient, getWhatsOn } from '../../../services/elasticsearch'
+import { getClient, getWhatsOn } from '../../../services'
 
 export default async function searchEndpoint(
   req: NextApiRequest,

@@ -3,7 +3,7 @@ import os
 from pathlib import Path
 from time import sleep
 
-import structlog
+from loguru import logger
 from httpx import Client, Request, TimeoutException
 
 http_client = Client(timeout=30)
@@ -11,16 +11,19 @@ http_client = Client(timeout=30)
 base_cache_dir = Path(os.environ["CACHE_DIRECTORY"])
 base_cache_dir.mkdir(exist_ok=True)
 
-log_level = structlog.stdlib._NAME_TO_LEVEL[
-    os.environ.get("LOG_LEVEL", "INFO").lower()
-]
-structlog.configure(
-    wrapper_class=structlog.make_filtering_bound_logger(log_level),
+log_dir = Path(os.environ["LOG_DIRECTORY"]).absolute()
+log_dir.mkdir(exist_ok=True)
+
+logger.remove()
+logger.add(
+    log_dir / "{time}.log",
+    format="{time} | {level} | {message} | {extra}", 
+    level=os.environ.get("LOG_LEVEL", "INFO").upper()
 )
 
 
-def get_logger(name=None):
-    return structlog.get_logger(name)
+def get_logger(name: str=""):
+    return logger
 
 
 log = get_logger(__name__)

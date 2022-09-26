@@ -1,8 +1,8 @@
-import { Image, ImageSource } from '../../types/image'
+import { Image, ImageSource } from '../types/image'
 
 import { Client } from '@elastic/elasticsearch'
 import { URLSearchParams } from 'url'
-import { capitalise } from '../../components/results'
+import { capitalise } from '../components/results'
 import { getPerson } from './person'
 import { getSubject } from './subject'
 

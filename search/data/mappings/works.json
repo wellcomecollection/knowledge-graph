@@ -29,7 +29,7 @@
                 }
             }
         },
-        "concepts": {
+        "subjects": {
             "type": "text",
             "fields": {
                 "keyword": {
@@ -46,13 +46,19 @@
                 }
             }
         },
-        "concept_ids": {
+        "subject_ids": {
             "type": "keyword"
         },
-        "concept_types": {
+        "subject_parent_labels": {
             "type": "keyword"
         },
-        "concept_variants": {
+        "subject_types": {
+            "type": "keyword"
+        },
+        "subject_preferred_label_sources": {
+            "type": "keyword"
+        },
+        "subject_variants": {
             "type": "text",
             "fields": {
                 "keyword": {

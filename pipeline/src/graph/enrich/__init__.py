@@ -17,15 +17,15 @@ from .wikidata import (
     get_contributor_wikidata_ids,
     get_wikidata,
     get_wikidata_description,
-    get_wikidata_id,
+    search_wikidata,
     get_wikidata_preferred_label,
     get_wikidata_variant_labels,
 )
 from .wikipedia import (
     get_wikipedia_data,
-    get_wikipedia_descriptions,
+    get_wikipedia_description,
     get_wikipedia_label_from_wikidata,
-    get_wikipedia_neighbours,
     get_wikipedia_preferred_label,
+    get_wikidata_id_from_wikipedia_data,
     get_wikipedia_variant_labels,
 )

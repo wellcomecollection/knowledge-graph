@@ -51,6 +51,8 @@ class NeighbourRel(StructuredRel):
 
 
 class Subject(Concept):
+    wellcome_parent_id = StringProperty()
+    wellcome_parent_label = StringProperty()
     wellcome_id = StringProperty()
     neighbours = Relationship("Subject", "HAS_NEIGHBOUR", model=NeighbourRel)
 

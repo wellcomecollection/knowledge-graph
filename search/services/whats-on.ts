@@ -1,7 +1,7 @@
-import { WhatsOn, WhatsOnHit } from '../../types/whats-on'
+import { WhatsOn, WhatsOnHit } from '../types/whats-on'
 
 import { Client } from '@elastic/elasticsearch'
-import blankQuery from '../../data/queries/whats-on.json'
+import blankQuery from '../data/queries/whats-on.json'
 import { formatQuery } from '.'
 
 export function parseWhatsOn(whatsOnHit: WhatsOnHit): WhatsOn {

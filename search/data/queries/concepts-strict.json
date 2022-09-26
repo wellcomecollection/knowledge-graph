@@ -10,11 +10,11 @@
                     "mesh_id",
                     "variants.keyword",
                     "name.keyword",
-                    "wikidata_preferred_name.keyword",
-                    "lc_subjects_preferred_name.keyword",
-                    "lc_names_preferred_name.keyword",
-                    "mesh_preferred_name.keyword",
-                    "preferred_name.keyword^100"
+                    "wikidata_preferred_label.keyword",
+                    "lc_subjects_preferred_label.keyword",
+                    "lc_names_preferred_label.keyword",
+                    "mesh_preferred_label.keyword",
+                    "preferred_label.keyword^100"
                 ]
             }
         }

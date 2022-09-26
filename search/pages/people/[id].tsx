@@ -1,6 +1,6 @@
 import { GetServerSideProps, NextPage } from 'next'
 import { Image, ImageSource } from '../../types/image'
-import { getClient, getPerson } from '../../services/elasticsearch'
+import { getClient, getPerson } from '../../services'
 
 import { ArrowUpRight } from 'react-feather'
 import Head from 'next/head'
@@ -100,21 +100,6 @@ const PersonPage: NextPage<Props> = ({ person, images, totalImages }) => {
                     .join(', ')}
                 </p>
               </div>
-            </div>
-            <div className="lg:w-1/3">
-              <p className="font-bold">Related people</p>
-              <ul className="flex flex-wrap gap-x-2 pt-4 ">
-                {person.neighbours.map((neighbour) => (
-                  <li key={neighbour.id} className="pb-6">
-                    <a
-                      className="w-100 rounded-full border border-black py-2 px-3 text-sm capitalize no-underline"
-                      href={`/people/${neighbour.id}`}
-                    >
-                      {neighbour.label}
-                    </a>
-                  </li>
-                ))}
-              </ul>
             </div>
           </div>
         </div>

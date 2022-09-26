@@ -3,6 +3,8 @@ from pathlib import Path
 from . import (
     Concept,
     SourceConcept,
+    Subject,
+    collect_sources,
     get_loc_data,
     get_loc_preferred_label,
     get_logger,
@@ -53,8 +55,9 @@ def get_loc_neighbours(target_concept: Concept, source_id: str):
                     loc_id=neighbour_loc_id,
                     label=label,
                 )
-                neighbour_concept = Concept(label=label).save()
-                neighbour_concept.collect_sources(
+                neighbour_concept = Subject(label=label).save()
+                collect_sources(
+                    target_concept=neighbour_concept,
                     source_id=neighbour_loc_id,
                     source_type=(
                         "lc-subjects"
@@ -62,7 +65,7 @@ def get_loc_neighbours(target_concept: Concept, source_id: str):
                         else "lc-names"
                     ),
                 )
-            except (ValueError) as error:
+            except ValueError as error:
                 log.exception(
                     "Skipping neighbour, no data found",
                     neighbour_loc_id=neighbour_loc_id,

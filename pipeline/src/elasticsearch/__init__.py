@@ -4,7 +4,7 @@ from pydoc import doc
 from elasticsearch import Elasticsearch
 from elasticsearch.helpers import scan
 
-from ..graph.models import Concept, Event, Exhibition, Work
+from ..graph.models import Concept, Event, Exhibition, Work, Subject, Person
 from ..prismic import (
     get_story_data,
     get_story_fulltext,
@@ -76,14 +76,16 @@ def yield_works(size=10_000):
                         {"term": {"type": "Visible"}},
                     ],
                 }
-            },
-            "size": size,
+            }
         },
         size=10,
         scroll="30m",
         preserve_order=True,
     )
-    for document in works_generator:
+
+    for i, document in enumerate(works_generator):
+        if i > size:
+            break
         try:
             work = document["_source"]["data"]
             work["_id"] = document["_id"]

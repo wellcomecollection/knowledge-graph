@@ -3,6 +3,8 @@ from pathlib import Path
 from . import (
     Concept,
     SourceConcept,
+    Subject,
+    collect_sources,
     get_logger,
     get_mesh_data,
     get_mesh_preferred_label,
@@ -55,9 +57,11 @@ def get_mesh_neighbours(target_concept: Concept, mesh_id: str):
                         mesh_id=neighbour_mesh_id,
                         label=label,
                     )
-                    neighbour_concept = Concept(label=label).save()
-                    neighbour_concept.collect_sources(
-                        source_id=neighbour_mesh_id, source_type="nlm-mesh"
+                    neighbour_concept = Subject(label=label).save()
+                    collect_sources(
+                        target_concept=neighbour_concept,
+                        source_id=neighbour_mesh_id,
+                        source_type="nlm-mesh",
                     )
                 except ValueError as error:
                     log.exception(

@@ -1,8 +1,8 @@
-import { ConceptSource } from './concept'
+import { SubjectSource } from './subject'
 
-export type PersonSource = ConceptSource & {
-  dates: string[]
-  date_labels: string[]
+export type PersonSource = SubjectSource & {
+  dates?: string[]
+  date_labels?: string[]
 }
 
 export type PersonHit = {
@@ -13,22 +13,18 @@ export type PersonHit = {
 
 export type Person = {
   id: string
-  lc_names_id: string
-  lc_names_preferred_label: string
-  lc_subjects_id: string
-  lc_subjects_preferred_label: string
-  mesh_description: string
-  mesh_id: string
-  mesh_preferred_label: string
-  label: string
-  preferred_label: string
+  lc_names_id?: string
+  lc_names_preferred_label?: string
+  lc_subjects_id?: string
+  lc_subjects_preferred_label?: string
+  mesh_description?: string
+  mesh_id?: string
+  mesh_preferred_label?: string
+  label?: string
+  preferred_label?: string
   works: {
     title: string
     id: string
-  }[]
-  neighbours: {
-    id: string
-    label: string
   }[]
   type: string
   stories: {

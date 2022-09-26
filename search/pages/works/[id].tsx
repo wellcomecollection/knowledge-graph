@@ -1,11 +1,9 @@
 import { GetServerSideProps, NextPage } from 'next'
+import { getClient, getWork } from '../../services'
 
 import Head from 'next/head'
 import Layout from '../../components/layout'
 import { Work } from '../../types/work'
-import { getClient } from '../../services/elasticsearch'
-import { getWork } from '../../services/elasticsearch/work'
-import { useState } from 'react'
 
 type Props = {
   work: Work
@@ -18,6 +16,7 @@ type Props = {
       label: string
       type: string
       id: string
+      source: string
     }[]
   }[]
 }
@@ -49,19 +48,26 @@ export const getServerSideProps: GetServerSideProps = async ({ query }) => {
   const originalWorkSubjects = originalWork.subjects
     ? originalWork.subjects
     : []
-
-  const subjectComparisonTable = originalWorkSubjects.map(
-    (originalSubject) => ({
-      original: {
-        label: originalSubject.label ? originalSubject.label : '',
-        id: originalSubject.id ? originalSubject.id : '',
-      },
-      enriched: work.concepts.filter((x) =>
-        originalSubject.concepts.map((c) => c.id).includes(x.id)
-      ),
-    })
-  )
-
+  console.log(originalWorkSubjects)
+  console.log(work.subjects)
+  const subjectComparisonTable = originalWorkSubjects.map((originalSubject) => {
+    return {
+      original: originalSubject,
+      enriched: work.subjects
+        .filter(
+          (enrichedSubject) =>
+            enrichedSubject.parent_label === originalSubject.label
+        )
+        .map((enrichedSubject) => {
+          return {
+            label: enrichedSubject.label,
+            id: enrichedSubject.id,
+            type: enrichedSubject.type,
+            source: enrichedSubject ? enrichedSubject.source : '',
+          }
+        }),
+    }
+  })
   return {
     props: {
       work,
@@ -70,13 +76,7 @@ export const getServerSideProps: GetServerSideProps = async ({ query }) => {
   }
 }
 
-const WorkPageTabs = ['Catalogue details', 'View', 'Related']
-type WorkPageTabType = typeof WorkPageTabs[number]
-
 const WorkPage: NextPage<Props> = ({ work, subjectComparisonTable }) => {
-  const [selectedTab, setSelectedTab] = useState(
-    'Catalogue details' as WorkPageTabType
-  )
   return (
     <div className="">
       <Head>
@@ -98,27 +98,13 @@ const WorkPage: NextPage<Props> = ({ work, subjectComparisonTable }) => {
                 ' | '}
               {work.contributors.map((c) => c.label).join(', ')}
             </p>
-
-            <ul className="flex divide-gray-400 border-b pt-4">
-              {WorkPageTabs.map((tab) => {
-                return (
-                  <li key={tab}>
-                    <button
-                      className={`inline h-full border-yellow px-4 py-3 no-underline ${
-                        selectedTab == tab ? 'border-b-4' : ''
-                      }`}
-                      onClick={() => setSelectedTab(tab as WorkPageTabType)}
-                    >
-                      {tab}
-                    </button>
-                  </li>
-                )
-              })}
-            </ul>
           </div>
         </div>
         <div className="mx-auto space-y-8 px-5 lg:w-3/4">
           <h2 className="font-sans font-light">About this work</h2>
+          <a href={`https://wellcomecollection.org/works/${work.id}`}>
+            Original work page
+          </a>
           {work.description && (
             <div>
               <p className="font-bold">Description</p>
@@ -142,27 +128,21 @@ const WorkPage: NextPage<Props> = ({ work, subjectComparisonTable }) => {
           <div>
             <p className="font-bold">Subjects</p>
             <ul className="flex flex-wrap gap-x-2 pt-4">
-              {work.concepts.map((concept) => (
-                <li key={concept.id} className="pb-6">
+              {work.subjects.reverse().map((subject) => (
+                <li key={subject.id} className="pb-6">
                   <a
                     className="w-100 rounded-full border border-gray-400 py-2 px-3 text-sm capitalize no-underline"
                     href={`/${
-                      concept.type == 'subject' ? 'subjects' : 'people'
-                    }/${concept.id}`}
+                      subject.type == 'Subject' ? 'subjects' : 'people'
+                    }/${subject.id}`}
                   >
-                    {concept.label}
+                    {subject.label}
                   </a>
                 </li>
               ))}
             </ul>
           </div>
           <div>
-            <p className="font-bold">
-              Subjects compared to the{' '}
-              <a href={`https://wellcomecollection.org/works/${work.id}`}>
-                original work page
-              </a>
-            </p>
             <div className="pt-4">
               <table className="table-fixed ">
                 <thead>
@@ -178,17 +158,20 @@ const WorkPage: NextPage<Props> = ({ work, subjectComparisonTable }) => {
                       className={i % 2 == 0 ? 'bg-gray-100' : ''}
                     >
                       <td className="pl-1 pr-3">{subject.original.label}</td>
-                      <td className="pl-1 pr-3 capitalize">
-                        {subject.enriched.map((concept) => (
-                          <li key={concept.id}>
+                      <td className="pl-1 pr-3">
+                        {subject.enriched.map((subject) => (
+                          <li key={subject.id}>
                             <a
                               href={`/${
-                                concept.type == 'subject'
+                                subject.type == 'Subject'
                                   ? 'subjects'
                                   : 'people'
-                              }/${concept.id}`}
+                              }/${subject.id}`}
                             >
-                              {concept.label}
+                              <span className="capitalize">
+                                {subject.label}{' '}
+                              </span>
+                              (label from {subject.source})
                             </a>
                             <br />
                           </li>
