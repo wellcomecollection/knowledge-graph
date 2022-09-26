@@ -3,7 +3,7 @@ from . import clean, fetch_json
 
 def get_wikipedia_label_from_wikidata(wikidata):
     try:
-        wikipedia_label = wikidata["claims"]["sitelinks"]["enwiki"]["name"]
+        wikipedia_label = wikidata["sitelinks"]["enwiki"]["title"]
     except (IndexError, KeyError, TypeError):
         wikipedia_label = None
     return wikipedia_label
@@ -21,18 +21,9 @@ def get_wikipedia_data(wikipedia_label):
     }
     try:
         response = fetch_json(url, params)
-        data = list(response["query"]["pages"].values())[0]
-        return data
+        return list(response["query"]["pages"].values())[0]
     except Exception:
         raise ValueError(f"'{wikipedia_label}' is not a valid label")
-
-
-def get_wikipedia_neighbours(wikipedia_data):
-    page_labels = [
-        category_label["title"].replace("Category:", "")
-        for category_label in wikipedia_data["categories"]
-    ]
-    return page_labels
 
 
 def get_wikipedia_variant_labels(wikipedia_data):
@@ -43,6 +34,10 @@ def get_wikipedia_variant_labels(wikipedia_data):
         pass
     try:
         variants.append(wikipedia_data["pageprops"]["label"])
+    except (KeyError, TypeError):
+        pass
+    try:
+        variants.append(wikipedia_data["terms"]["label"])
     except (KeyError, TypeError):
         pass
     return variants
@@ -56,14 +51,22 @@ def get_wikipedia_preferred_label(wikipedia_data):
     return preferred_label
 
 
-def get_wikipedia_descriptions(wikipedia_data):
-    descriptions = []
+def get_wikipedia_description(wikipedia_data):
+    description = ""
     try:
-        descriptions.extend(wikipedia_data["terms"]["description"])
+        description = wikipedia_data["terms"]["description"][0]
     except (KeyError, TypeError):
         pass
     try:
-        descriptions.append(wikipedia_data["pageprops"]["wikibase-shortdesc"])
+        description = wikipedia_data["pageprops"]["wikibase-shortdesc"][0]
     except (KeyError, TypeError):
         pass
-    return descriptions
+    return description
+
+
+def get_wikidata_id_from_wikipedia_data(wikipedia_data):
+    try:
+        wikidata_id = wikipedia_data["pageprops"]["wikibase_item"]
+    except (KeyError, TypeError):
+        wikidata_id = ""
+    return wikidata_id

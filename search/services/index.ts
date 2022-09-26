@@ -1,4 +1,4 @@
-import { Tab, slugToTab } from '../../components/tabs'
+import { Tab, slugToTab } from '../components/tabs'
 import { countImages, filterImages, searchImages } from './image'
 import { countStories, filterStories, searchStories } from './story'
 import { countWhatsOn, filterWhatsOn, searchWhatsOn } from './whats-on'
@@ -10,6 +10,9 @@ const {
   ELASTIC_CONCEPTS_PASSWORD,
   ELASTIC_CONCEPTS_USERNAME,
   ELASTIC_CONCEPTS_CLOUD_ID,
+  ELASTIC_PIPELINE_CLOUD_ID,
+  ELASTIC_PIPELINE_USERNAME,
+  ELASTIC_PIPELINE_PASSWORD
 } = process.env
 
 let client: Client
@@ -21,6 +24,20 @@ export function getClient(): Client {
     auth: {
       username: ELASTIC_CONCEPTS_USERNAME!,
       password: ELASTIC_CONCEPTS_PASSWORD!,
+    },
+  })
+  return client
+}
+
+let pipelineClient: Client
+export function getPipelineClient(): Client {
+  client = new Client({
+    cloud: {
+      id: ELASTIC_PIPELINE_CLOUD_ID!,
+    },
+    auth: {
+      username: ELASTIC_PIPELINE_USERNAME!,
+      password: ELASTIC_PIPELINE_PASSWORD!,
     },
   })
   return client
@@ -82,12 +99,17 @@ export async function filter(
 
 export { getWorks, getWork, parseWork, searchWorks } from './work'
 export { parseImage, searchImages } from './image'
-export { searchPeople, getPeople, getPerson } from './person'
-export { searchWhatsOn, getWhatsOn, getWhatsOns } from './whats-on'
+export { searchPeople, getPeople, getPerson, parsePerson } from './person'
+export {
+  searchWhatsOn,
+  getWhatsOn,
+  getWhatsOns,
+  parseWhatsOn,
+} from './whats-on'
 export {
   getSubjects,
   getSubject,
-  parseConcept,
+  parseSubject,
   searchSubjects,
 } from './subject'
 

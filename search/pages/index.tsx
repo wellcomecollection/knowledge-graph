@@ -1,12 +1,12 @@
 import { GetServerSideProps, NextPage } from 'next'
 import { Story, StoryHit } from '../types/story'
 import { WhatsOn, WhatsOnHit } from '../types/whats-on'
-import { getClient, parseStory } from '../services/elasticsearch'
+import { getClient, parseStory } from '../services'
 
 import CardBlock from '../components/card-block'
 import { CardProps } from '../components/card'
 import Layout from '../components/layout'
-import { parseWhatsOn } from '../services/elasticsearch/whats-on'
+import { parseWhatsOn } from '../services'
 
 type Props = {
   whatsOns: WhatsOn[]

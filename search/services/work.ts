@@ -1,19 +1,20 @@
-import { Work, WorkHit } from '../../types/work'
+import { Work, WorkHit } from '../types/work'
 
 import { Client } from '@elastic/elasticsearch'
-import blankQuery from '../../data/queries/works.json'
+import blankQuery from '../data/queries/works.json'
 import { formatQuery } from '.'
 
 const index = process.env.ELASTIC_WORKS_INDEX as string
 
 export function parseWork(workHit: WorkHit): Work {
   const work = workHit._source
-  const concepts = work.concepts.map((concept, index) => {
+  const subjects = work.subjects.map((subject, index) => {
     return {
-      label: concept,
-      id: work.concept_ids[index],
-      type: work.concept_types[index],
-      originalLabel: work.concept_original_labels[index],
+      label: subject,
+      id: work.subject_ids[index],
+      type: work.subject_types[index],
+      source: work.subject_preferred_label_sources[index],
+      parent_label: work.subject_parent_labels[index],
     }
   })
 
@@ -28,7 +29,7 @@ export function parseWork(workHit: WorkHit): Work {
     type: 'work',
     id: workHit._id,
     contributors: contributors,
-    concepts: concepts,
+    subjects: subjects,
     description: work.description,
     notes: work.notes,
     title: work.title,
@@ -83,7 +84,7 @@ export async function filterWorks(
   subject?: string,
   person?: string
 ): Promise<Work[]> {
-  const field = subject ? 'concept_ids' : person ? 'contributor_ids' : null
+  const field = subject ? 'subject_ids' : person ? 'contributor_ids' : null
   const value = subject ? subject : person ? person : null
   const response = await client.search({
     index,

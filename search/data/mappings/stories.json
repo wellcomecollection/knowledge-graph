@@ -32,7 +32,7 @@
         "published": {
             "type": "text"
         },
-        "concepts": {
+        "subjects": {
             "type": "text",
             "fields": {
                 "keyword": {
@@ -49,10 +49,10 @@
                 }
             }
         },
-        "concept_ids": {
+        "subject_ids": {
             "type": "keyword"
         },
-        "concept_variants": {
+        "subject_variants": {
             "type": "text",
             "fields": {
                 "keyword": {

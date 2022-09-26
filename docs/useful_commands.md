@@ -79,3 +79,34 @@ YIELD nodeId, score
 RETURN gds.util.asNode(nodeId).name AS name, score
 ORDER BY score DESC, name ASC
 ```
+
+## concepts graph with only work-attached concepts
+
+```
+MATCH (w:Work)-[]-(c:Concept)-[r:HAS_NEIGHBOUR]-(:Concept) RETURN c
+```
+
+which only come from wikidata
+
+```
+MATCH (w:Work)-[]-(c:Concept)-[r:HAS_NEIGHBOUR {source:"wikidata"}]-(:Concept) RETURN c
+```
+
+## SourceConcepts from wikipedia
+
+```
+MATCH (c:Concept)-[r:HAS_SOURCE_CONCEPT]->(s:SourceConcept {source_type:"wikipedia"}) RETURN s
+```
+
+## tail the most recent log file
+
+```sh
+tail -f data/logs/$(ls -Art data/logs/ | tail -n 1)
+```
+
+## Delete all nodes and relationships in a large graph db
+
+```
+call apoc.periodic.iterate("MATCH (n) return id(n) as id", "MATCH (n) WHERE id(n) = id DETACH DELETE n", {batchSize:10000})
+yield batches, total return batches, total
+```

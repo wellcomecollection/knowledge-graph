@@ -1,4 +1,4 @@
-FROM python:3.7
+FROM python:3.8
 
 RUN pip install pip-tools
 COPY requirements.in requirements.in

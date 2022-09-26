@@ -1,11 +1,6 @@
 import { GetServerSideProps, NextPage } from 'next'
-import Tabs, { Tab, slugToTab, Slug } from '../../components/tabs'
-import {
-  filter,
-  getClient,
-  getResultCounts,
-  search,
-} from '../../services/elasticsearch'
+import Tabs, { Slug, Tab, slugToTab } from '../../components/tabs'
+import { filter, getClient, getResultCounts, search } from '../../services'
 
 import Head from 'next/head'
 import { Image } from '../../types/image'

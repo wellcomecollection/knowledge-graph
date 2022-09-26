@@ -1,5 +1,6 @@
 from . import (
-    Concept,
+    Person,
+    Subject,
     Event,
     Exhibition,
     Work,
@@ -19,18 +20,28 @@ ordered_source_preferences = ["wikidata", "nlm-mesh", "lc-subjects", "lc-names"]
 
 def format_work_for_elasticsearch(work: Work):
     work_concepts = work.concepts.all()
-    concept_ids = [concept.wellcome_id for concept in work_concepts]
-    concept_types = [concept.type for concept in work_concepts]
-    concept_original_labels = [concept.label for concept in work_concepts]
+    concept_ids = [concept.uid for concept in work_concepts]
+    concept_parent_labels = [
+        concept.wellcome_parent_label
+        if type(concept).__name__ == "Subject"
+        else None
+        for concept in work_concepts
+    ]
+    concept_types = [type(concept).__name__ for concept in work_concepts]
+
     concept_labels = []
+    concept_preferred_label_sources = []
     for concept in work_concepts:
         preferred_label = concept.label
+        preferred_label_source = "catalogue api"
         for source_type in ordered_source_preferences:
             source = concept.sources.get_or_none(source_type=source_type)
             if source:
                 preferred_label = source.preferred_label
+                preferred_label_source = source_type
                 break
         concept_labels.append(preferred_label)
+        concept_preferred_label_sources.append(preferred_label_source)
     concept_variants = [
         variant
         for concept in work_concepts
@@ -39,9 +50,7 @@ def format_work_for_elasticsearch(work: Work):
     ]
 
     work_contributors = work.contributors.all()
-    contributor_ids = [
-        contributor.wellcome_id for contributor in work_contributors
-    ]
+    contributor_ids = [contributor.uid for contributor in work_contributors]
     contributor_labels = []
     for contributor in work_contributors:
         preferred_label = contributor.label
@@ -65,15 +74,16 @@ def format_work_for_elasticsearch(work: Work):
     published = get_work_dates(work_data)
 
     return {
-        "concept_ids": concept_ids,
-        "concept_variants": concept_variants,
-        "concepts": concept_labels,
-        "concept_original_labels": concept_original_labels,
-        "concept_types": concept_types,
+        "subject_ids": concept_ids,
+        "subject_parent_labels": concept_parent_labels,
+        "subject_variants": concept_variants,
+        "subjects": concept_labels,
+        "subject_types": concept_types,
         "contributor_ids": contributor_ids,
         "contributor_variants": contributor_variants,
         "contributors": contributor_labels,
         "published": published,
+        "subject_preferred_label_sources": concept_preferred_label_sources,
         "title": work.title,
         "description": description,
         "notes": notes,
@@ -124,9 +134,9 @@ def format_story_for_elasticsearch(story: Work):
     image_url = get_story_image(story_data)
 
     return {
-        "concept_ids": concept_ids,
-        "concept_variants": concept_variants,
-        "concepts": concept_labels,
+        "subject_ids": concept_ids,
+        "subject_variants": concept_variants,
+        "subjects": concept_labels,
         "contributor_ids": contributor_ids,
         "contributors": contributor_labels,
         "contributor_variants": contributor_variants,
@@ -138,36 +148,22 @@ def format_story_for_elasticsearch(story: Work):
     }
 
 
-def format_concept_for_elasticsearch(concept: Concept):
-    concept_works = concept.works.filter(type="work")
+def format_subject_for_elasticsearch(subject: Subject):
+    concept_works = subject.works.filter(type="work")
     works = [work.title for work in concept_works]
     work_ids = [work.wellcome_id for work in concept_works]
 
-    concept_stories = concept.works.filter(type="story")
+    concept_stories = subject.works.filter(type="story")
     stories = [story.title for story in concept_stories]
     story_ids = [story.wellcome_id for story in concept_stories]
 
-    concept_work_contributions = concept.contributed_to_work.filter(type="work")
-    work_contributions = [work.title for work in concept_work_contributions]
-    work_contribution_ids = [
-        work.wellcome_id for work in concept_work_contributions
-    ]
-
-    concept_story_contributions = concept.contributed_to_work.filter(
-        type="story"
-    )
-    story_contributions = [story.title for story in concept_story_contributions]
-    story_contribution_ids = [
-        story.wellcome_id for story in concept_story_contributions
-    ]
-
     variants = [
         variant
-        for source_concept in concept.sources.all()
+        for source_concept in subject.sources.all()
         for variant in source_concept.variant_labels
     ]
 
-    concept_neighbours = concept.neighbours.all()
+    concept_neighbours = subject.neighbours.match(source="wikidata")
     neighbours_with_works = [
         neighbour
         for neighbour in concept_neighbours
@@ -187,13 +183,97 @@ def format_concept_for_elasticsearch(concept: Concept):
     neighbour_ids = [neighbour.uid for neighbour in neighbours_with_works]
 
     document = {
-        "label": concept.label,
-        "preferred_label": concept.label,
-        "type": concept.type,
+        "label": subject.label,
+        "preferred_label": subject.label,
+        "type": "subject",
         "works": works,
         "work_ids": work_ids,
         "neighbour_labels": neighbour_labels,
         "neighbour_ids": neighbour_ids,
+        "stories": stories,
+        "story_ids": story_ids,
+        "variants": variants,
+    }
+
+    wikidata_source = subject.sources.get_or_none(source_type="wikidata")
+    lc_subjects_source = subject.sources.get_or_none(source_type="lc-subjects")
+    lc_names_source = subject.sources.get_or_none(source_type="lc-names")
+    mesh_source = subject.sources.get_or_none(source_type="nlm-mesh")
+
+    if mesh_source:
+        document.update(
+            {
+                "mesh_description": mesh_source.description,
+                "mesh_id": mesh_source.source_id,
+                "mesh_preferred_label": mesh_source.preferred_label,
+                "preferred_label": mesh_source.preferred_label,
+                "preferred_label_source": "mesh",
+            }
+        )
+    if lc_names_source:
+        document.update(
+            {
+                "lc_names_id": lc_names_source.source_id,
+                "lc_names_preferred_label": lc_names_source.preferred_label,
+                "preferred_label": lc_names_source.preferred_label,
+                "preferred_label_source": "lc-names",
+            }
+        )
+    if lc_subjects_source:
+        document.update(
+            {
+                "lc_subjects_id": lc_subjects_source.source_id,
+                "lc_subjects_preferred_label": lc_subjects_source.preferred_label,
+                "preferred_label": lc_subjects_source.preferred_label,
+                "preferred_label_source": "lc-subjects",
+            }
+        )
+    if wikidata_source:
+        document.update(
+            {
+                "wikidata_description": wikidata_source.description,
+                "wikidata_id": wikidata_source.source_id,
+                "wikidata_preferred_label": wikidata_source.preferred_label,
+                "preferred_label": wikidata_source.preferred_label,
+                "preferred_label_source": "wikidata",
+            }
+        )
+    return document
+
+
+def format_person_for_elasticsearch(person: Person):
+    concept_works = person.works.filter(type="work")
+    works = [work.title for work in concept_works]
+    work_ids = [work.wellcome_id for work in concept_works]
+
+    concept_stories = person.works.filter(type="story")
+    stories = [story.title for story in concept_stories]
+    story_ids = [story.wellcome_id for story in concept_stories]
+
+    concept_work_contributions = person.contributions.filter(type="work")
+    work_contributions = [work.title for work in concept_work_contributions]
+    work_contribution_ids = [
+        work.wellcome_id for work in concept_work_contributions
+    ]
+
+    concept_story_contributions = person.contributions.filter(type="story")
+    story_contributions = [story.title for story in concept_story_contributions]
+    story_contribution_ids = [
+        story.wellcome_id for story in concept_story_contributions
+    ]
+
+    variants = [
+        variant
+        for source_concept in person.sources.all()
+        for variant in source_concept.variant_labels
+    ]
+
+    document = {
+        "label": person.label,
+        "preferred_label": person.label,
+        "type": "person",
+        "works": works,
+        "work_ids": work_ids,
         "stories": stories,
         "story_ids": story_ids,
         "work_contributions": work_contributions,
@@ -203,10 +283,10 @@ def format_concept_for_elasticsearch(concept: Concept):
         "variants": variants,
     }
 
-    wikidata_source = concept.sources.get_or_none(source_type="wikidata")
-    lc_subjects_source = concept.sources.get_or_none(source_type="lc-subjects")
-    lc_names_source = concept.sources.get_or_none(source_type="lc-names")
-    mesh_source = concept.sources.get_or_none(source_type="nlm-mesh")
+    wikidata_source = person.sources.get_or_none(source_type="wikidata")
+    lc_subjects_source = person.sources.get_or_none(source_type="lc-subjects")
+    lc_names_source = person.sources.get_or_none(source_type="lc-names")
+    mesh_source = person.sources.get_or_none(source_type="nlm-mesh")
 
     if mesh_source:
         document.update(

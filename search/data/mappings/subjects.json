@@ -13,7 +13,7 @@
                 }
             }
         },
-        "preferred_name": {
+        "preferred_label": {
             "type": "text",
             "fields": {
                 "keyword": {
@@ -26,7 +26,7 @@
                 }
             }
         },
-        "mesh_preferred_name": {
+        "mesh_preferred_label": {
             "type": "text",
             "fields": {
                 "keyword": {
@@ -39,7 +39,7 @@
                 }
             }
         },
-        "lc_subjects_preferred_name": {
+        "lc_subjects_preferred_label": {
             "type": "text",
             "fields": {
                 "keyword": {
@@ -52,7 +52,7 @@
                 }
             }
         },
-        "lc_names_preferred_name": {
+        "lc_names_preferred_label": {
             "type": "text",
             "fields": {
                 "keyword": {
@@ -65,7 +65,7 @@
                 }
             }
         },
-        "wikidata_preferred_name": {
+        "wikidata_preferred_label": {
             "type": "text",
             "fields": {
                 "keyword": {
@@ -212,6 +212,15 @@
             "type": "keyword"
         },
         "type": {
+            "type": "keyword"
+        },
+        "wellcome_id": {
+            "type": "keyword"
+        },
+        "wellcome_parent_id": {
+            "type": "keyword"
+        },
+        "wellcome_parent_label": {
             "type": "keyword"
         }
     }

@@ -28,13 +28,13 @@
             {
                 "multi_match": {
                     "fields": [
-                        "concepts",
-                        "concepts.*",
-                        "concept_variants",
-                        "concept_variants.*"
+                        "subjects",
+                        "subjects.*",
+                        "subject_variants",
+                        "subject_variants.*"
                     ],
                     "query": "{{query}}",
-                    "_name": "concepts",
+                    "_name": "subjects",
                     "operator": "OR",
                     "boost": 100
                 }

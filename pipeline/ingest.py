@@ -1,8 +1,9 @@
 from datetime import datetime
+from pathlib import Path
 
 import pandas as pd
 import typer
-from src.elasticsearch import yield_popular_works
+from src.elasticsearch import yield_works
 from src.graph import (
     get_neo4j_session,
     ingest_event,
@@ -12,12 +13,13 @@ from src.graph import (
 )
 from src.prismic import yield_events, yield_exhibitions
 from src.utils import get_logger
+from tqdm import tqdm
 
 log = get_logger(__name__)
 app = typer.Typer()
 
-N_STORIES = 100
-N_WORKS = 1000
+N_STORIES = 50
+N_WORKS = 100
 N_WHATS_ON = 100
 
 
@@ -52,21 +54,37 @@ def main(
         ).fillna("")
 
         log.info("Processing stories")
-        for _, story in df[:N_STORIES].iterrows():
+        stories_loop = tqdm(
+            df[:N_STORIES].iterrows(), total=N_STORIES, unit="story"
+        )
+        for _, story in stories_loop:
+            stories_loop.set_description(
+                f"Processing {Path(story['URL']).name}"
+            )
             ingest_story(story)
 
     if works:
+        works_loop = tqdm(yield_works(size=N_WORKS), total=N_WORKS, unit="work")
         log.info("Processing works")
-        for work in yield_popular_works(size=N_WORKS):
+        for work in works_loop:
+            works_loop.set_description(f"Processing {work['_id']}")
             ingest_work(work)
 
     if whats_on:
         log.info("Processing exhibitions")
-        for exhibition in yield_exhibitions(size=N_WHATS_ON):
+        exhibitions_loop = tqdm(
+            yield_exhibitions(size=N_WHATS_ON),
+            total=N_WHATS_ON,
+            unit="exhibition",
+        )
+        for exhibition in exhibitions_loop:
             ingest_exhibition(exhibition)
 
         log.info("Processing events")
-        for event in yield_events(size=N_WHATS_ON):
+        events_loop = tqdm(
+            yield_events(size=N_WHATS_ON), total=N_WHATS_ON, unit="event"
+        )
+        for event in events_loop:
             ingest_event(event)
 
     if not stories and not works and not whats_on:

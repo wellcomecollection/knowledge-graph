@@ -1,9 +1,9 @@
 export type StorySource = {
   contributors: string[]
   contributor_ids: string[]
-  concepts: string[]
-  concept_ids: string[]
-  concept_variants: string[][]
+  subjects: string[]
+  subject_ids: string[]
+  subject_variants: string[][]
   published: Date
   standfirst: string
   title: string
@@ -24,7 +24,7 @@ export type Story = {
     id: string
     label: string
   }[]
-  concepts: {
+  subjects: {
     id: string
     label: string
   }[]

@@ -16,7 +16,7 @@
             },
             {
                 "match": {
-                    "preferred_name": {
+                    "preferred_label": {
                         "query": "{{query}}",
                         "boost": 10,
                         "_name": "preferred name"
@@ -27,10 +27,10 @@
                 "multi_match": {
                     "fields": [
                         "name.keyword",
-                        "wikidata_preferred_name.keyword",
-                        "lc_subjects_preferred_name.keyword",
-                        "lc_names_preferred_name.keyword",
-                        "mesh_preferred_name.keyword"
+                        "wikidata_preferred_label.keyword",
+                        "lc_subjects_preferred_label.keyword",
+                        "lc_names_preferred_label.keyword",
+                        "mesh_preferred_label.keyword"
                     ],
                     "query": "{{query}}",
                     "_name": "other preferred names",

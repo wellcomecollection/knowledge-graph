@@ -4,7 +4,7 @@ from pydoc import doc
 from elasticsearch import Elasticsearch
 from elasticsearch.helpers import scan
 
-from ..graph.models import Concept, Event, Exhibition, Work
+from ..graph.models import Concept, Event, Exhibition, Work, Subject, Person
 from ..prismic import (
     get_story_data,
     get_story_fulltext,
@@ -64,12 +64,43 @@ def get_pipeline_es_client():
     return pipeline_es_client
 
 
+def yield_works(size=10_000):
+    pipeline_es_client = get_pipeline_es_client()
+    works_generator = scan(
+        pipeline_es_client,
+        index=os.environ["ELASTIC_PIPELINE_WORKS_INDEX"],
+        query={
+            "query": {
+                "bool": {
+                    "filter": [
+                        {"term": {"type": "Visible"}},
+                    ],
+                }
+            }
+        },
+        size=10,
+        scroll="30m",
+        preserve_order=True,
+    )
+
+    for i, document in enumerate(works_generator):
+        if i > size:
+            break
+        try:
+            work = document["_source"]["data"]
+            work["_id"] = document["_id"]
+            yield work
+        except KeyError as error:
+            log.error("No data found in document", error=error)
+            continue
+
+
 def yield_popular_works(size=10_000):
     reporting_es_client = get_reporting_es_client()
     response = reporting_es_client.search(
         index="metrics-conversion-prod",
-        body={
-            "size": 0,
+        size=0,
+        query={
             "query": {
                 "bool": {
                     "must": [

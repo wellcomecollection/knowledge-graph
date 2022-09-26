@@ -3,18 +3,16 @@ from httpx import ConnectError, RemoteProtocolError
 from . import fetch_json
 
 
-def get_wikidata_id(concept_label):
+def search_wikidata(search_term):
     response = fetch_json(
         "https://www.wikidata.org/w/api.php",
         params={
             "action": "wbsearchentities",
             "language": "en",
             "format": "json",
-            "search": concept_label,
+            "search": search_term,
         },
     )
-
-    # naively select the first result
     try:
         wikidata_id = response["search"][0]["id"]
     except (IndexError, KeyError, TypeError):

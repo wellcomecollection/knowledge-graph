@@ -1,17 +1,17 @@
-import { Story, StoryHit } from '../../types/story'
+import { Story, StoryHit } from '../types/story'
 
 import { Client } from '@elastic/elasticsearch'
-import blankQuery from '../../data/queries/stories.json'
+import blankQuery from '../data/queries/stories.json'
 import { formatQuery } from '.'
 
 const index = process.env.ELASTIC_STORIES_INDEX as string
 
 export function parseStory(storyHit: StoryHit): Story {
   const story = storyHit._source
-  const concepts = story.concepts.map((concept, index) => {
+  const subjects = story.subjects.map((subject, index) => {
     return {
-      label: concept,
-      id: story.concept_ids[index],
+      label: subject,
+      id: story.subject_ids[index],
     }
   })
   const contributors = story.contributors.map((contributor, index) => {
@@ -25,7 +25,7 @@ export function parseStory(storyHit: StoryHit): Story {
     type: 'story',
     id: storyHit._id,
     contributors: contributors,
-    concepts: concepts,
+    subjects: subjects,
     published: story.published,
     standfirst: story.standfirst,
     title: story.title,
@@ -98,7 +98,7 @@ export async function filterStories(
   subject?: string,
   person?: string
 ): Promise<Story[]> {
-  const field = subject ? 'concept_ids' : person ? 'contributor_ids' : null
+  const field = subject ? 'subject_ids' : person ? 'contributor_ids' : null
   const value = subject ? subject : person ? person : null
   const response = await client.search({
     index,
