@@ -4,7 +4,6 @@ from pathlib import Path
 from tqdm import tqdm
 
 from elasticsearch import Elasticsearch
-from src.graph import get_neo4j_session
 
 from ..elasticsearch.manage import create_index, delete_index
 from ..graph.models import Concept, Event, Exhibition, Person, Work, Subject

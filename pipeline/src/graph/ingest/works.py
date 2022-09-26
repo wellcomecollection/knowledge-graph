@@ -3,6 +3,7 @@ from ..sources import collect_sources
 from . import Person, SourceConcept, Subject, Work, get_logger
 from .decorators import handle_neo4j_session_timeout
 
+
 log = get_logger(__name__)
 
 

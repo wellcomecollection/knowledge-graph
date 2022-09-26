@@ -8,6 +8,15 @@ log = get_logger(__name__)
 get_neo4j_session()
 
 
+def connect_concept_neighbours(concept):
+    try:
+        concept.get_neighbours()
+    except SessionExpired as error:
+        log.exception("Session expired. Reconnecting...", error=error)
+        get_neo4j_session()
+        connect_concept_neighbours(concept)
+
+
 orphans = SourceConcept.nodes.has(parent=False)
 log.info(f"Found {len(orphans)} orphans")
 for orphan in orphans:
