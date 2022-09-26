@@ -1,6 +1,6 @@
-
 from . import (
-    Person, Subject,
+    Person,
+    Subject,
     Event,
     Exhibition,
     Work,
@@ -22,7 +22,9 @@ def format_work_for_elasticsearch(work: Work):
     work_concepts = work.concepts.all()
     concept_ids = [concept.uid for concept in work_concepts]
     concept_parent_labels = [
-        concept.wellcome_parent_label if type(concept).__name__ == 'Subject' else None 
+        concept.wellcome_parent_label
+        if type(concept).__name__ == "Subject"
+        else None
         for concept in work_concepts
     ]
     concept_types = [type(concept).__name__ for concept in work_concepts]
@@ -31,7 +33,7 @@ def format_work_for_elasticsearch(work: Work):
     concept_preferred_label_sources = []
     for concept in work_concepts:
         preferred_label = concept.label
-        preferred_label_source = 'catalogue api'
+        preferred_label_source = "catalogue api"
         for source_type in ordered_source_preferences:
             source = concept.sources.get_or_none(source_type=source_type)
             if source:
@@ -48,9 +50,7 @@ def format_work_for_elasticsearch(work: Work):
     ]
 
     work_contributors = work.contributors.all()
-    contributor_ids = [
-        contributor.uid for contributor in work_contributors
-    ]
+    contributor_ids = [contributor.uid for contributor in work_contributors]
     contributor_labels = []
     for contributor in work_contributors:
         preferred_label = contributor.label
@@ -111,9 +111,7 @@ def format_story_for_elasticsearch(story: Work):
     ]
 
     story_contributors = story.contributors.all()
-    contributor_ids = [
-        contributor.uid for contributor in story_contributors
-    ]
+    contributor_ids = [contributor.uid for contributor in story_contributors]
     contributor_labels = []
     for contributor in story_contributors:
         preferred_label = contributor.label
@@ -182,9 +180,7 @@ def format_subject_for_elasticsearch(subject: Subject):
                 preferred_label = source.preferred_label
                 break
         neighbour_labels.append(preferred_label)
-    neighbour_ids = [
-        neighbour.uid for neighbour in neighbours_with_works
-    ]
+    neighbour_ids = [neighbour.uid for neighbour in neighbours_with_works]
 
     document = {
         "label": subject.label,
@@ -244,6 +240,7 @@ def format_subject_for_elasticsearch(subject: Subject):
         )
     return document
 
+
 def format_person_for_elasticsearch(person: Person):
     concept_works = person.works.filter(type="work")
     works = [work.title for work in concept_works]
@@ -259,9 +256,7 @@ def format_person_for_elasticsearch(person: Person):
         work.wellcome_id for work in concept_work_contributions
     ]
 
-    concept_story_contributions = person.contributions.filter(
-        type="story"
-    )
+    concept_story_contributions = person.contributions.filter(type="story")
     story_contributions = [story.title for story in concept_story_contributions]
     story_contribution_ids = [
         story.wellcome_id for story in concept_story_contributions

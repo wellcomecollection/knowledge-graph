@@ -3,7 +3,6 @@ from pathlib import Path
 from typing import Optional
 
 import typer
-
 from src.elasticsearch import get_concepts_es_client
 from src.elasticsearch.index import update_mapping
 

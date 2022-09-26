@@ -1,7 +1,6 @@
 import os
 
 import typer
-
 from src.elasticsearch import get_concepts_es_client
 from src.elasticsearch.index import (
     index_people,

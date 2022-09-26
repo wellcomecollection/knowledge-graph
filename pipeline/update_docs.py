@@ -2,12 +2,11 @@
 
 import os
 
-from tqdm import tqdm
-
 from src.elasticsearch import get_concepts_es_client
 from src.elasticsearch.format import ordered_source_preferences
 from src.graph import get_neo4j_session
 from src.graph.models import Concept
+from tqdm import tqdm
 
 db = get_neo4j_session()
 concepts_es_client = get_concepts_es_client()

@@ -17,12 +17,12 @@ log_dir.mkdir(exist_ok=True)
 logger.remove()
 logger.add(
     log_dir / "{time}.log",
-    format="{time} | {level} | {message} | {extra}", 
-    level=os.environ.get("LOG_LEVEL", "INFO").upper()
+    format="{time} | {level} | {message} | {extra}",
+    level=os.environ.get("LOG_LEVEL", "INFO").upper(),
 )
 
 
-def get_logger(name: str=""):
+def get_logger(name: str = ""):
     return logger
 
 

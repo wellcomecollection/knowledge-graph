@@ -94,7 +94,7 @@ def ingest_story(story_data):
             work.concepts.connect(subject)
     except Exception as error:
         log.exception(
-            'Error processing story. '
+            "Error processing story. "
             f'title: "{story_data["Title"]}" '
             f'error: "{error}"'
         )
