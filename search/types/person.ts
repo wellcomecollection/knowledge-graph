@@ -26,7 +26,7 @@ export type Person = {
     title: string
     id: string
   }[]
-  type: string
+  type?: string
   stories: {
     title: string
     id: string
@@ -40,11 +40,7 @@ export type Person = {
     title: string
     id: string
   }[]
-  dates: {
-    value: string
-    label: string
-  }[]
-  wikidata_description: string
-  wikidata_id: string
-  wikidata_preferred_label: string
+  wikidata_description?: string
+  wikidata_id?: string
+  wikidata_preferred_label?: string
 }
